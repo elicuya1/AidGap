@@ -32,6 +32,7 @@ def main() -> None:
     scores = pd.read_csv(PROCESSED / "neglect_scores.csv")
     sens = pd.read_csv(PROCESSED / "sensitivity_ranks.csv")
     unranked = pd.read_csv(PROCESSED / "unranked_appeals.csv")
+    gap = pd.read_csv(PROCESSED / "gap_table.csv")
 
     crises = scores[[
         "location_code", "location_name", "requirements_usd", "funding_usd",
@@ -51,8 +52,11 @@ def main() -> None:
         "year": int(scores["year"].max()),
         "scenarios": SCENARIOS,
         "crises": clean(crises),
-        "unranked": clean(unranked[["location_name", "appeal_types",
-                                    "requirements_usd", "funding_pct"]]),
+        "unranked": clean(unranked.merge(
+            gap[["location_code", "location_name", "funding_usd"]],
+            on="location_name", how="left",
+        )[["location_code", "location_name", "appeal_types",
+           "requirements_usd", "funding_usd", "funding_pct"]]),
     }
 
     OUT.parent.mkdir(exist_ok=True)

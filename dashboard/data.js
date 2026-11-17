@@ -391,45 +391,59 @@ window.AIDGAP = {
  ],
  "unranked": [
   {
+   "location_code": "PSE",
    "location_name": "State of Palestine",
    "appeal_types": "Flash appeal",
    "requirements_usd": 4064305808.0,
+   "funding_usd": 1423166531.0,
    "funding_pct": 35.016226589
   },
   {
+   "location_code": "LBN",
    "location_name": "Lebanon",
    "appeal_types": "Flash appeal",
    "requirements_usd": 639875890.0,
+   "funding_usd": 342059528.0,
    "funding_pct": 53.4571677642
   },
   {
+   "location_code": "CUB",
    "location_name": "Cuba",
    "appeal_types": "Other",
    "requirements_usd": 81755350.0,
+   "funding_usd": 41707868.0,
    "funding_pct": 51.0154601503
   },
   {
+   "location_code": "MDG",
    "location_name": "Madagascar",
    "appeal_types": "Flash appeal",
    "requirements_usd": 67953475.0,
+   "funding_usd": 63904303.0,
    "funding_pct": 94.0412583757
   },
   {
+   "location_code": "PAK",
    "location_name": "Pakistan",
    "appeal_types": "Other",
    "requirements_usd": 64943909.0,
+   "funding_usd": 29100543.0,
    "funding_pct": 44.8087333333
   },
   {
+   "location_code": "VNM",
    "location_name": "Viet Nam",
    "appeal_types": "Other",
    "requirements_usd": 61132366.0,
+   "funding_usd": 5351609.0,
    "funding_pct": 8.7541336123
   },
   {
+   "location_code": "NPL",
    "location_name": "Nepal",
    "appeal_types": "Flash appeal",
    "requirements_usd": 49568000.0,
+   "funding_usd": 26565229.0,
    "funding_pct": 53.5935058909
   }
  ]

@@ -16,14 +16,25 @@ Goal: a full ongoing program (data pipeline + scoring model + dashboard + alerts
 3. `src/build_gap_table.py` → `data/processed/gap_table.csv` (funding + PIN joined per country, current year)
 4. `src/gap_score.py` → `data/processed/neglect_scores.csv`, `unranked_appeals.csv` (Neglect Score v1)
 5. `src/sensitivity.py` → `data/processed/sensitivity_ranks.csv` (rank under 6 weightings)
-6. `src/export_dashboard_data.py` → `dashboard/data.js` (the only file the web page reads)
+6. `src/export_dashboard_data.py` → `dashboard/data.js` (funding + need, the main file the web page reads)
+7. `src/build_map.py` → `dashboard/map.js` (world outlines, Equal Earth projection; run once; needs `data/raw/geo/countries.geo.json` from johan/world.geo.json)
+8. `src/fetch_media.py` → `data/raw/media/*.json` (GDELT DOC API; slow and resumable, see Media below)
+9. `src/build_media_summary.py` → `dashboard/media.js` (page shows a "not loaded yet" message if this file is missing)
 
 ## Dashboard (`dashboard/`)
-Custom static web page, NOT Streamlit (chosen for a smoother, more striking UI; hosts free on GitHub Pages).
-- `index.html` = all UI (plain JS + canvas, no libraries); `score.js` = Neglect Score in JS (same maths as `gap_score.py`, tested: 0 mismatches); `data.js` = generated, committed.
-- Centerpiece: dot-people field (1 dot = 100k people; blue = funded share of the appeal, orange = unfunded), toggle "Everyone together" / "By country". Plus live weight sliders that re-rank, detail drawer per country, "Not ranked" section, table view.
-- To view: run steps 4-6, then double-click `dashboard/index.html` (no server needed).
-- Dark/light theme; respects reduced-motion. Tested in headless Chrome (desktop + 375px phone). No world map yet.
+Custom static web page, NOT Streamlit (smoother UI; hosts free on GitHub Pages). Full-screen "slides" (intro, scale, map, ranking, media, not ranked, method) with scroll-reveal, side rail, dark default + light theme, reduced-motion respected.
+- Files: `index.html` (markup + CSS), `app.js` (all behaviour), `score.js` (Neglect Score maths, same as `gap_score.py`), generated `data.js`, `map.js`, `media.js`. No libraries.
+- Weights are FIXED at 40/40/20 on purpose (the adjustable sliders confused users). Robustness is shown per country in the drawer from `sensitivity.py`.
+- Map: choropleth by neglect score; hatched = appeal without needs data; click a country -> map zooms, side drawer shows numbers + "In the news" article list. Palestine's outline is West Bank only.
+- Dot field: 1 dot = 100k people; blue = funded share of the appeal, orange = unfunded; "Everyone together" / "By country".
+- To view: run steps 4-9, then double-click `dashboard/index.html`. Testing: headless Chrome screenshots (scrolled screenshots don't work there; hide other slides instead).
+
+## Media (GDELT) decisions
+- Framing: NARRATIVE ANALYSIS. We show who covers each crisis (source-country mix, outlets), how much comes from state-linked outlets, tone/volume where available. We do NOT label articles "propaganda" (a headline statistic can't show that; needs case studies).
+- "State-linked" = owned/funded/controlled by a government (state news agencies, state broadcasters), list in `build_media_summary.py` (`STATE_LINKED`); short, so shares are a floor; ownership, not accuracy.
+- Sample = up to 250 English articles per crisis, last month, humanitarian-framed query. Not a total.
+- GDELT rate-limits hard (429 "one request every 5 seconds", often worse). `fetch_media.py` backs off and caches; `timelinevolraw`/`timelinetone` returned `{}` in testing (not cached), `artlist` worked. Volume/tone/scatter UI exists but is untested on real data (tested with fake data only). Status 2026-11-17: real media data NOT yet fetched.
+- Next: finish fetch, check the query isn't confusing names (Niger/Chad/Sudan vs South Sudan), compare attention vs funding, match CARE "Suffering in Silence" list.
 
 ## Data source
 - HDX HAPI **v2**: `https://hapi.humdata.org/api/v2/...` (funding: `coordination-context/funding`; needs: `affected-people/humanitarian-needs`)
@@ -53,7 +64,8 @@ Percentile ranks among national-plan countries, weighted: coverage (% funded) 40
 - [ ] Verify Palestine PIN from the Flash Appeal PDF and add it (then scored normally)
 - [x] Sensitivity analysis on weights (src/sensitivity.py): Yemen + Afghanistan top 5 in all 6 scenarios; Honduras, Mali, Sudan depend on weights
 - [x] Dashboard v1 (custom web page, see Dashboard section): dot-people field, live re-ranking, country drawer
-- [ ] Dashboard v2: world map view, shareable link for a weighting, polish after Eli's feedback
+- [x] Dashboard v2: world map, fixed weights, slide-style UI, media section (UI done; real GDELT data pending)
+- [ ] Fetch real GDELT media data (run `python src\fetch_media.py`, then steps 9 and 6) and review the numbers
 - [ ] Multi-year trends + automated alerts (GitHub Actions, weekly)
 - [ ] Media coverage phase: GDELT DOC API (volume, tone, source country). Frame as "narrative analysis", not "propaganda". Validate against CARE's under-reported crises list.
 - [ ] Deploy (GitHub Pages, serving `dashboard/`) + polished README with methodology and limitations
