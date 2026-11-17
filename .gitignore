@@ -1,0 +1,13 @@
+# secrets
+src/config_local.py
+
+# data (re-downloadable)
+data/raw/*
+data/processed/*
+!data/**/.gitkeep
+
+# python / spyder
+__pycache__/
+.spyproject/
+.ipynb_checkpoints/
+.DS_Store
