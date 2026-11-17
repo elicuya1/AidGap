@@ -69,13 +69,14 @@
   /* ---------- hero ---------- */
   $("eyebrow").textContent = D.year + " humanitarian appeals: need vs. funding";
   $("heroNum").innerHTML = '<span class="mask in"><span><span id="heroVal">0.0</span><small>million people</small></span></span>';
+  window.__aidgapFundedShare = fundedPct / 100;   // the spiral on the left uses it: blue dots = funded share
   $("heroLead").innerHTML = "need humanitarian help across <b>" + N + " crises</b>. Their appeals are only <b>" + fundedPct.toFixed(0) +
     "% funded</b>, leaving <span class=\"unmet\">" + fmtUSD(totals.unmet) + "</span> unpaid.";
   $("foot").innerHTML = "AidGap · data refreshed " + esc(D.generated) + " · See the sources above · A portfolio project by Eli.";
   (function () {
     var d = new Date(D.generated + "T00:00:00"), nice = isNaN(d) ? D.generated : d.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
     $("dateline").textContent = "Data as of " + nice + " · " + crises.length + " crises · OCHA FTS · HDX HAPI · ReliefWeb · GDELT";
-    $("mast").textContent = "Field report " + D.year + " · v10";
+    $("mast").textContent = "Field report " + D.year + " · v11";
   })();
   function countUp() {
     var t0 = performance.now(), DUR = reduceMotion ? 1 : 2200;
@@ -193,6 +194,7 @@
     if (reduceMotion) { bgP = bgTarget; bgDraw(); }
   }
   function bgDraw(now) {
+    return;   // v11: the old 700-dot background is switched off (it slowed the page); the spiral in vortex.js replaced it
     if (!bdots.length || !BW) return;
     var NSL = slides.length, P = bgForced != null ? bgForced : bgP, A = Math.min(Math.floor(P), NSL - 1), B = Math.min(A + 1, NSL - 1), frac = P - Math.floor(P);
     var FORM = [0, 1, 2, 3, 4, 5, 5, 6, 7], fa = FORM[Math.min(A, 8)], fb = FORM[Math.min(B, 8)];
@@ -891,7 +893,45 @@
   dots.forEach(function (d, i) { var p = layouts.all.pos[i]; d.x = d.sx = d.tx = p.x; d.y = d.sy = d.ty = p.y; });
   updateCaption(); countUp(); observeReveals();
   bgBuild(); bgResize(); onScrollProgress();
-  if (reduceMotion) bgDraw(); else requestAnimationFrame(bgLoop);
+
+  /* =====================================================================
+     KEY: a "?" button that explains what you are looking at in the current section
+     ===================================================================== */
+  var KEYS = {
+    "s-intro": ["Start here", [["dot", "var(--funded)", "<b>Blue dot</b>: the share of need that has been paid for."], ["dot", "var(--unmet)", "<b>Red dot</b>: need nobody has funded yet."], ["txt", "N", "The big number is every person in need across the crises we could compare."]]],
+    "s-scale": ["Every dot is 100,000 people", [["dot", "var(--funded)", "<b>Blue</b>: the share of this crisis's appeal that has been paid for."], ["dot", "var(--unmet)", "<b>Red</b>: not funded."], ["txt", "N", "More dots = more people in need. Use the switch to see everyone together or split by country."]]],
+    "s-map": ["The map", [["ramp", "", "<b>Darker red</b> = higher Neglect Score (more neglected)."], ["hatch", "", "<b>Hatched</b>: an appeal exists but we have no people-in-need figure, so it is not scored."], ["txt", "N", "Dark grey: not in this analysis. <b>Click a country</b> to open its file."]]],
+    "s-rank": ["The ranking", [["txt", "1", "<b>Rank 1</b> is the most neglected crisis of the " + "ones compared, so a lower number means more neglected."], ["txt", "0-100", "<b>Neglect Score</b>: 100 = worst off on every measure, 0 = best off. A comparison between these crises, not a measure of how bad a crisis is."], ["txt", "40%", "<b>Coverage</b>: how little of the appeal is funded."], ["txt", "40%", "<b>Money per person</b>: how few dollars reach each person in need."], ["txt", "20%", "<b>Scale</b>: how many people are in need."], ["txt", "bar", "The coloured bar shows how many points each of the three measures adds to the score."], ["txt", "*", "<b>Hand-added figure / older data</b>: the people-in-need number was found by hand or is from an earlier year, so treat that rank as indicative."]]],
+    "s-donors": ["Who pays", [["txt", "L", "<b>Left</b>: donor countries. <b>Right</b>: crises."], ["txt", "line", "A thicker line = more dollars given to that crisis."], ["txt", "!", "Only money given to <b>one</b> country is counted. Money split across several countries is shown separately so nothing is counted twice. Totals include money outside the formal appeal."]]],
+    "s-media": ["Attention", [["dot", "var(--unmet)", "<b>Red bars</b>: the ten most neglected crises."], ["dot", "var(--media)", "<b>Other bars</b>: the remaining crises."], ["txt", "- -", "<b>Dashed line</b>: the median crisis."], ["txt", "!", "Bars count reports that <b>aid organisations</b> publish on ReliefWeb per week. This is <b>not</b> general news coverage, where a crisis like Gaza or Ukraine would dominate."]]],
+    "s-news": ["The newsroom", [["txt", "Local", "<b>Local</b>: published inside the country, plus reports from its own government, national Red Cross/Crescent, or organisations named for it."], ["txt", "Intl", "<b>International</b>: everything published from outside."], ["txt", "News", "<b>News</b> = a news outlet. <b>Aid report</b> = from an aid or UN organisation."], ["txt", "state", "<b>State-linked</b>: the outlet is owned or run by a government. This says who owns it, not whether it is accurate."], ["txt", "!", "Headlines link to the original. Translations are machine translations and can be wrong."]]],
+    "s-gaps": ["By hand", [["txt", "hand", "Where the official data had no people-in-need figure, we found one in the original document. Each card shows the figure, the source and how sure we are."], ["txt", "high", "<b>High / medium / low</b>: how well the figure matches the funding plan it belongs to."]]],
+    "s-method": ["Method and sources", [["txt", "40/40/20", "How the score is built, fixed weights, and every data source we used with the date we read it."]]]
+  };
+  (function () {
+    var box = $("keybox"), btn = $("keyBtn"), panel = $("keyPanel"), cur = "", open = false;
+    var order = ["s-intro", "s-scale", "s-map", "s-rank", "s-donors", "s-media", "s-news", "s-gaps", "s-method"];
+    function render(id) {
+      var k = KEYS[id]; if (!k) return;
+      panel.innerHTML = "<h4>" + esc(k[0]) + "</h4><ul>" + k[1].map(function (r) {
+        var mark = r[0] === "dot" ? '<i class="dot" style="background:' + r[1] + '"></i>' : r[0] === "txt" ? '<i class="txt">' + esc(r[1] === "N" ? "" : r[1]) + "</i>" : '<i class="' + r[0] + '"></i>';
+        return "<li>" + mark + "<span>" + r[2] + "</span></li>";
+      }).join("") + "</ul>" + '<p class="note">The key changes as you scroll. Press <b>Esc</b> to close it.</p>';
+    }
+    function which() {
+      var best = order[0], mid = window.innerHeight * 0.45;
+      order.forEach(function (id) { var e = document.getElementById(id); if (e && e.getBoundingClientRect().top <= mid) best = id; });
+      if (best !== cur) { cur = best; if (open) render(cur); }
+    }
+    function set(v) { open = v; panel.hidden = !v; btn.setAttribute("aria-expanded", v ? "true" : "false"); if (v) render(cur || "s-intro"); }
+    btn.addEventListener("click", function () { which(); set(!open); });
+    document.addEventListener("keydown", function (e) { if (e.key === "Escape" && open) set(false); });
+    var pend = false; window.addEventListener("scroll", function () { if (pend) return; pend = true; requestAnimationFrame(function () { pend = false; which(); }); }, { passive: true });
+    which();
+    if (!(function () { try { return localStorage.getItem("aidgapKeySeen"); } catch (e) { return "1"; } })()) {
+      setTimeout(function () { set(true); try { localStorage.setItem("aidgapKeySeen", "1"); } catch (e) {} }, 1800);
+    }
+  })();
   var rzT;
   window.addEventListener("resize", function () { clearTimeout(rzT); rzT = setTimeout(function () { sizeCanvas(); retarget(false); bgResize(); if (mCode) drawMini(); }, 120); });
 })();
