@@ -73,10 +73,24 @@ def main() -> pd.DataFrame:
     # Quick first look
     print("\nColumns:", list(df.columns))
     if {"funding_pct", "appeal_name", "location_name"}.issubset(df.columns):
-        df["reference_period_start"] = pd.to_datetime(df["reference_period_start"])
-        latest_year = df["reference_period_start"].dt.year.max()
-        recent = df[df["reference_period_start"].dt.year == latest_year]
-        print(f"\nLeast-funded appeals in {latest_year}:")
+        df["reference_period_start"] = pd.to_datetime(
+            df["reference_period_start"], errors="coerce"
+        )
+        # Only rows with a real funding requirement can have a "gap"
+        valid = df[df["requirements_usd"].fillna(0) > 0].copy()
+        valid["funding_pct"] = valid["funding_pct"].fillna(
+            valid["funding_usd"].fillna(0) / valid["requirements_usd"] * 100
+        )
+
+        # Use the current year, not the max year: some records are dated
+        # years into the future (e.g. multi-year plans), which would mislead us
+        this_year = pd.Timestamp.today().year
+        recent = valid[valid["reference_period_start"].dt.year == this_year]
+        if recent.empty:
+            this_year -= 1
+            recent = valid[valid["reference_period_start"].dt.year == this_year]
+
+        print(f"\nLeast-funded appeals in {this_year} ({len(recent)} appeals):")
         print(
             recent.sort_values("funding_pct")[
                 ["location_name", "appeal_name", "requirements_usd",
