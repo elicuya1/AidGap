@@ -431,7 +431,7 @@
   .what-down span { display: inline-block; animation: nudge 2s ease-in-out infinite; }
   @keyframes nudge { 50% { transform: translateY(5px); } }
   @media (prefers-reduced-motion: reduce) { .what-down span { animation: none; } }
-  .photo[data-sec="s-what"] { opacity: 0; }
+  .photo[data-sec="s-what"], .photo[data-sec="s-intro"] { opacity: 0; }
   .spiral { transition: opacity .8s; } .spiral.off { opacity: 0; }
   .explain { max-width: 56ch; margin: 0 0 26px; padding-left: 16px; border-left: 2px solid var(--unmet); }
   .explain .ex-l { display: block; margin-bottom: 6px; font: 600 11px/1.2 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--ink2); }
@@ -441,7 +441,7 @@
   /* ---------- the one background: a clean spiral on the left that dissolves as you scroll ---------- */
   .photo { position: fixed; left: 0; top: 0; width: 46vw; height: 100vh; z-index: 0; pointer-events: none; opacity: .5; transition: opacity .9s;
     -webkit-mask-image: linear-gradient(to right, #000 0%, transparent 88%); mask-image: linear-gradient(to right, #000 0%, transparent 88%); }
-  .photo[data-sec]:not([data-sec="s-intro"]) { opacity: .34; }
+  .photo[data-sec] { opacity: .34; }
   .photo[data-sec="s-method"] { opacity: 0; }
   :root[data-theme="light"] .photo { mix-blend-mode: multiply; }
   /* each picture wipes in from the left while it settles from a slight zoom; the previous one stays underneath until covered */
@@ -703,13 +703,13 @@
 </div>
 
 <!-- ?v=9 makes your browser fetch fresh copies after each update instead of reusing an old saved page -->
-<script src="data.js?v=18"></script>
-<script src="score.js?v=18"></script>
-<script src="map.js?v=18"></script>
-<script src="media.js?v=18" onerror="window.AIDGAP_MEDIA=null"></script>
-<script src="reports.js?v=18" onerror="window.AIDGAP_REPORTS=null"></script>
-<script src="donors.js?v=18" onerror="window.AIDGAP_DONORS=null"></script>
-<script src="vortex.js?v=18"></script>
-<script src="app.js?v=18"></script>
+<script src="data.js?v=19"></script>
+<script src="score.js?v=19"></script>
+<script src="map.js?v=19"></script>
+<script src="media.js?v=19" onerror="window.AIDGAP_MEDIA=null"></script>
+<script src="reports.js?v=19" onerror="window.AIDGAP_REPORTS=null"></script>
+<script src="donors.js?v=19" onerror="window.AIDGAP_DONORS=null"></script>
+<script src="vortex.js?v=19"></script>
+<script src="app.js?v=19"></script>
 </body>
 </html>
