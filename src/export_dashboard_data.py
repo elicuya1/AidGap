@@ -43,6 +43,17 @@ def donate_links() -> dict:
     return out
 
 
+def country_context() -> dict:
+    """One short, sourced paragraph per country (data/reference/country_context.csv)."""
+    f = REF / "country_context.csv"
+    if not f.exists():
+        return {}
+    d = pd.read_csv(f).fillna("")
+    return {r["location_code"]: {"summary": r["summary"], "basis": r["basis"],
+                                 "source_title": r["source_title"], "source_url": r["source_url"],
+                                 "written": r["written"]} for _, r in d.iterrows()}
+
+
 def write_sources_md(src: pd.DataFrame) -> None:
     """Write SOURCES.md from data/reference/sources.csv so the two never disagree."""
     lines = ["# Data sources and resources\n",
@@ -94,6 +105,7 @@ def main() -> None:
         )[["location_code", "location_name", "appeal_types",
            "requirements_usd", "funding_usd", "funding_pct", "note"]]),
         "donate": donate_links(),
+        "context": country_context(),
         "sources": clean(pd.read_csv(REF / "sources.csv")),
     }
     write_sources_md(pd.read_csv(REF / "sources.csv"))

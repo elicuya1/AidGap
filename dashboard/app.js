@@ -75,7 +75,7 @@
   (function () {
     var d = new Date(D.generated + "T00:00:00"), nice = isNaN(d) ? D.generated : d.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
     $("dateline").textContent = "Data as of " + nice + " · " + crises.length + " crises · OCHA FTS · HDX HAPI · ReliefWeb · GDELT";
-    $("mast").textContent = "Field report " + D.year + " · v5";
+    $("mast").textContent = "Field report " + D.year + " · v6";
   })();
   function countUp() {
     var t0 = performance.now(), DUR = reduceMotion ? 1 : 2200;
@@ -636,7 +636,7 @@
       var ent = byCode[code], v = voices(code), name = shortName(nameOf(code)), tabs = tabsFor(code).slice(0, 2);
       var pick = tab || (tabs[0].count ? "local" : "intl");
       pane.innerHTML = '<div class="np-head"><h3>' + esc(name) + '</h3><div class="facts">' + (ent.kind === "ranked" ? "Rank <b>" + ent.c.rank + "</b> of " + N + " · " : "") +
-        "<b>" + v.local.length + "</b> local · <b>" + v.intl.length + "</b> international</div>" +
+        "<b>" + v.local.length + "</b> local · <b>" + v.intl.length + "</b> international</div>" + ctxHTML(code) +
         '<button type="button" class="btn ghost open" id="npOpen">Funding, donors and where to give →</button></div>' +
         '<div class="tabs" role="tablist" id="npTabs" aria-label="Sources about ' + esc(name) + '"></div><div class="feed" id="npFeed" role="tabpanel" tabindex="0"></div>';
       $("npOpen").addEventListener("click", function () { openCountry(code); });
@@ -825,11 +825,15 @@
     if (gen.length) h += '<h4 style="margin:22px 0 4px;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)">Before you give</h4><ul class="give">' + gen.map(function (x) { return "<li>" + ext(x.url, "<b>" + esc(x.org) + "</b><span>" + esc(x.what) + "</span>") + "</li>"; }).join("") + "</ul>";
     return h;
   }
+  function ctxHTML(code) {        // a short, sourced paragraph on what is happening (data/reference/country_context.csv)
+    var c = D.context && D.context[code]; if (!c) return "";
+    return '<div class="ctx"><p>' + esc(c.summary) + '</p><small>Summary written ' + esc(c.written) + " from " + esc(String(c.basis).toLowerCase()) + ". Source: " + ext(c.source_url, esc(c.source_title)) + "</small></div>";
+  }
   function renderLeft() {
     var ent = byCode[mCode], h;
     if (ent.kind === "unranked") {
       var u = ent.u;
-      h = '<div class="d-rank">Not ranked</div><h3 class="nm2" id="dName">' + esc(u.location_name) + '</h3>' +
+      h = '<div class="d-rank">Not ranked</div><h3 class="nm2" id="dName">' + esc(u.location_name) + '</h3>' + ctxHTML(mCode) +
         '<p class="notice plain">This country has its own appeal, but we could not match a trustworthy people-in-need figure to its funding, so it is not scored. <br><b>Why:</b> ' + esc(u.note || "no figure found") + "</p>" +
         '<div class="stats"><div class="stat"><span>Appeal</span><b>' + fmtUSD(u.requirements_usd) + '</b><small>' + esc(u.appeal_types) + '</small></div>' +
         '<div class="stat"><span>Funded</span><b>' + u.funding_pct.toFixed(1) + '%</b><small>' + fmtUSD(u.funding_usd) + ' received</small></div></div>';
@@ -845,7 +849,7 @@
     if (c.pin_source === "manual") notes += '<p class="notice"><b>Hand-added needs figure</b> (' + esc(c.pin_confidence) + ' confidence): ' + esc(c.pin_note) + ". " + ext(c.pin_url, "Source") + ". Please verify it before relying on this rank.</p>";
     if (c.pin_year < c.year) notes += '<p class="notice"><b>Older needs data.</b> The people-in-need figure is from ' + (c.pin_year | 0) + " but funding is from " + c.year + ", so dollars per person mixes two years. Treat this rank as indicative.</p>";
     h = '<div class="d-rank">Rank ' + c.rank + " of " + N + '</div><h3 class="nm2" id="dName">' + esc(c.location_name) + '</h3>' +
-      '<div class="d-score"><b>' + c.neglect_score.toFixed(1) + '</b><span>neglect score<br>(100 = most neglected)</span></div>' + notes +
+      '<div class="d-score"><b>' + c.neglect_score.toFixed(1) + '</b><span>neglect score<br>(100 = most neglected)</span></div>' + ctxHTML(mCode) + notes +
       '<div class="stats">' +
         '<div class="stat"><span>People in need</span><b>' + fmtPeople(c.people_in_need) + '</b><small>' + (c.pin_year | 0) + ' figure</small></div>' +
         '<div class="stat"><span>Appeal funded</span><b>' + c.funding_pct.toFixed(1) + '%</b><small>' + fmtUSD(c.funding_usd) + " of " + fmtUSD(c.requirements_usd) + '</small></div>' +
