@@ -1752,6 +1752,17 @@ window.AIDGAP = {
    "notes": "Fetched with src/fetch_context.py. Where a plan page had no readable English narrative the summary rests on the latest aid-sector headlines instead and says so. Refresh by re-running the fetch and rewriting the CSV."
   },
   {
+   "id": "local_rss",
+   "name": "Local news outlets (public RSS feeds)",
+   "publisher": "About 58 news outlets based in the crisis countries (list in src/fetch_local_news.py)",
+   "url": "https://github.com/elicuya1/AidGap/blob/main/src/fetch_local_news.py",
+   "used_for": "Local headlines (title, link, date, outlet) in each outlet's own language, filtered for humanitarian keywords",
+   "terms": "Public RSS feeds; headlines and links only, shown with attribution; sites that refused access (HTTP 401/403/429) were skipped; please check each outlet's terms before wide publication",
+   "accessed": "2026-11-17",
+   "status": "used",
+   "notes": "About 20 of 58 outlets had a readable feed with relevant items. State-run outlets (SANA, Cameroon Tribune, WAFA, Cubadebate, Granma, The Rising Nepal, Ukrinform) are labelled state-linked."
+  },
+  {
    "id": "verification",
    "name": "Verification report",
    "publisher": "AidGap (src/verify_data.py)",

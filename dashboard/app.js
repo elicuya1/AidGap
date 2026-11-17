@@ -75,7 +75,7 @@
   (function () {
     var d = new Date(D.generated + "T00:00:00"), nice = isNaN(d) ? D.generated : d.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
     $("dateline").textContent = "Data as of " + nice + " · " + crises.length + " crises · OCHA FTS · HDX HAPI · ReliefWeb · GDELT";
-    $("mast").textContent = "Field report " + D.year + " · v6";
+    $("mast").textContent = "Field report " + D.year + " · v8";
   })();
   function countUp() {
     var t0 = performance.now(), DUR = reduceMotion ? 1 : 2200;
@@ -112,7 +112,9 @@
   }
   function onScrollProgress() {
     var max = document.documentElement.scrollHeight - window.innerHeight;
-    $("progress").style.transform = "scaleX(" + (max > 0 ? clamp01(window.scrollY / max) : 0) + ")";
+    var pr = max > 0 ? clamp01(window.scrollY / max) : 0;
+    $("progress").style.transform = "scaleX(" + pr + ")";
+    document.documentElement.style.setProperty("--sp", pr.toFixed(4));   // moves the soft colour fields behind the dots
   }
 
   /* =====================================================================
@@ -124,7 +126,7 @@
        -> not ranked: hollow rings (missing data) -> method: settled on the floor
      ===================================================================== */
   var bgc = $("bg"), bg = bgc.getContext("2d"), BW = 0, BH = 0, bdpr = 1;
-  var bdots = [], BP = {}, bgP = 0, bgTarget = 0, bgForced = null, BG_PER = 300000;
+  var bgCapLast = -1, bdots = [], BP = {}, bgP = 0, bgTarget = 0, bgForced = null, BG_PER = 300000;
   function rnd(seed) { var x = Math.sin(seed * 127.1 + 311.7) * 43758.5453; return x - Math.floor(x); }
 
   function bgBuild() {
@@ -194,10 +196,13 @@
     if (!bdots.length || !BW) return;
     var NSL = slides.length, P = bgForced != null ? bgForced : bgP, A = Math.min(Math.floor(P), NSL - 1), B = Math.min(A + 1, NSL - 1), frac = P - Math.floor(P);
     var FORM = [0, 1, 2, 3, 4, 5, 5, 6, 7], fa = FORM[Math.min(A, 8)], fb = FORM[Math.min(B, 8)];
+    var CAP = ["Each dot is 300,000 people, drifting", "All of them, in one grid: funded first", "Where they are: clusters over each crisis", "One column per crisis, tallest has most people",
+      "Money moving from donors to crises", "Voices: who is writing about it", "Missing data shown as hollow rings", "Settled"];
+    var cf = e > 0.5 ? fb : fa; if (cf !== bgCapLast) { bgCapLast = cf; $("bgcapText").textContent = CAP[cf]; }
     var e = smooth(0.5, 1.0, frac), t = now || performance.now(), y = window.scrollY;
     bg.setTransform(bdpr, 0, 0, bdpr, 0, 0); bg.clearRect(0, 0, BW, BH);
     var ringW = (fa === 6 ? 1 - e : 0) + (fb === 6 && fa !== 6 ? e : 0), netW = (fa === 5 ? 1 - e : 0) + (fb === 5 && fa !== 5 ? e : 0);
-    var alpha = COL.light ? 0.34 : 0.3, R = 2.4, pos = new Array(bdots.length), k;
+    var alpha = COL.light ? 0.55 : 0.6, R = 3, pos = new Array(bdots.length), k;
     for (k = 0; k < bdots.length; k++) {
       var d = bdots[k], a = bgPos(fa, d, t, y), b = e > 0.001 ? bgPos(fb, d, t, y) : a;
       var x = a[0] + (b[0] - a[0]) * e, yy = a[1] + (b[1] - a[1]) * e; pos[k] = [x, yy];

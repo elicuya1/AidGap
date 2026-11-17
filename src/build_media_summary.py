@@ -48,7 +48,11 @@ STATE_LINKED = {
     "aljazeera.com": "Qatar", "qna.org.qa": "Qatar",
     "voanews.com": "United States", "spa.gov.sa": "Saudi Arabia", "wam.ae": "UAE",
     "kuna.net.kw": "Kuwait", "ukrinform.net": "Ukraine",
+    # state-run local outlets we read in fetch_local_news.py
+    "sana.sy": "Syria", "cameroon-tribune.cm": "Cameroon", "wafa.ps": "Palestinian Authority",
+    "cubadebate.cu": "Cuba", "granma.cu": "Cuba", "risingnepaldaily.com": "Nepal",
 }
+LOCALNEWS = ROOT / "data" / "raw" / "localnews"
 
 # How GDELT spells the country an outlet is based in, for each crisis (lower case).
 # An article counts as "published in the country" if its outlet country is one of these.
@@ -151,6 +155,20 @@ def parse_date(s: str) -> str:
 def load_articles(code: str) -> list[dict]:
     """All articles for a crisis from every file we have, repeated headlines removed."""
     seen, out = set(), []
+    # Headlines read straight from outlets based in the country (fetch_local_news.py). They are
+    # local by definition and were already filtered for humanitarian topics in their own language,
+    # so the "headline must name the country" test below does not apply to them.
+    lf = LOCALNEWS / f"{code}.json"
+    if lf.exists():
+        place = sorted(LOCAL_NAMES.get(code, {code}))[0].title()
+        for x in json.loads(lf.read_text(encoding="utf-8")):
+            k = re.sub(r"\W+", "", x["title"].lower())[:80]
+            if not k or k in seen:
+                continue
+            seen.add(k)
+            d = (x.get("date") or "").replace("-", "")
+            out.append({"url": x["url"], "title": x["title"], "domain": x["domain"], "sourcecountry": place,
+                        "language": x["lang"], "seendate": d + "T000000Z" if d else "", "_from_local_query": True})
     for key in ("inland", "lang", "articles"):           # in-country first so they win ties
         f = RAW / f"{code}_{key}.json"
         if not f.exists():

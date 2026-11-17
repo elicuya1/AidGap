@@ -418,6 +418,48 @@
   .give a:hover { border-color: var(--ink); transform: translateX(3px); }
   .give b { display: block; font-size: 15px; } .give span { font-size: 13px; color: var(--ink2); }
 
+  /* ---------- the background: two soft colour fields that drift with your scroll, under the dots ---------- */
+  .orbs { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+  .orbs i { position: absolute; width: 62vmax; height: 62vmax; border-radius: 50%; filter: blur(80px); will-change: transform; }
+  .orbs i:nth-child(1) { left: -18vmax; top: -22vmax; opacity: .46; background: radial-gradient(circle, var(--unmet), transparent 66%);
+    transform: translate3d(calc(var(--sp, 0) * 30vmax), calc(var(--sp, 0) * 46vmax), 0); animation: orbA 26s ease-in-out infinite alternate; }
+  .orbs i:nth-child(2) { right: -24vmax; bottom: -30vmax; opacity: .34; background: radial-gradient(circle, var(--funded), transparent 66%);
+    transform: translate3d(calc(var(--sp, 0) * -24vmax), calc(var(--sp, 0) * -34vmax), 0); animation: orbB 32s ease-in-out infinite alternate; }
+  @keyframes orbA { to { margin: 7vmax 0 0 9vmax; } }
+  @keyframes orbB { to { margin: 0 7vmax 8vmax 0; } }
+  :root[data-theme="light"] .orbs i:nth-child(1) { opacity: .5; background: radial-gradient(circle, #d9777d, transparent 66%); }
+  :root[data-theme="light"] .orbs i:nth-child(2) { opacity: .45; background: radial-gradient(circle, #86b5dc, transparent 66%); }
+  .bgcap { position: fixed; left: 24px; bottom: 22px; z-index: 29; display: flex; gap: 8px; align-items: center; padding: 9px 16px; border-radius: 999px; pointer-events: none;
+    font-family: var(--mono); font-size: 11px; letter-spacing: .05em; color: var(--ink2); }
+  .bgcap i { display: inline-block; width: 8px; height: 8px; border-radius: 50%; }
+  .bgcap span { margin-left: 4px; }
+  @media (max-width: 900px) { .bgcap { display: none; } }
+
+  /* ---------- glass: translucent, blurred surfaces, like frosted glass over the background ---------- */
+  :root { --glass: rgba(255,255,255,.055); --gline: rgba(255,255,255,.15); --ghi: rgba(255,255,255,.26); --gshadow: 0 14px 44px rgba(0,0,0,.45); --gblur: blur(22px) saturate(170%); }
+  :root[data-theme="light"] { --glass: rgba(255,255,255,.55); --gline: rgba(255,255,255,.8); --ghi: rgba(255,255,255,1); --gshadow: 0 14px 44px rgba(80,55,20,.16); }
+  .card, .field-card, .map-card, .duo, .example, .gcard, .news-list, .life, .sankey-card, .info, .tile, .bgcap, .bar,
+  .zoom button, .seg, .chip, .lchip, .pill, .btn.ghost, .stat, .notice.plain, .m-left {
+    background: var(--glass); border: 1px solid var(--gline);
+    -webkit-backdrop-filter: var(--gblur); backdrop-filter: var(--gblur);
+    box-shadow: inset 0 1px 0 var(--ghi), var(--gshadow);
+  }
+  .zoom button, .seg, .chip, .lchip, .pill, .btn.ghost, .stat, .bgcap { box-shadow: inset 0 1px 0 var(--ghi), 0 5px 16px rgba(0,0,0,.22); }
+  .card, .field-card, .map-card, .duo, .example, .gcard, .news-list, .life, .sankey-card, .info, .tile { border-radius: 22px; }
+  .pill, .btn, .chip, .lchip, .seg, .seg button, .bgcap { border-radius: 999px; }
+  .zoom button { border-radius: 50%; }
+  .stat, .notice, .tip { border-radius: 14px; }
+  .btn { box-shadow: inset 0 1px 0 rgba(255,255,255,.55), 0 8px 22px rgba(0,0,0,.35); }
+  .btn.ghost:hover, .chip:hover, .lchip:hover, .pill:hover { background: var(--glass); border-color: var(--ghi); filter: brightness(1.2); }
+  .bar { top: 12px; left: 16px; right: 16px; padding: 7px 8px 7px 20px; border-radius: 999px; }
+  .modal { background: color-mix(in srgb, var(--surface) 62%, transparent); -webkit-backdrop-filter: blur(36px) saturate(180%); backdrop-filter: blur(36px) saturate(180%);
+    border: 1px solid var(--gline); border-radius: 30px; box-shadow: inset 0 1px 0 var(--ghi), 0 34px 100px rgba(0,0,0,.6); }
+  .m-left { border-radius: 0; border: 0; border-right: 1px solid var(--gline); box-shadow: none; -webkit-backdrop-filter: none; backdrop-filter: none; }
+  .backdrop { -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
+  .rank-list button:hover, .brow:hover, .mrow:hover, .news-list button:hover { background: var(--glass); }
+  .tabs { border-bottom-color: var(--gline); }
+  @media (max-width: 800px) { .modal { border-radius: 0; } }
+
   @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; scroll-snap-type: none; }
     *, *::before, *::after { transition-duration: 0s !important; transition-delay: 0s !important; animation: none !important; }
@@ -426,8 +468,10 @@
 </style>
 </head>
 <body>
+<div class="orbs" aria-hidden="true"><i></i><i></i></div>
 <canvas id="bg" aria-hidden="true"></canvas>
 <div class="progress" id="progress"></div>
+<div class="bgcap" aria-hidden="true"><i style="background:var(--funded)"></i><i style="background:var(--unmet)"></i><span id="bgcapText"></span></div>
 <header class="bar">
   <a class="brand" href="#s-intro"><b>Aid<span>Gap</span></b><small id="mast">Humanitarian funding monitor</small></a>
   <button class="pill" id="themeBtn" type="button" aria-label="Switch between dark and light theme">Theme</button>
@@ -551,7 +595,7 @@
         <ol class="news-list" id="newsList" aria-label="Crises"></ol>
         <div class="card news-pane" id="newsPane"></div>
       </div>
-      <p class="fig rv"><b>Fig. 5.</b> Local = news from outlets inside the country, plus reports from its own government, national Red Cross or Red Crescent, or organisations named for it (a rule of thumb). International = everything else. Reports: ReliefWeb (UN OCHA), latest 20 per country. News: GDELT, last-week sample. Items belong to their publishers and link to the originals.</p>
+      <p class="fig rv"><b>Fig. 5.</b> Local = news from outlets inside the country, plus reports from its own government, national Red Cross or Red Crescent, or organisations named for it (a rule of thumb). International = everything else. Reports: ReliefWeb (UN OCHA), latest 20 per country. News: GDELT (last-week sample) plus headlines from local outlets' own public news feeds (RSS). Items belong to their publishers and link to the originals.</p>
     </div>
   </section>
 
@@ -575,7 +619,7 @@
         <li><b>Regional response plans</b> (refugee-hosting countries) are excluded because per-country funding is unreliable there. Where a country has its own plan plus a slice of a regional one, only its own plan is used.</li>
         <li><b>Older or hand-found needs figures</b> are flagged: dollars per person mixes two years or two sources, so the rank is indicative.</li>
         <li><b>Donor totals</b> count money given to one country alone and all flows FTS tracks, including outside the formal appeal, so they are larger than the appeal funding. Money split across several countries is left out to avoid double counting, and a country's own government is not counted as a donor.</li>
-        <li><b>Attention is measured two ways, both partial.</b> Reports: the latest 20 per country from ReliefWeb's public feed, so the <em>time they span</em> gives a rate (reports per week). That counts what aid organisations publish, which is not the same as general news. News: a sample from GDELT, English plus each country's main language, from roughly the last week.</li>
+        <li><b>Attention is measured two ways, both partial.</b> Reports: the latest 20 per country from ReliefWeb's public feed, so the <em>time they span</em> gives a rate (reports per week). That counts what aid organisations publish, which is not the same as general news. News: a sample from GDELT, English plus each country's main language, from roughly the last week. Local news also comes from the public RSS feeds of about 58 outlets based in these countries (some refused automated access and were skipped), filtered for humanitarian keywords in their own language; state-run outlets are labelled.</li>
         <li><b>"State-linked"</b> means an outlet owned, funded or controlled by a government. That describes ownership, not accuracy, and the list is short, so the shares are a floor.</li>
         <li><b>Propaganda</b> cannot be measured from a headline count. Whether a specific article misleads needs reading it, so this page shows who is speaking and leaves that judgement to case studies.</li>
         <li><b>Correlation is not cause:</b> research on disaster relief finds that media attention can shape who gets help, but this page does not claim that attention causes a country's funding level.</li>
@@ -603,13 +647,13 @@
   </div>
 </div>
 
-<!-- ?v=6 makes your browser fetch fresh copies after each update instead of reusing an old saved page -->
-<script src="data.js?v=6"></script>
-<script src="score.js?v=6"></script>
-<script src="map.js?v=6"></script>
-<script src="media.js?v=6" onerror="window.AIDGAP_MEDIA=null"></script>
-<script src="reports.js?v=6" onerror="window.AIDGAP_REPORTS=null"></script>
-<script src="donors.js?v=6" onerror="window.AIDGAP_DONORS=null"></script>
-<script src="app.js?v=6"></script>
+<!-- ?v=8 makes your browser fetch fresh copies after each update instead of reusing an old saved page -->
+<script src="data.js?v=8"></script>
+<script src="score.js?v=8"></script>
+<script src="map.js?v=8"></script>
+<script src="media.js?v=8" onerror="window.AIDGAP_MEDIA=null"></script>
+<script src="reports.js?v=8" onerror="window.AIDGAP_REPORTS=null"></script>
+<script src="donors.js?v=8" onerror="window.AIDGAP_DONORS=null"></script>
+<script src="app.js?v=8"></script>
 </body>
 </html>
