@@ -827,7 +827,7 @@
   }
   function ctxHTML(code) {        // a short, sourced paragraph on what is happening (data/reference/country_context.csv)
     var c = D.context && D.context[code]; if (!c) return "";
-    return '<div class="ctx"><p>' + esc(c.summary) + '</p><small>Summary written ' + esc(c.written) + " from " + esc(String(c.basis).toLowerCase()) + ". Source: " + ext(c.source_url, esc(c.source_title)) + "</small></div>";
+    return '<div class="ctx"><p>' + esc(c.summary) + '</p><small>Summary written ' + esc(c.written) + ". Basis: " + esc(c.basis) + ". Source: " + ext(c.source_url, esc(c.source_title)) + "</small></div>";
   }
   function renderLeft() {
     var ent = byCode[mCode], h;

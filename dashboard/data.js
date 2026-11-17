@@ -1741,6 +1741,17 @@ window.AIDGAP = {
    "notes": "Its figures matched our FTS funding data for Viet Nam, Cuba and Pakistan."
   },
   {
+   "id": "country_context",
+   "name": "Country summaries",
+   "publisher": "AidGap, written from OCHA 2026 plan pages and ReliefWeb headlines (data/reference/country_context.csv)",
+   "url": "https://humanitarianaction.info/",
+   "used_for": "One short paragraph per country on what is happening; each is paraphrased from a document read on 2026-11-17, with its basis and link",
+   "terms": "Paraphrased, not copied; OCHA content is licensed CC BY 4.0",
+   "accessed": "2026-11-17",
+   "status": "used",
+   "notes": "Fetched with src/fetch_context.py. Where a plan page had no readable English narrative the summary rests on the latest aid-sector headlines instead and says so. Refresh by re-running the fetch and rewriting the CSV."
+  },
+  {
    "id": "verification",
    "name": "Verification report",
    "publisher": "AidGap (src/verify_data.py)",
