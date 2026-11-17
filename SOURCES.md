@@ -23,6 +23,8 @@ _Generated from `data/reference/sources.csv` by `src/export_dashboard_data.py`. 
   Terms: Our own output. Accessed 2026-11-17. Run python src/verify_data.py to repeat. Documents are fetched with an honest client name; if a site refuses, the check is reported as unverified and never bypassed.
 - **[Where-to-donate pages](https://github.com/elicuya1/AidGap/blob/main/data/reference/donate_links.csv)** (UNICEF, World Food Programme, International Rescue Committee, MSF, UNRWA, Charity Navigator, CharityWatch, OCHA FTS (see data/reference/donate_links.csv)). Links to relief organisations' country pages.  
   Terms: Links only. Not an endorsement or rating. Accessed 2026-11-17. Each address was checked to load on the date shown. 'Loads' does not mean 'recommended'.
+- **[ReliefWeb public RSS feeds](https://reliefweb.int/updates/rss.xml?legacy-river=country/yem)** (UN OCHA (ReliefWeb)). Latest 20 humanitarian reports per country (title, link, date, publisher); attention rate in reports per week.  
+  Terms: Public feed; content belongs to its publishers; every item links to the original. Accessed 2026-11-17. No key needed. The feed ignores page numbers, so only the latest 20 reports per country are available; their time span gives the rate. Language is guessed from the headline.
 
 ## Cited for context
 
@@ -33,11 +35,13 @@ _Generated from `data/reference/sources.csv` by `src/export_dashboard_data.py`. 
 
 - **[Suffering in Silence (annual report)](https://www.care.org/)** (CARE International). Planned: compare with the most under-reported crises list.  
   Terms: Cited for context only. Accessed 2026-11-17. Not yet matched to our ranking.
+- **[Anthropic (Claude) API](https://console.anthropic.com/)** (Anthropic). Optional: stored English translations of non-English headlines (src/translate_titles.py).  
+  Terms: Paid per use; needs a key. Accessed 2026-11-17. Not used yet. Without it the page shows original headlines with an on-device translate button and a Google Translate link.
 
 ## Possible future sources
 
-- **[ReliefWeb API v2](https://apidoc.reliefweb.int/)** (UN OCHA). Considered for humanitarian reports per country.  
-  Terms: Needs a pre-approved app name; requests returned HTTP 403 without one. Accessed 2026-11-17. Good future option: register a free app name, then add humanitarian reports per country.
+- **[ReliefWeb API v2](https://apidoc.reliefweb.int/)** (UN OCHA). Would give up to 1000 reports per call with full history, languages and themes.  
+  Terms: Needs a pre-approved app name (free to request); requests returned HTTP 403 without one. Accessed 2026-11-17. Best way to fill the page with many more reports: request an app name, then add it to src/config_local.py and extend fetch_reliefweb.py.
 
 ## Considered and rejected
 

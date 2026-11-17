@@ -1598,15 +1598,37 @@ window.AIDGAP = {
    "notes": "Not used because the terms forbid use on a public website."
   },
   {
+   "id": "reliefweb_rss",
+   "name": "ReliefWeb public RSS feeds",
+   "publisher": "UN OCHA (ReliefWeb)",
+   "url": "https://reliefweb.int/updates/rss.xml?legacy-river=country/yem",
+   "used_for": "Latest 20 humanitarian reports per country (title, link, date, publisher); attention rate in reports per week",
+   "terms": "Public feed; content belongs to its publishers; every item links to the original",
+   "accessed": "2026-11-17",
+   "status": "used",
+   "notes": "No key needed. The feed ignores page numbers, so only the latest 20 reports per country are available; their time span gives the rate. Language is guessed from the headline."
+  },
+  {
    "id": "rejected_reliefweb",
    "name": "ReliefWeb API v2",
    "publisher": "UN OCHA",
    "url": "https://apidoc.reliefweb.int/",
-   "used_for": "Considered for humanitarian reports per country",
-   "terms": "Needs a pre-approved app name; requests returned HTTP 403 without one",
+   "used_for": "Would give up to 1000 reports per call with full history, languages and themes",
+   "terms": "Needs a pre-approved app name (free to request); requests returned HTTP 403 without one",
    "accessed": "2026-11-17",
    "status": "not_yet",
-   "notes": "Good future option: register a free app name, then add humanitarian reports per country."
+   "notes": "Best way to fill the page with many more reports: request an app name, then add it to src/config_local.py and extend fetch_reliefweb.py."
+  },
+  {
+   "id": "anthropic_api",
+   "name": "Anthropic (Claude) API",
+   "publisher": "Anthropic",
+   "url": "https://console.anthropic.com/",
+   "used_for": "Optional: stored English translations of non-English headlines (src/translate_titles.py)",
+   "terms": "Paid per use; needs a key",
+   "accessed": "2026-11-17",
+   "status": "planned",
+   "notes": "Not used yet. Without it the page shows original headlines with an on-device translate button and a Google Translate link."
   }
  ]
 };
