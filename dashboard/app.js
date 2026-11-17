@@ -76,9 +76,10 @@
   (function () {
     var d = new Date(D.generated + "T00:00:00"), nice = isNaN(d) ? D.generated : d.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
     $("dateline").textContent = "Data as of " + nice + " · " + crises.length + " crises · OCHA FTS · HDX HAPI · ReliefWeb · GDELT";
-    $("mast").textContent = "Field report " + D.year + " · v15";
+    $("mast").textContent = "Field report " + D.year + " · v16";
   })();
   function countUp() {
+    if ("IntersectionObserver" in window && !countUp.go) { var io = new IntersectionObserver(function (es) { if (es[0].isIntersecting) { io.disconnect(); countUp.go = 1; countUp(); } }, { threshold: 0.4 }); io.observe($("s-intro")); return; }
     var t0 = performance.now(), DUR = reduceMotion ? 1 : 2200;
     (function f(t) { var p = clamp01((t - t0) / DUR); $("heroVal").textContent = (totals.pin / 1e6 * (1 - Math.pow(1 - p, 3))).toFixed(1); if (p < 1) requestAnimationFrame(f); })(t0);
   }
@@ -898,6 +899,7 @@
      KEY: a "?" button that explains what you are looking at in the current section
      ===================================================================== */
   var KEYS = {
+    "s-what": ["What is this?", [["txt", "gap", "<b>Funding gap</b>: the money an appeal asks for, minus what donors have actually given."], ["txt", "rank", "AidGap ranks the crises by how neglected they are. Scroll down for the numbers."]]],
     "s-intro": ["Start here", [["dot", "var(--funded)", "<b>Blue arc</b> of each ring: the share of need that has been paid for."], ["dot", "var(--unmet)", "<b>Red arc</b>: need nobody has funded yet."], ["txt", "N", "The big number is every person in need across the crises we could compare."]]],
     "s-scale": ["Every dot is 100,000 people", [["dot", "var(--funded)", "<b>Blue</b>: the share of this crisis's appeal that has been paid for."], ["dot", "var(--unmet)", "<b>Red</b>: not funded."], ["txt", "N", "More dots = more people in need. Use the switch to see everyone together or split by country."]]],
     "s-map": ["The map", [["ramp", "", "<b>Darker red</b> = higher Neglect Score (more neglected)."], ["hatch", "", "<b>Hatched</b>: an appeal exists but we have no people-in-need figure, so it is not scored."], ["txt", "N", "Dark grey: not in this analysis. <b>Click a country</b> to open its file."]]],
@@ -910,7 +912,7 @@
   };
   (function () {
     var box = $("keybox"), btn = $("keyBtn"), panel = $("keyPanel"), cur = "", open = false;
-    var order = ["s-intro", "s-scale", "s-map", "s-rank", "s-donors", "s-media", "s-news", "s-gaps", "s-method"];
+    var order = ["s-what", "s-intro", "s-scale", "s-map", "s-rank", "s-donors", "s-media", "s-news", "s-gaps", "s-method"];
     function render(id) {
       var k = KEYS[id]; if (!k) return;
       panel.innerHTML = "<h4>" + esc(k[0]) + "</h4><ul>" + k[1].map(function (r) {
@@ -923,13 +925,13 @@
       order.forEach(function (id) { var e = document.getElementById(id); if (e && e.getBoundingClientRect().top <= mid) best = id; });
       if (best !== cur) { cur = best; if (open) render(cur); }
     }
-    function set(v) { open = v; panel.hidden = !v; btn.setAttribute("aria-expanded", v ? "true" : "false"); if (v) render(cur || "s-intro"); }
+    function set(v) { open = v; panel.hidden = !v; btn.setAttribute("aria-expanded", v ? "true" : "false"); if (v) render(cur || "s-what"); }
     btn.addEventListener("click", function () { which(); set(!open); });
     document.addEventListener("keydown", function (e) { if (e.key === "Escape" && open) set(false); });
     var pend = false; window.addEventListener("scroll", function () { if (pend) return; pend = true; requestAnimationFrame(function () { pend = false; which(); }); }, { passive: true });
     which();
     if (!(function () { try { return localStorage.getItem("aidgapKeySeen"); } catch (e) { return "1"; } })()) {
-      setTimeout(function () { set(true); try { localStorage.setItem("aidgapKeySeen", "1"); } catch (e) {} }, 1800);
+      setTimeout(function () { if (cur === "s-what") return; set(true); try { localStorage.setItem("aidgapKeySeen", "1"); } catch (e) {} }, 1800);
     }
   })();
   var rzT;

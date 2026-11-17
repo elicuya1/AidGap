@@ -7,7 +7,7 @@
   "use strict";
   var IMG = {"s-intro": ["WFP food distribution, Bannu, Pakistan", "WFP", "https://commons.wikimedia.org/wiki/File:Food_Distribution_at_a_Camp_in_Bannu_-_Photo_Credit_WFP_(14502236274).jpg"], "s-scale": ["Food distribution at a refugee settlement, Uganda", "USAID", "https://commons.wikimedia.org/wiki/File:Uganda_Refugee_Settlements_Emergency_Food_Distribution_(39910884580).jpg"], "s-map": ["Za'atri refugee camp, Jordan, from the air", "US Dept of State", "https://commons.wikimedia.org/wiki/File:Aerial_View_of_the_Za%27atri_Refugee_Camp.jpg"], "s-rank": ["Health screening at a UNHCR site", "USAID", "https://commons.wikimedia.org/wiki/File:Uganda_Refugee_Settlements_Emergency_Food_Distribution_(40818914905).jpg"], "s-donors": ["A US Air Force C-130 being loaded with cargo", "US Air Force", "https://commons.wikimedia.org/wiki/File:C130-loading.jpg"], "s-media": ["A journalist with camera and radio phone", "Donn Dughi", "https://commons.wikimedia.org/wiki/File:Journalist_Lucy_Morgan_with_video_camera_and_phone_(7026619371).jpg"], "s-gaps": ["Mothers waiting at a child clinic, Lagos, Nigeria (historic photo)", "Vernon McKay", "https://commons.wikimedia.org/wiki/File:Mothers_wait_in_line_at_Child_Clinic_Centre_in_Lagos,_Nigeria.png"], "s-news": ["A journalist with camera and radio phone", "Donn Dughi", "https://commons.wikimedia.org/wiki/File:Journalist_Lucy_Morgan_with_video_camera_and_phone_(7026619371).jpg"]};
   var photo = document.getElementById("photo"), credit = document.getElementById("photoCredit");
-  var layers = {}, cur = "", ids = ["s-intro", "s-scale", "s-map", "s-rank", "s-donors", "s-media", "s-news", "s-gaps", "s-method"];
+  var layers = {}, cur = "", ids = ["s-what", "s-intro", "s-scale", "s-map", "s-rank", "s-donors", "s-media", "s-news", "s-gaps", "s-method"];
   function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
   function layerFor(file) {
     if (layers[file]) return layers[file];
@@ -17,6 +17,7 @@
   var prevEl = null, prevT = 0;
   function show(id) {
     if (id === cur) return; cur = id; photo.setAttribute("data-sec", id);
+    var rg = document.getElementById("spiral"); if (rg) rg.classList.toggle("off", id === "s-what");   // the first screen is words only
     var info = IMG[id], next = info ? layerFor(id === "s-news" ? "s-media" : id) : null;
     if (info) credit.innerHTML = "Photo: " + esc(info[0]) + " (" + esc(info[1]) + "). Public domain, via <a href=\"" + esc(info[2]) + "\" target=\"_blank\" rel=\"noopener\">Wikimedia Commons</a>.";
     else credit.innerHTML = "";
