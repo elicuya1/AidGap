@@ -1,7 +1,7 @@
 /* AidGap background, two layers.
    1) PHOTO (left): a black-and-white public-domain photograph that changes with the section you are in. The new picture wipes in
       from the left while it settles from a slight zoom. Pictures are illustrations of the TOPIC, not of the specific country in view.
-   2) RINGS (right): concentric rings of dots; on each ring the blue arc is the funded share, the red arc is unfunded. They fade out as you scroll.
+   2) RINGS (right): concentric rings of dots; on each ring the blue arc is the funded share, the red arc is unfunded. As "The scale" rises into view the ring dots fly into the real dots of the dot field and dissolve into them.
    Cheap by design: one small canvas, a handful of images, nothing runs once the rings have faded. */
 (function () {
   "use strict";
@@ -17,7 +17,6 @@
   var prevEl = null, prevT = 0;
   function show(id) {
     if (id === cur) return; cur = id; photo.setAttribute("data-sec", id);
-    var rg = document.getElementById("spiral"); if (rg) rg.classList.toggle("off", id === "s-what");   // the first screen is words only
     var info = IMG[id], next = info ? layerFor(id === "s-news" ? "s-media" : id) : null;
     if (info) credit.innerHTML = "Photo: " + esc(info[0]) + " (" + esc(info[1]) + "). Public domain, via <a href=\"" + esc(info[2]) + "\" target=\"_blank\" rel=\"noopener\">Wikimedia Commons</a>.";
     else credit.innerHTML = "";
@@ -37,52 +36,78 @@
   window.addEventListener("load", which); which();
   window.__photoSec = show;   // testing: __photoSec("s-map")
 
-  /* ---------- rings ---------- */
+  /* ---------- rings: they turn on the first screens, then fly into the dots of "The scale" ---------- */
   var cv = document.getElementById("spiral");
   if (!cv) return;
-  var ctx = cv.getContext("2d"), W = 0, H = 0, P = 0, forceP = null, raf = 0, running = false;
+  window.__aidgapMerge = true;
+  var ctx = cv.getContext("2d"), W = 0, H = 0, forceQ = null, raf = 0, running = false;
   var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  var RINGS = 9, TAU = Math.PI * 2, t0 = performance.now(), cols = null, FADE = 0.22;
+  var RINGS = 9, TAU = Math.PI * 2, t0 = performance.now(), cols = null, ring = null, Q = 0, mapped = null, mappedFor = "";
   function readColours() {
     var s = getComputedStyle(document.documentElement);
     cols = { red: s.getPropertyValue("--unmet").trim() || "#a3202a", blue: s.getPropertyValue("--funded").trim() || "#4a86b8", theme: document.documentElement.getAttribute("data-theme") };
   }
+  function funded() { return typeof window.__aidgapFundedShare === "number" ? window.__aidgapFundedShare : 0.43; }
+  function buildRing() {                         // every dot of every ring, with its colour and its place in the ring
+    var f0 = funded(); ring = [];
+    for (var k = 0; k < RINGS; k++) {
+      var f = (k + 1) / RINGS, n = Math.round(18 + 70 * f);
+      for (var j = 0; j < n; j++) ring.push({ k: k, f: f, n: n, j: j, blue: j / n < f0 });
+    }
+    mapped = null;
+  }
   function resize() {
     var dpr = Math.min(window.devicePixelRatio || 1, 1.5);
-    W = Math.round(window.innerWidth * 0.5); H = window.innerHeight;
+    W = window.innerWidth; H = window.innerHeight;
     cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
     cv.style.width = W + "px"; cv.style.height = H + "px";
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0); draw();
   }
-  function funded() { return typeof window.__aidgapFundedShare === "number" ? window.__aidgapFundedShare : 0.43; }
+  function ease(x) { x = Math.max(0, Math.min(1, x)); return x * x * (3 - 2 * x); }
+  // how far the next screen (The scale) has risen into view: 0 = not yet, 1 = ring dots have landed on the real dots
+  function progress() {
+    var sc = document.getElementById("s-scale"); if (!sc) return 0;
+    return (window.innerHeight - sc.getBoundingClientRect().top) / (0.7 * window.innerHeight);
+  }
   function draw() {
-    var p = forceP != null ? forceP : P, a = 1 - Math.min(1, p / FADE);
+    var q = forceQ != null ? forceQ : Q;
     ctx.clearRect(0, 0, W, H);
-    if (a <= 0.01) { running = false; return; }
+    var fieldOK = window.__aidgapField && window.__aidgapField.ready();
+    var alpha = q <= 1 ? 1 : 1 - (q - 1) / 0.3;                     // after landing, the ring dots dissolve into the real ones
+    if (alpha <= 0.01) { running = false; return; }
+    if (!ring) buildRing();
     if (!cols || cols.theme !== document.documentElement.getAttribute("data-theme")) readColours();
-    var t = reduce ? 0 : (performance.now() - t0) / 1000, ease = a * a * (3 - 2 * a), fund = funded();
-    var cx = W * 0.82, cy = H * 0.52, R = Math.min(W * 0.95, H * 0.46) * (1 + (1 - ease) * 0.5);
-    ctx.globalAlpha = Math.min(1, ease * 0.85);
-    for (var k = 0; k < RINGS; k++) {
-      var f = (k + 1) / RINGS, r = R * f, n = Math.round(18 + 70 * f), dir = k % 2 ? -1 : 1;
-      var rot = dir * (t * (0.28 - 0.18 * f) + p * 3) + k * 0.7, dr = 1.2 + 1.3 * f;
-      for (var j = 0; j < n; j++) {
-        var ang = rot + (j / n) * TAU;
-        ctx.fillStyle = j / n < fund ? cols.blue : cols.red;
-        ctx.beginPath(); ctx.arc(cx + r * Math.cos(ang), cy + r * Math.sin(ang), dr, 0, TAU); ctx.fill();
+    if (q >= 0.9 && fieldOK && !draw.started) { draw.started = true; window.__aidgapField.start(); }
+    var t = reduce ? 0 : (performance.now() - t0) / 1000, e = ease(q), fund = funded();
+    var cx = W * 0.91, cy = H * 0.52, R = Math.min(W * 0.475, H * 0.46);
+    var F = fieldOK ? window.__aidgapField : null, lists = F ? F.lists() : null, tr = F ? F.radius() : 2.4;
+    // ring dot -> real dot (blue to blue, red to red, spread evenly)
+    if (F && !mapped) {
+      var nb = ring.filter(function (d) { return d.blue; }).length, nr = ring.length - nb, ib = 0, ir = 0;
+      mapped = ring.map(function (d) { return d.blue ? lists.blue[Math.floor(ib++ * lists.blue.length / Math.max(1, nb))] : lists.red[Math.floor(ir++ * lists.red.length / Math.max(1, nr))]; });
+    }
+    ctx.globalAlpha = Math.min(1, alpha * 0.85);
+    for (var i = 0; i < ring.length; i++) {
+      var d = ring[i], r = R * d.f, dir = d.k % 2 ? -1 : 1;
+      var ang = dir * (t * (0.28 - 0.18 * d.f)) + d.k * 0.7 + (d.j / d.n) * TAU;
+      var x = cx + r * Math.cos(ang), y = cy + r * Math.sin(ang), rad = 1.2 + 1.3 * d.f;
+      if (e > 0 && F && mapped && mapped[i] != null) {
+        var p = F.at(mapped[i]); x += (p.x - x) * e; y += (p.y - y) * e; rad += (tr - rad) * e;
       }
+      ctx.fillStyle = d.blue ? cols.blue : cols.red;
+      ctx.beginPath(); ctx.arc(x, y, rad, 0, TAU); ctx.fill();
     }
     ctx.globalAlpha = 1;
   }
   function loop() { draw(); raf = (running && !reduce) ? requestAnimationFrame(loop) : 0; }
   function start() { if (!running) { running = true; if (!raf) loop(); } }
   function onScroll() {
-    var max = document.documentElement.scrollHeight - window.innerHeight;
-    P = max > 0 ? Math.max(0, Math.min(1, window.scrollY / max)) : 0;
-    if (P < FADE) { if (reduce) draw(); else start(); }
+    Q = progress();
+    if (Q < 1.3) { if (reduce) draw(); else start(); }
   }
   window.addEventListener("resize", resize);
   window.addEventListener("scroll", onScroll, { passive: true });
-  window.__vortexSetP = function (p) { forceP = p; draw(); };
+  window.__vortexSetP = function (q) { forceQ = q; draw(); };   // testing: __vortexSetQ via __vortexSetP(0.5): 0 = rings, 1 = landed on the dots
+  window.addEventListener("load", function () { buildRing(); onScroll(); draw(); });
   resize(); onScroll(); if (!reduce) start();
 })();

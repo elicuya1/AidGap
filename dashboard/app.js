@@ -76,7 +76,7 @@
   (function () {
     var d = new Date(D.generated + "T00:00:00"), nice = isNaN(d) ? D.generated : d.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
     $("dateline").textContent = "Data as of " + nice + " · " + crises.length + " crises · OCHA FTS · HDX HAPI · ReliefWeb · GDELT";
-    $("mast").textContent = "Field report " + D.year + " · v16";
+    $("mast").textContent = "Field report " + D.year + " · v17";
   })();
   function countUp() {
     if ("IntersectionObserver" in window && !countUp.go) { var io = new IntersectionObserver(function (es) { if (es[0].isIntersecting) { io.disconnect(); countUp.go = 1; countUp(); } }, { threshold: 0.4 }); io.observe($("s-intro")); return; }
@@ -102,7 +102,7 @@
     var railIO = new IntersectionObserver(function (es) {
       es.forEach(function (e) { if (e.isIntersecting) slides.forEach(function (s) { s._rail.setAttribute("aria-current", String(s === e.target)); }); });
     }, { rootMargin: "-45% 0px -45% 0px" });
-    var firstScale = new IntersectionObserver(function (es) { if (es[0].isIntersecting) { firstScale.disconnect(); startField(); } }, { threshold: 0.2 });
+    var firstScale = new IntersectionObserver(function (es) { if (es[0].isIntersecting) { firstScale.disconnect(); setTimeout(startField, window.__aidgapMerge ? 2500 : 0); } }, { threshold: 0.2 });   // vortex.js normally starts it sooner, when the ring dots land
     slides.forEach(function (s) { railIO.observe(s); });
     firstScale.observe($("s-scale"));
   } else { setTimeout(function () { startField(); }, 0); }
@@ -311,6 +311,15 @@
     dots.forEach(function (d, i) { var o = L.pos[i].order; d.appear = reduceMotion ? -1e9 : now + (o / n) * 900; d.lightAt = reduceMotion ? -1e9 : now + 1500 + (o / n) * 1200; });
     tick();
   }
+  /* the rings in vortex.js read this: where each real dot sits right now (screen coordinates), so the ring dots can merge into them */
+  var fieldIdx = null;
+  window.__aidgapField = {
+    ready: function () { return dots.length > 0 && !!layouts[mode]; },
+    lists: function () { if (!fieldIdx) { fieldIdx = { blue: [], red: [] }; dots.forEach(function (d, i) { (d.funded ? fieldIdx.blue : fieldIdx.red).push(i); }); } return fieldIdx; },
+    at: function (i) { var b = canvas.getBoundingClientRect(), p = layouts[mode].pos[i]; return { x: b.left + p.x, y: b.top + p.y }; },
+    radius: function () { return Math.max(2.2, step * 0.33); },
+    start: function () { startField(); }
+  };
   function hitCluster(ev) {
     var b = canvas.getBoundingClientRect(), x = ev.clientX - b.left, y = ev.clientY - b.top;
     for (var i = 0; i < clusters.length; i++) { var r = clusters[i]; if (x >= r.x && x <= r.x + r.w && y >= r.y && y <= r.y + r.h) return r; }
