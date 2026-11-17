@@ -35,6 +35,39 @@ def load_pin() -> pd.DataFrame:
         ["location_code", "people_in_need", "pin_year"]]
 
 
+def add_manual_pin(gap: pd.DataFrame) -> pd.DataFrame:
+    """Fill gaps in the HAPI people-in-need data with figures found by hand.
+
+    The figures live in data/reference/manual_pin.csv together with their sources.
+    A hand-found figure is used ONLY when:
+      * HAPI has no figure for that country, and
+      * the file says use_in_ranking = yes (we checked that the figure belongs to the
+        same plan as the funding total, and that no source contradicts it badly).
+    Everything else stays in the file as a record of what was found and why not used."""
+    gap["pin_source"] = gap["people_in_need"].notna().map({True: "HAPI", False: ""})
+    gap["pin_confidence"] = gap["pin_source"].map({"HAPI": "high", "": ""})
+    gap["pin_note"] = ""
+    gap["pin_url"] = ""
+    ref = ROOT / "data" / "reference" / "manual_pin.csv"
+    if not ref.exists():
+        return gap
+    manual = pd.read_csv(ref)
+    manual = manual[manual["use_in_ranking"].str.lower() == "yes"]
+    for _, m in manual.iterrows():
+        row = (gap["location_code"] == m["location_code"]) & gap["people_in_need"].isna()
+        if not row.any():
+            continue
+        gap.loc[row, "people_in_need"] = m["people_in_need"]
+        gap.loc[row, "pin_year"] = m["pin_year"]
+        gap.loc[row, "pin_source"] = "manual"
+        gap.loc[row, "pin_confidence"] = m["confidence"]
+        gap.loc[row, "pin_note"] = str(m["plan_name"])
+        gap.loc[row, "pin_url"] = m["source_url"]
+        print(f"  + hand-added people in need: {m['location_name']} = {int(m['people_in_need']):,} "
+              f"({m['confidence']} confidence)")
+    return gap
+
+
 def main() -> pd.DataFrame:
     year = pd.Timestamp.today().year
     funding = load_funding(year)
@@ -43,6 +76,7 @@ def main() -> pd.DataFrame:
         funding = load_funding(year)
 
     gap = funding.merge(load_pin(), on="location_code", how="left")
+    gap = add_manual_pin(gap)
     gap["funding_usd"] = gap["funding_usd"].fillna(0)
     gap["funding_pct"] = gap["funding_usd"] / gap["requirements_usd"] * 100
     gap["unmet_usd"] = (gap["requirements_usd"] - gap["funding_usd"]).clip(lower=0)

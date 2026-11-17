@@ -1,0 +1,119 @@
+location_code,location_name,org,what,url,kind,status,final_url,checked
+YEM,Yemen,UNICEF,"Children: health, nutrition, water, schooling",https://www.unicef.org/yemen,country,ok,https://www.unicef.org/yemen/,2026-11-17
+YEM,Yemen,World Food Programme,Food and nutrition assistance,https://www.wfp.org/countries/yemen,country,ok,https://www.wfp.org/countries/yemen,2026-11-17
+YEM,Yemen,International Rescue Committee,"Health, safety and cash support for families",https://www.rescue.org/country/yemen,country,ok,https://www.rescue.org/country/yemen,2026-11-17
+YEM,Yemen,Doctors Without Borders (MSF),Emergency medical care,https://www.msf.org/yemen,country,ok,https://www.msf.org/yemen,2026-11-17
+AFG,Afghanistan,UNICEF,"Children: health, nutrition, water, schooling",https://www.unicef.org/afghanistan,country,ok,https://www.unicef.org/afghanistan/,2026-11-17
+AFG,Afghanistan,World Food Programme,Food and nutrition assistance,https://www.wfp.org/countries/afghanistan,country,ok,https://www.wfp.org/countries/afghanistan,2026-11-17
+AFG,Afghanistan,International Rescue Committee,"Health, safety and cash support for families",https://www.rescue.org/country/afghanistan,country,ok,https://www.rescue.org/country/afghanistan,2026-11-17
+AFG,Afghanistan,Doctors Without Borders (MSF),Emergency medical care,https://www.msf.org/afghanistan,country,ok,https://www.msf.org/afghanistan,2026-11-17
+HND,Honduras,UNICEF,"Children: health, nutrition, water, schooling",https://www.unicef.org/honduras,country,ok,https://www.unicef.org/honduras/,2026-11-17
+HND,Honduras,World Food Programme,Food and nutrition assistance,https://www.wfp.org/countries/honduras,country,ok,https://www.wfp.org/countries/honduras,2026-11-17
+HND,Honduras,International Rescue Committee,"Health, safety and cash support for families",https://www.rescue.org/country/honduras,country,ok,https://www.rescue.org/country/honduras,2026-11-17
+HND,Honduras,Doctors Without Borders (MSF),Emergency medical care,https://www.msf.org/honduras,country,ok,https://www.msf.org/honduras,2026-11-17
+MLI,Mali,UNICEF,"Children: health, nutrition, water, schooling",https://www.unicef.org/mali,country,ok,https://www.unicef.org/mali/,2026-11-17
+MLI,Mali,World Food Programme,Food and nutrition assistance,https://www.wfp.org/countries/mali,country,ok,https://www.wfp.org/countries/mali,2026-11-17
+MLI,Mali,International Rescue Committee,"Health, safety and cash support for families",https://www.rescue.org/country/mali,country,ok,https://www.rescue.org/country/mali,2026-11-17
+MLI,Mali,Doctors Without Borders (MSF),Emergency medical care,https://www.msf.org/mali,country,ok,https://www.msf.org/mali,2026-11-17
+BFA,Burkina Faso,UNICEF,"Children: health, nutrition, water, schooling",https://www.unicef.org/burkinafaso,country,ok,https://www.unicef.org/burkinafaso/,2026-11-17
+BFA,Burkina Faso,World Food Programme,Food and nutrition assistance,https://www.wfp.org/countries/burkina-faso,country,ok,https://www.wfp.org/countries/burkina-faso,2026-11-17
+BFA,Burkina Faso,International Rescue Committee,"Health, safety and cash support for families",https://www.rescue.org/country/burkina-faso,country,ok,https://www.rescue.org/country/burkina-faso,2026-11-17
+BFA,Burkina Faso,Doctors Without Borders (MSF),Emergency medical care,https://www.msf.org/burkina-faso,country,ok,https://www.msf.org/burkina-faso,2026-11-17
+NER,Niger,UNICEF,"Children: health, nutrition, water, schooling",https://www.unicef.org/niger,country,ok,https://www.unicef.org/niger/,2026-11-17
+NER,Niger,World Food Programme,Food and nutrition assistance,https://www.wfp.org/countries/niger,country,ok,https://www.wfp.org/countries/niger,2026-11-17
+NER,Niger,International Rescue Committee,"Health, safety and cash support for families",https://www.rescue.org/country/niger,country,ok,https://www.rescue.org/country/niger,2026-11-17
+NER,Niger,Doctors Without Borders (MSF),Emergency medical care,https://www.msf.org/niger,country,ok,https://www.msf.org/niger,2026-11-17
+SYR,Syrian Arab Republic,UNICEF,"Children: health, nutrition, water, schooling",https://www.unicef.org/syria,country,ok,https://www.unicef.org/syria/,2026-11-17
+SYR,Syrian Arab Republic,World Food Programme,Food and nutrition assistance,https://www.wfp.org/countries/syrian-arab-republic,country,ok,https://www.wfp.org/countries/syrian-arab-republic,2026-11-17
+SYR,Syrian Arab Republic,International Rescue Committee,"Health, safety and cash support for families",https://www.rescue.org/country/syria,country,ok,https://www.rescue.org/country/syria,2026-11-17
+SYR,Syrian Arab Republic,Doctors Without Borders (MSF),Emergency medical care,https://www.msf.org/syria,country,ok,https://www.msf.org/syria,2026-11-17
+MMR,Myanmar,UNICEF,"Children: health, nutrition, water, schooling",https://www.unicef.org/myanmar,country,ok,https://www.unicef.org/myanmar/,2026-11-17
+MMR,Myanmar,World Food Programme,Food and nutrition assistance,https://www.wfp.org/countries/myanmar,country,ok,https://www.wfp.org/countries/myanmar,2026-11-17
+MMR,Myanmar,International Rescue Committee,"Health, safety and cash support for families",https://www.rescue.org/country/myanmar,country,ok,https://www.rescue.org/country/myanmar,2026-11-17
+MMR,Myanmar,Doctors Without Borders (MSF),Emergency medical care,https://www.msf.org/myanmar,country,ok,https://www.msf.org/myanmar,2026-11-17
+SDN,Sudan,UNICEF,"Children: health, nutrition, water, schooling",https://www.unicef.org/sudan,country,ok,https://www.unicef.org/sudan/,2026-11-17
+SDN,Sudan,World Food Programme,Food and nutrition assistance,https://www.wfp.org/countries/sudan,country,ok,https://www.wfp.org/countries/sudan,2026-11-17
+SDN,Sudan,International Rescue Committee,"Health, safety and cash support for families",https://www.rescue.org/country/sudan,country,ok,https://www.rescue.org/country/sudan,2026-11-17
+SDN,Sudan,Doctors Without Borders (MSF),Emergency medical care,https://www.msf.org/sudan,country,ok,https://www.msf.org/sudan,2026-11-17
+COL,Colombia,UNICEF,"Children: health, nutrition, water, schooling",https://www.unicef.org/colombia,country,ok,https://www.unicef.org/colombia/,2026-11-17
+COL,Colombia,World Food Programme,Food and nutrition assistance,https://www.wfp.org/countries/colombia,country,ok,https://www.wfp.org/countries/colombia,2026-11-17
+COL,Colombia,International Rescue Committee,"Health, safety and cash support for families",https://www.rescue.org/country/colombia,country,ok,https://www.rescue.org/country/colombia,2026-11-17
+COL,Colombia,Doctors Without Borders (MSF),Emergency medical care,https://www.msf.org/colombia,country,ok,https://www.msf.org/colombia,2026-11-17
+CMR,Cameroon,UNICEF,"Children: health, nutrition, water, schooling",https://www.unicef.org/cameroon,country,ok,https://www.unicef.org/cameroon/,2026-11-17
+CMR,Cameroon,World Food Programme,Food and nutrition assistance,https://www.wfp.org/countries/cameroon,country,ok,https://www.wfp.org/countries/cameroon,2026-11-17
+CMR,Cameroon,International Rescue Committee,"Health, safety and cash support for families",https://www.rescue.org/country/cameroon,country,ok,https://www.rescue.org/country/cameroon,2026-11-17
+CMR,Cameroon,Doctors Without Borders (MSF),Emergency medical care,https://www.msf.org/cameroon,country,ok,https://www.msf.org/cameroon,2026-11-17
+SSD,South Sudan,UNICEF,"Children: health, nutrition, water, schooling",https://www.unicef.org/southsudan,country,ok,https://www.unicef.org/southsudan/,2026-11-17
+SSD,South Sudan,World Food Programme,Food and nutrition assistance,https://www.wfp.org/countries/south-sudan,country,ok,https://www.wfp.org/countries/south-sudan,2026-11-17
+SSD,South Sudan,International Rescue Committee,"Health, safety and cash support for families",https://www.rescue.org/country/south-sudan,country,ok,https://www.rescue.org/country/south-sudan,2026-11-17
+SSD,South Sudan,Doctors Without Borders (MSF),Emergency medical care,https://www.msf.org/south-sudan,country,ok,https://www.msf.org/south-sudan,2026-11-17
+SOM,Somalia,UNICEF,"Children: health, nutrition, water, schooling",https://www.unicef.org/somalia,country,ok,https://www.unicef.org/somalia/,2026-11-17
+SOM,Somalia,World Food Programme,Food and nutrition assistance,https://www.wfp.org/countries/somalia,country,ok,https://www.wfp.org/countries/somalia,2026-11-17
+SOM,Somalia,International Rescue Committee,"Health, safety and cash support for families",https://www.rescue.org/country/somalia,country,ok,https://www.rescue.org/country/somalia,2026-11-17
+SOM,Somalia,Doctors Without Borders (MSF),Emergency medical care,https://www.msf.org/somalia,country,ok,https://www.msf.org/somalia,2026-11-17
+VEN,Venezuela (Bolivarian Republic of),UNICEF,"Children: health, nutrition, water, schooling",https://www.unicef.org/venezuela,country,ok,https://www.unicef.org/venezuela/,2026-11-17
+VEN,Venezuela (Bolivarian Republic of),World Food Programme,Food and nutrition assistance,https://www.wfp.org/countries/venezuela,country,http 404,https://www.wfp.org/countries/venezuela,2026-11-17
+VEN,Venezuela (Bolivarian Republic of),International Rescue Committee,"Health, safety and cash support for families",https://www.rescue.org/country/venezuela,country,ok,https://www.rescue.org/country/venezuela,2026-11-17
+VEN,Venezuela (Bolivarian Republic of),Doctors Without Borders (MSF),Emergency medical care,https://www.msf.org/venezuela,country,ok,https://www.msf.org/venezuela,2026-11-17
+COD,Democratic Republic of the Congo,UNICEF,"Children: health, nutrition, water, schooling",https://www.unicef.org/drcongo,country,ok,https://www.unicef.org/drcongo/,2026-11-17
+COD,Democratic Republic of the Congo,World Food Programme,Food and nutrition assistance,https://www.wfp.org/countries/democratic-republic-congo,country,ok,https://www.wfp.org/countries/democratic-republic-congo,2026-11-17
+COD,Democratic Republic of the Congo,International Rescue Committee,"Health, safety and cash support for families",https://www.rescue.org/country/democratic-republic-congo,country,ok,https://www.rescue.org/country/democratic-republic-congo,2026-11-17
+COD,Democratic Republic of the Congo,Doctors Without Borders (MSF),Emergency medical care,https://www.msf.org/drc,country,ok,https://www.msf.org/democratic-republic-congo-drc,2026-11-17
+HTI,Haiti,UNICEF,"Children: health, nutrition, water, schooling",https://www.unicef.org/haiti,country,ok,https://www.unicef.org/haiti/,2026-11-17
+HTI,Haiti,World Food Programme,Food and nutrition assistance,https://www.wfp.org/countries/haiti,country,ok,https://www.wfp.org/countries/haiti,2026-11-17
+HTI,Haiti,International Rescue Committee,"Health, safety and cash support for families",https://www.rescue.org/country/haiti,country,ok,https://www.rescue.org/country/haiti,2026-11-17
+HTI,Haiti,Doctors Without Borders (MSF),Emergency medical care,https://www.msf.org/haiti,country,ok,https://www.msf.org/haiti,2026-11-17
+TCD,Chad,UNICEF,"Children: health, nutrition, water, schooling",https://www.unicef.org/chad,country,ok,https://www.unicef.org/chad/,2026-11-17
+TCD,Chad,World Food Programme,Food and nutrition assistance,https://www.wfp.org/countries/chad,country,ok,https://www.wfp.org/countries/chad,2026-11-17
+TCD,Chad,International Rescue Committee,"Health, safety and cash support for families",https://www.rescue.org/country/chad,country,ok,https://www.rescue.org/country/chad,2026-11-17
+TCD,Chad,Doctors Without Borders (MSF),Emergency medical care,https://www.msf.org/chad,country,ok,https://www.msf.org/chad,2026-11-17
+MOZ,Mozambique,UNICEF,"Children: health, nutrition, water, schooling",https://www.unicef.org/mozambique,country,ok,https://www.unicef.org/mozambique/,2026-11-17
+MOZ,Mozambique,World Food Programme,Food and nutrition assistance,https://www.wfp.org/countries/mozambique,country,ok,https://www.wfp.org/countries/mozambique,2026-11-17
+MOZ,Mozambique,International Rescue Committee,"Health, safety and cash support for families",https://www.rescue.org/country/mozambique,country,http 404,https://www.rescue.org/country/mozambique,2026-11-17
+MOZ,Mozambique,Doctors Without Borders (MSF),Emergency medical care,https://www.msf.org/mozambique,country,ok,https://www.msf.org/mozambique,2026-11-17
+NGA,Nigeria,UNICEF,"Children: health, nutrition, water, schooling",https://www.unicef.org/nigeria,country,ok,https://www.unicef.org/nigeria/,2026-11-17
+NGA,Nigeria,World Food Programme,Food and nutrition assistance,https://www.wfp.org/countries/nigeria,country,ok,https://www.wfp.org/countries/nigeria,2026-11-17
+NGA,Nigeria,International Rescue Committee,"Health, safety and cash support for families",https://www.rescue.org/country/nigeria,country,ok,https://www.rescue.org/country/nigeria,2026-11-17
+NGA,Nigeria,Doctors Without Borders (MSF),Emergency medical care,https://www.msf.org/nigeria,country,ok,https://www.msf.org/nigeria,2026-11-17
+CAF,Central African Republic,UNICEF,"Children: health, nutrition, water, schooling",https://www.unicef.org/car,country,ok,https://www.unicef.org/car/,2026-11-17
+CAF,Central African Republic,World Food Programme,Food and nutrition assistance,https://www.wfp.org/countries/central-african-republic,country,ok,https://www.wfp.org/countries/central-african-republic,2026-11-17
+CAF,Central African Republic,International Rescue Committee,"Health, safety and cash support for families",https://www.rescue.org/country/central-african-republic,country,ok,https://www.rescue.org/country/central-african-republic,2026-11-17
+CAF,Central African Republic,Doctors Without Borders (MSF),Emergency medical care,https://www.msf.org/central-african-republic,country,ok,https://www.msf.org/central-african-republic,2026-11-17
+UKR,Ukraine,UNICEF,"Children: health, nutrition, water, schooling",https://www.unicef.org/ukraine,country,ok,https://www.unicef.org/ukraine/,2026-11-17
+UKR,Ukraine,World Food Programme,Food and nutrition assistance,https://www.wfp.org/countries/ukraine,country,ok,https://www.wfp.org/countries/ukraine,2026-11-17
+UKR,Ukraine,International Rescue Committee,"Health, safety and cash support for families",https://www.rescue.org/country/ukraine,country,ok,https://www.rescue.org/country/ukraine,2026-11-17
+UKR,Ukraine,Doctors Without Borders (MSF),Emergency medical care,https://www.msf.org/ukraine,country,ok,https://www.msf.org/ukraine,2026-11-17
+PSE,State of Palestine,UNICEF,"Children: health, nutrition, water, schooling",https://www.unicef.org/state-of-palestine,country,http 404,https://www.unicef.org/state-of-palestine,2026-11-17
+PSE,State of Palestine,World Food Programme,Food and nutrition assistance,https://www.wfp.org/countries/palestine,country,ok,https://www.wfp.org/countries/palestine,2026-11-17
+PSE,State of Palestine,International Rescue Committee,"Health, safety and cash support for families",https://www.rescue.org/country/israel-and-occupied-palestinian-territory,country,http 404,https://www.rescue.org/country/israel-and-occupied-palestinian-territory,2026-11-17
+PSE,State of Palestine,Doctors Without Borders (MSF),Emergency medical care,https://www.msf.org/palestine,country,ok,https://www.msf.org/palestine,2026-11-17
+LBN,Lebanon,UNICEF,"Children: health, nutrition, water, schooling",https://www.unicef.org/lebanon,country,ok,https://www.unicef.org/lebanon/,2026-11-17
+LBN,Lebanon,World Food Programme,Food and nutrition assistance,https://www.wfp.org/countries/lebanon,country,ok,https://www.wfp.org/countries/lebanon,2026-11-17
+LBN,Lebanon,International Rescue Committee,"Health, safety and cash support for families",https://www.rescue.org/country/lebanon,country,ok,https://www.rescue.org/country/lebanon,2026-11-17
+LBN,Lebanon,Doctors Without Borders (MSF),Emergency medical care,https://www.msf.org/lebanon,country,ok,https://www.msf.org/lebanon,2026-11-17
+MDG,Madagascar,UNICEF,"Children: health, nutrition, water, schooling",https://www.unicef.org/madagascar,country,ok,https://www.unicef.org/madagascar/,2026-11-17
+MDG,Madagascar,World Food Programme,Food and nutrition assistance,https://www.wfp.org/countries/madagascar,country,ok,https://www.wfp.org/countries/madagascar,2026-11-17
+MDG,Madagascar,International Rescue Committee,"Health, safety and cash support for families",https://www.rescue.org/country/madagascar,country,http 404,https://www.rescue.org/country/madagascar,2026-11-17
+MDG,Madagascar,Doctors Without Borders (MSF),Emergency medical care,https://www.msf.org/madagascar,country,ok,https://www.msf.org/madagascar,2026-11-17
+NPL,Nepal,UNICEF,"Children: health, nutrition, water, schooling",https://www.unicef.org/nepal,country,ok,https://www.unicef.org/nepal/,2026-11-17
+NPL,Nepal,World Food Programme,Food and nutrition assistance,https://www.wfp.org/countries/nepal,country,ok,https://www.wfp.org/countries/nepal,2026-11-17
+NPL,Nepal,International Rescue Committee,"Health, safety and cash support for families",https://www.rescue.org/country/nepal,country,http 404,https://www.rescue.org/country/nepal,2026-11-17
+NPL,Nepal,Doctors Without Borders (MSF),Emergency medical care,https://www.msf.org/nepal,country,ok,https://www.msf.org/nepal,2026-11-17
+VNM,Viet Nam,UNICEF,"Children: health, nutrition, water, schooling",https://www.unicef.org/vietnam,country,ok,https://www.unicef.org/vietnam/,2026-11-17
+VNM,Viet Nam,World Food Programme,Food and nutrition assistance,https://www.wfp.org/countries/viet-nam,country,http 404,https://www.wfp.org/countries/viet-nam,2026-11-17
+VNM,Viet Nam,International Rescue Committee,"Health, safety and cash support for families",https://www.rescue.org/country/viet-nam,country,http 404,https://www.rescue.org/country/viet-nam,2026-11-17
+VNM,Viet Nam,Doctors Without Borders (MSF),Emergency medical care,https://www.msf.org/vietnam,country,ok,https://www.msf.org/vietnam,2026-11-17
+CUB,Cuba,UNICEF,"Children: health, nutrition, water, schooling",https://www.unicef.org/cuba,country,ok,https://www.unicef.org/cuba/,2026-11-17
+CUB,Cuba,World Food Programme,Food and nutrition assistance,https://www.wfp.org/countries/cuba,country,ok,https://www.wfp.org/countries/cuba,2026-11-17
+CUB,Cuba,International Rescue Committee,"Health, safety and cash support for families",https://www.rescue.org/country/cuba,country,http 404,https://www.rescue.org/country/cuba,2026-11-17
+CUB,Cuba,Doctors Without Borders (MSF),Emergency medical care,https://www.msf.org/cuba,country,ok,https://www.msf.org/cuba,2026-11-17
+PAK,Pakistan,UNICEF,"Children: health, nutrition, water, schooling",https://www.unicef.org/pakistan,country,ok,https://www.unicef.org/pakistan/,2026-11-17
+PAK,Pakistan,World Food Programme,Food and nutrition assistance,https://www.wfp.org/countries/pakistan,country,ok,https://www.wfp.org/countries/pakistan,2026-11-17
+PAK,Pakistan,International Rescue Committee,"Health, safety and cash support for families",https://www.rescue.org/country/pakistan,country,ok,https://www.rescue.org/country/pakistan,2026-11-17
+PAK,Pakistan,Doctors Without Borders (MSF),Emergency medical care,https://www.msf.org/pakistan,country,ok,https://www.msf.org/pakistan,2026-11-17
+PSE,State of Palestine,UNRWA,"Palestine refugees: food, health, schooling",https://www.unrwa.org/donate,country,ok,https://donate.unrwa.org/int/en/general,2026-11-17
+LBN,Lebanon,UNRWA,Palestine refugees in Lebanon,https://www.unrwa.org/donate,country,ok,https://donate.unrwa.org/int/en/general,2026-11-17
+SYR,Syrian Arab Republic,UNRWA,Palestine refugees in Syria,https://www.unrwa.org/donate,country,ok,https://donate.unrwa.org/int/en/general,2026-11-17
+ALL,All crises,Charity Navigator,Independent charity ratings: check before you give,https://www.charitynavigator.org/,general,ok,https://www.charitynavigator.org/,2026-11-17
+ALL,All crises,CharityWatch,Independent charity watchdog,https://www.charitywatch.org/,general,ok,https://charitywatch.org/,2026-11-17
+ALL,All crises,OCHA Financial Tracking Service,See exactly who has funded each appeal,https://fts.unocha.org/,general,ok,https://fts.unocha.org/,2026-11-17

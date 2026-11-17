@@ -21,11 +21,19 @@ window.AIDGAP = {
    "year": 2026,
    "funding_pct": 23.2045096967,
    "funding_per_person_usd": 21.723472684,
-   "neglect_score": 93.3,
+   "neglect_score": 91.5,
    "rank": 1,
    "low_confidence": false,
+   "coverage_pts": 88.5,
+   "per_person_pts": 92.3,
+   "scale_pts": 96.2,
+   "pin_source": "HAPI",
+   "pin_confidence": "high",
+   "pin_note": "",
+   "pin_url": "",
+   "data_note": "",
    "best_rank": 1,
-   "worst_rank": 2,
+   "worst_rank": 3,
    "times_in_top": 6
   },
   {
@@ -39,11 +47,19 @@ window.AIDGAP = {
    "year": 2026,
    "funding_pct": 33.8751062449,
    "funding_per_person_usd": 26.5280869638,
-   "neglect_score": 84.8,
+   "neglect_score": 84.6,
    "rank": 2,
    "low_confidence": false,
+   "coverage_pts": 76.9,
+   "per_person_pts": 88.5,
+   "scale_pts": 92.3,
+   "pin_source": "HAPI",
+   "pin_confidence": "high",
+   "pin_note": "",
+   "pin_url": "",
+   "data_note": "",
    "best_rank": 2,
-   "worst_rank": 3,
+   "worst_rank": 4,
    "times_in_top": 6
   },
   {
@@ -57,12 +73,46 @@ window.AIDGAP = {
    "year": 2026,
    "funding_pct": 2.853256322,
    "funding_per_person_usd": 0.7302277006,
-   "neglect_score": 81.0,
+   "neglect_score": 83.8,
    "rank": 3,
    "low_confidence": true,
+   "coverage_pts": 100.0,
+   "per_person_pts": 100.0,
+   "scale_pts": 19.2,
+   "pin_source": "HAPI",
+   "pin_confidence": "high",
+   "pin_note": "",
+   "pin_url": "",
+   "data_note": "LOW CONFIDENCE: needs from 2025, funding from 2026",
    "best_rank": 1,
-   "worst_rank": 14,
+   "worst_rank": 13,
    "times_in_top": 5
+  },
+  {
+   "location_code": "VNM",
+   "location_name": "Viet Nam",
+   "requirements_usd": 61132366.0,
+   "funding_usd": 5351609.0,
+   "unmet_usd": 55780757.0,
+   "people_in_need": 1400000.0,
+   "pin_year": 2026.0,
+   "year": 2026,
+   "funding_pct": 8.7541336123,
+   "funding_per_person_usd": 3.8225778571,
+   "neglect_score": 79.6,
+   "rank": 4,
+   "low_confidence": true,
+   "coverage_pts": 96.2,
+   "per_person_pts": 96.2,
+   "scale_pts": 13.5,
+   "pin_source": "manual",
+   "pin_confidence": "low",
+   "pin_note": "Viet Nam Joint Response Plan - multiple typhoons and floods (Oct 2025 - Jun 2026)",
+   "pin_url": "https://humanitarianaction.info/plan/1522",
+   "data_note": "LOW CONFIDENCE: hand-added needs figure, sources disagree",
+   "best_rank": 2,
+   "worst_rank": 17,
+   "times_in_top": 4
   },
   {
    "location_code": "MLI",
@@ -75,11 +125,19 @@ window.AIDGAP = {
    "year": 2026,
    "funding_pct": 29.783855477,
    "funding_per_person_usd": 33.7472347059,
-   "neglect_score": 73.3,
-   "rank": 4,
+   "neglect_score": 75.4,
+   "rank": 5,
    "low_confidence": false,
-   "best_rank": 3,
-   "worst_rank": 8,
+   "coverage_pts": 80.8,
+   "per_person_pts": 80.8,
+   "scale_pts": 53.8,
+   "pin_source": "HAPI",
+   "pin_confidence": "high",
+   "pin_note": "",
+   "pin_url": "",
+   "data_note": "",
+   "best_rank": 4,
+   "worst_rank": 7,
    "times_in_top": 5
   },
   {
@@ -93,12 +151,20 @@ window.AIDGAP = {
    "year": 2026,
    "funding_pct": 26.7734062506,
    "funding_per_person_usd": 40.0680063636,
-   "neglect_score": 70.5,
-   "rank": 5,
+   "neglect_score": 73.1,
+   "rank": 6,
    "low_confidence": false,
-   "best_rank": 4,
+   "coverage_pts": 84.6,
+   "per_person_pts": 76.9,
+   "scale_pts": 42.3,
+   "pin_source": "HAPI",
+   "pin_confidence": "high",
+   "pin_note": "",
+   "pin_url": "",
+   "data_note": "",
+   "best_rank": 5,
    "worst_rank": 11,
-   "times_in_top": 3
+   "times_in_top": 1
   },
   {
    "location_code": "NER",
@@ -111,12 +177,20 @@ window.AIDGAP = {
    "year": 2026,
    "funding_pct": 20.0023701503,
    "funding_per_person_usd": 51.9768965385,
-   "neglect_score": 64.8,
-   "rank": 6,
+   "neglect_score": 67.7,
+   "rank": 7,
    "low_confidence": false,
-   "best_rank": 5,
-   "worst_rank": 15,
-   "times_in_top": 1
+   "coverage_pts": 92.3,
+   "per_person_pts": 61.5,
+   "scale_pts": 30.8,
+   "pin_source": "HAPI",
+   "pin_confidence": "high",
+   "pin_note": "",
+   "pin_url": "",
+   "data_note": "",
+   "best_rank": 7,
+   "worst_rank": 16,
+   "times_in_top": 0
   },
   {
    "location_code": "SYR",
@@ -129,12 +203,20 @@ window.AIDGAP = {
    "year": 2026,
    "funding_pct": 34.4486510458,
    "funding_per_person_usd": 61.0092881818,
-   "neglect_score": 62.9,
-   "rank": 7,
+   "neglect_score": 66.9,
+   "rank": 8,
    "low_confidence": false,
+   "coverage_pts": 73.1,
+   "per_person_pts": 50.0,
+   "scale_pts": 88.5,
+   "pin_source": "HAPI",
+   "pin_confidence": "high",
+   "pin_note": "",
+   "pin_url": "",
+   "data_note": "",
    "best_rank": 4,
-   "worst_rank": 9,
-   "times_in_top": 1
+   "worst_rank": 10,
+   "times_in_top": 2
   },
   {
    "location_code": "MMR",
@@ -147,12 +229,20 @@ window.AIDGAP = {
    "year": 2026,
    "funding_pct": 52.1804699415,
    "funding_per_person_usd": 28.6028989374,
-   "neglect_score": 61.9,
-   "rank": 8,
+   "neglect_score": 64.6,
+   "rank": 9,
    "low_confidence": false,
-   "best_rank": 4,
-   "worst_rank": 13,
-   "times_in_top": 2
+   "coverage_pts": 34.6,
+   "per_person_pts": 84.6,
+   "scale_pts": 84.6,
+   "pin_source": "HAPI",
+   "pin_confidence": "high",
+   "pin_note": "",
+   "pin_url": "",
+   "data_note": "",
+   "best_rank": 5,
+   "worst_rank": 14,
+   "times_in_top": 1
   },
   {
    "location_code": "SDN",
@@ -165,11 +255,19 @@ window.AIDGAP = {
    "year": 2026,
    "funding_pct": 50.2824685554,
    "funding_per_person_usd": 42.7661818167,
-   "neglect_score": 61.9,
-   "rank": 8,
+   "neglect_score": 64.6,
+   "rank": 9,
    "low_confidence": false,
+   "coverage_pts": 38.5,
+   "per_person_pts": 73.1,
+   "scale_pts": 100.0,
+   "pin_source": "HAPI",
+   "pin_confidence": "high",
+   "pin_note": "",
+   "pin_url": "",
+   "data_note": "",
    "best_rank": 3,
-   "worst_rank": 11,
+   "worst_rank": 13,
    "times_in_top": 2
   },
   {
@@ -183,11 +281,19 @@ window.AIDGAP = {
    "year": 2026,
    "funding_pct": 37.8387978352,
    "funding_per_person_usd": 46.8891869565,
-   "neglect_score": 61.0,
-   "rank": 10,
+   "neglect_score": 63.8,
+   "rank": 11,
    "low_confidence": false,
+   "coverage_pts": 61.5,
+   "per_person_pts": 65.4,
+   "scale_pts": 65.4,
+   "pin_source": "HAPI",
+   "pin_confidence": "high",
+   "pin_note": "",
+   "pin_url": "",
+   "data_note": "",
    "best_rank": 7,
-   "worst_rank": 10,
+   "worst_rank": 11,
    "times_in_top": 0
   },
   {
@@ -201,11 +307,19 @@ window.AIDGAP = {
    "year": 2026,
    "funding_pct": 39.4150710062,
    "funding_per_person_usd": 43.3533462069,
-   "neglect_score": 54.3,
-   "rank": 11,
+   "neglect_score": 57.7,
+   "rank": 12,
    "low_confidence": false,
-   "best_rank": 8,
-   "worst_rank": 17,
+   "coverage_pts": 57.7,
+   "per_person_pts": 69.2,
+   "scale_pts": 34.6,
+   "pin_source": "HAPI",
+   "pin_confidence": "high",
+   "pin_note": "",
+   "pin_url": "",
+   "data_note": "",
+   "best_rank": 9,
+   "worst_rank": 18,
    "times_in_top": 0
   },
   {
@@ -219,11 +333,19 @@ window.AIDGAP = {
    "year": 2026,
    "funding_pct": 40.1345586212,
    "funding_per_person_usd": 59.2288875689,
-   "neglect_score": 53.3,
+   "neglect_score": 57.7,
    "rank": 12,
    "low_confidence": false,
+   "coverage_pts": 53.8,
+   "per_person_pts": 53.8,
+   "scale_pts": 73.1,
+   "pin_source": "HAPI",
+   "pin_confidence": "high",
+   "pin_note": "",
+   "pin_url": "",
+   "data_note": "",
    "best_rank": 6,
-   "worst_rank": 13,
+   "worst_rank": 14,
    "times_in_top": 0
   },
   {
@@ -237,11 +359,19 @@ window.AIDGAP = {
    "year": 2026,
    "funding_pct": 35.4479710094,
    "funding_per_person_usd": 62.9721005246,
-   "neglect_score": 49.5,
-   "rank": 13,
+   "neglect_score": 54.6,
+   "rank": 14,
    "low_confidence": false,
-   "best_rank": 9,
-   "worst_rank": 14,
+   "coverage_pts": 65.4,
+   "per_person_pts": 46.2,
+   "scale_pts": 50.0,
+   "pin_source": "HAPI",
+   "pin_confidence": "high",
+   "pin_note": "",
+   "pin_url": "",
+   "data_note": "",
+   "best_rank": 10,
+   "worst_rank": 15,
    "times_in_top": 0
   },
   {
@@ -255,11 +385,19 @@ window.AIDGAP = {
    "year": 2026,
    "funding_pct": 50.1337568977,
    "funding_per_person_usd": 59.1009802532,
-   "neglect_score": 48.6,
-   "rank": 14,
+   "neglect_score": 53.8,
+   "rank": 15,
    "low_confidence": false,
+   "coverage_pts": 42.3,
+   "per_person_pts": 57.7,
+   "scale_pts": 69.2,
+   "pin_source": "HAPI",
+   "pin_confidence": "high",
+   "pin_note": "",
+   "pin_url": "",
+   "data_note": "",
    "best_rank": 9,
-   "worst_rank": 14,
+   "worst_rank": 15,
    "times_in_top": 0
   },
   {
@@ -273,9 +411,17 @@ window.AIDGAP = {
    "year": 2026,
    "funding_pct": 53.1363237463,
    "funding_per_person_usd": 75.8468519638,
-   "neglect_score": 30.5,
-   "rank": 15,
+   "neglect_score": 39.2,
+   "rank": 16,
    "low_confidence": false,
+   "coverage_pts": 26.9,
+   "per_person_pts": 30.8,
+   "scale_pts": 80.8,
+   "pin_source": "HAPI",
+   "pin_confidence": "high",
+   "pin_note": "",
+   "pin_url": "",
+   "data_note": "",
    "best_rank": 10,
    "worst_rank": 20,
    "times_in_top": 0
@@ -291,11 +437,19 @@ window.AIDGAP = {
    "year": 2026,
    "funding_pct": 52.2703517362,
    "funding_per_person_usd": 71.7393820236,
-   "neglect_score": 29.5,
-   "rank": 16,
+   "neglect_score": 38.5,
+   "rank": 17,
    "low_confidence": false,
-   "best_rank": 16,
-   "worst_rank": 18,
+   "coverage_pts": 30.8,
+   "per_person_pts": 34.6,
+   "scale_pts": 61.5,
+   "pin_source": "HAPI",
+   "pin_confidence": "high",
+   "pin_note": "",
+   "pin_url": "",
+   "data_note": "",
+   "best_rank": 15,
+   "worst_rank": 20,
    "times_in_top": 0
   },
   {
@@ -309,11 +463,45 @@ window.AIDGAP = {
    "year": 2026,
    "funding_pct": 46.1264745963,
    "funding_per_person_usd": 100.8733075568,
-   "neglect_score": 27.6,
-   "rank": 17,
+   "neglect_score": 36.9,
+   "rank": 18,
    "low_confidence": false,
-   "best_rank": 15,
+   "coverage_pts": 46.2,
+   "per_person_pts": 23.1,
+   "scale_pts": 46.2,
+   "pin_source": "HAPI",
+   "pin_confidence": "high",
+   "pin_note": "",
+   "pin_url": "",
+   "data_note": "",
+   "best_rank": 17,
    "worst_rank": 20,
+   "times_in_top": 0
+  },
+  {
+   "location_code": "PSE",
+   "location_name": "State of Palestine",
+   "requirements_usd": 4064305808.0,
+   "funding_usd": 1423166531.0,
+   "unmet_usd": 2641139277.0,
+   "people_in_need": 3620000.0,
+   "pin_year": 2026.0,
+   "year": 2026,
+   "funding_pct": 35.016226589,
+   "funding_per_person_usd": 393.1399256906,
+   "neglect_score": 36.9,
+   "rank": 18,
+   "low_confidence": false,
+   "coverage_pts": 69.2,
+   "per_person_pts": 3.8,
+   "scale_pts": 38.5,
+   "pin_source": "manual",
+   "pin_confidence": "medium",
+   "pin_note": "oPt Flash Appeal 2026",
+   "pin_url": "https://www.ochaopt.org/sites/default/files/OPT_Flash_Appeal_2026_At_a_Glance_EN.pdf",
+   "data_note": "",
+   "best_rank": 16,
+   "worst_rank": 23,
    "times_in_top": 0
   },
   {
@@ -327,11 +515,19 @@ window.AIDGAP = {
    "year": 2026,
    "funding_pct": 42.607310519,
    "funding_per_person_usd": 96.6270587506,
-   "neglect_score": 27.6,
-   "rank": 17,
+   "neglect_score": 36.2,
+   "rank": 20,
    "low_confidence": false,
-   "best_rank": 15,
-   "worst_rank": 20,
+   "coverage_pts": 50.0,
+   "per_person_pts": 26.9,
+   "scale_pts": 26.9,
+   "pin_source": "HAPI",
+   "pin_confidence": "high",
+   "pin_note": "",
+   "pin_url": "",
+   "data_note": "",
+   "best_rank": 16,
+   "worst_rank": 22,
    "times_in_top": 0
   },
   {
@@ -345,11 +541,19 @@ window.AIDGAP = {
    "year": 2026,
    "funding_pct": 72.4156616651,
    "funding_per_person_usd": 63.3820438983,
-   "neglect_score": 26.7,
-   "rank": 19,
+   "neglect_score": 33.1,
+   "rank": 21,
    "low_confidence": false,
-   "best_rank": 15,
-   "worst_rank": 19,
+   "coverage_pts": 11.5,
+   "per_person_pts": 42.3,
+   "scale_pts": 57.7,
+   "pin_source": "HAPI",
+   "pin_confidence": "high",
+   "pin_note": "",
+   "pin_url": "",
+   "data_note": "",
+   "best_rank": 17,
+   "worst_rank": 22,
    "times_in_top": 0
   },
   {
@@ -363,11 +567,19 @@ window.AIDGAP = {
    "year": 2026,
    "funding_pct": 58.0548589144,
    "funding_per_person_usd": 67.0415892895,
-   "neglect_score": 19.0,
-   "rank": 20,
+   "neglect_score": 26.2,
+   "rank": 22,
    "low_confidence": false,
-   "best_rank": 18,
-   "worst_rank": 21,
+   "coverage_pts": 15.4,
+   "per_person_pts": 38.5,
+   "scale_pts": 23.1,
+   "pin_source": "HAPI",
+   "pin_confidence": "high",
+   "pin_note": "",
+   "pin_url": "",
+   "data_note": "",
+   "best_rank": 21,
+   "worst_rank": 23,
    "times_in_top": 0
   },
   {
@@ -381,46 +593,109 @@ window.AIDGAP = {
    "year": 2026,
    "funding_pct": 75.9606267373,
    "funding_per_person_usd": 161.3044084088,
-   "neglect_score": 18.1,
-   "rank": 21,
+   "neglect_score": 24.6,
+   "rank": 23,
    "low_confidence": false,
-   "best_rank": 12,
-   "worst_rank": 21,
+   "coverage_pts": 7.7,
+   "per_person_pts": 15.4,
+   "scale_pts": 76.9,
+   "pin_source": "HAPI",
+   "pin_confidence": "high",
+   "pin_note": "",
+   "pin_url": "",
+   "data_note": "",
+   "best_rank": 14,
+   "worst_rank": 26,
    "times_in_top": 0
-  }
- ],
- "unranked": [
-  {
-   "location_code": "PSE",
-   "location_name": "State of Palestine",
-   "appeal_types": "Flash appeal",
-   "requirements_usd": 4064305808.0,
-   "funding_usd": 1423166531.0,
-   "funding_pct": 35.016226589
   },
   {
    "location_code": "LBN",
    "location_name": "Lebanon",
-   "appeal_types": "Flash appeal",
    "requirements_usd": 639875890.0,
    "funding_usd": 342059528.0,
-   "funding_pct": 53.4571677642
+   "unmet_usd": 297816362.0,
+   "people_in_need": 1400000.0,
+   "pin_year": 2026.0,
+   "year": 2026,
+   "funding_pct": 53.4571677642,
+   "funding_per_person_usd": 244.3282342857,
+   "neglect_score": 16.5,
+   "rank": 24,
+   "low_confidence": false,
+   "coverage_pts": 23.1,
+   "per_person_pts": 11.5,
+   "scale_pts": 13.5,
+   "pin_source": "manual",
+   "pin_confidence": "medium",
+   "pin_note": "Lebanon Flash Appeal 2026 (revised March-August)",
+   "pin_url": "https://unsco.unmissions.org/sites/default/files/2026-06/LebanonFA2026extension_EN_new.pdf",
+   "data_note": "",
+   "best_rank": 23,
+   "worst_rank": 24,
+   "times_in_top": 0
   },
+  {
+   "location_code": "NPL",
+   "location_name": "Nepal",
+   "requirements_usd": 49568000.0,
+   "funding_usd": 26565229.0,
+   "unmet_usd": 23002771.0,
+   "people_in_need": 84270.0,
+   "pin_year": 2026.0,
+   "year": 2026,
+   "funding_pct": 53.5935058909,
+   "funding_per_person_usd": 315.2394565088,
+   "neglect_score": 11.5,
+   "rank": 25,
+   "low_confidence": true,
+   "coverage_pts": 19.2,
+   "per_person_pts": 7.7,
+   "scale_pts": 3.8,
+   "pin_source": "manual",
+   "pin_confidence": "low",
+   "pin_note": "Nepal Rasuwa Flood Flash Appeal (launched 4 September 2026)",
+   "pin_url": "https://www.unicef.org/media/184011/file/Nepal-Humanitarian-Situation-Report-No.%202-4%20September-2026.pdf",
+   "data_note": "LOW CONFIDENCE: hand-added needs figure, sources disagree",
+   "best_rank": 24,
+   "worst_rank": 26,
+   "times_in_top": 0
+  },
+  {
+   "location_code": "MDG",
+   "location_name": "Madagascar",
+   "requirements_usd": 67953475.0,
+   "funding_usd": 63904303.0,
+   "unmet_usd": 4049172.0,
+   "people_in_need": 581000.0,
+   "pin_year": 2026.0,
+   "year": 2026,
+   "funding_pct": 94.0412583757,
+   "funding_per_person_usd": 109.9901944923,
+   "neglect_score": 10.8,
+   "rank": 26,
+   "low_confidence": false,
+   "coverage_pts": 3.8,
+   "per_person_pts": 19.2,
+   "scale_pts": 7.7,
+   "pin_source": "manual",
+   "pin_confidence": "medium",
+   "pin_note": "Madagascar Cyclone Flash Appeal (March-May 2026; Fytia and Gezani)",
+   "pin_url": "https://reliefweb.int/report/madagascar/madagascar-tc-fytia-and-gezani-emergency-response-dg-echo-reliefweb-bngrc-echo-daily-flash-26-february-2026",
+   "data_note": "",
+   "best_rank": 25,
+   "worst_rank": 26,
+   "times_in_top": 0
+  }
+ ],
+ "unranked": [
   {
    "location_code": "CUB",
    "location_name": "Cuba",
    "appeal_types": "Other",
    "requirements_usd": 81755350.0,
    "funding_usd": 41707868.0,
-   "funding_pct": 51.0154601503
-  },
-  {
-   "location_code": "MDG",
-   "location_name": "Madagascar",
-   "appeal_types": "Flash appeal",
-   "requirements_usd": 67953475.0,
-   "funding_usd": 63904303.0,
-   "funding_pct": 94.0412583757
+   "funding_pct": 51.0154601503,
+   "note": "NOT used: the plan changed scope, so the people-in-need figure may not belong to the same funding total."
   },
   {
    "location_code": "PAK",
@@ -428,23 +703,845 @@ window.AIDGAP = {
    "appeal_types": "Other",
    "requirements_usd": 64943909.0,
    "funding_usd": 29100543.0,
-   "funding_pct": 44.8087333333
+   "funding_pct": 44.8087333333,
+   "note": "NOT used: scope mismatch between the people-in-need figure (whole plan) and the funding total (part of it)."
+  }
+ ],
+ "donate": {
+  "YEM": [
+   {
+    "org": "UNICEF",
+    "what": "Children: health, nutrition, water, schooling",
+    "url": "https://www.unicef.org/yemen",
+    "checked": "2026-11-17"
+   },
+   {
+    "org": "World Food Programme",
+    "what": "Food and nutrition assistance",
+    "url": "https://www.wfp.org/countries/yemen",
+    "checked": "2026-11-17"
+   },
+   {
+    "org": "International Rescue Committee",
+    "what": "Health, safety and cash support for families",
+    "url": "https://www.rescue.org/country/yemen",
+    "checked": "2026-11-17"
+   },
+   {
+    "org": "Doctors Without Borders (MSF)",
+    "what": "Emergency medical care",
+    "url": "https://www.msf.org/yemen",
+    "checked": "2026-11-17"
+   }
+  ],
+  "AFG": [
+   {
+    "org": "UNICEF",
+    "what": "Children: health, nutrition, water, schooling",
+    "url": "https://www.unicef.org/afghanistan",
+    "checked": "2026-11-17"
+   },
+   {
+    "org": "World Food Programme",
+    "what": "Food and nutrition assistance",
+    "url": "https://www.wfp.org/countries/afghanistan",
+    "checked": "2026-11-17"
+   },
+   {
+    "org": "International Rescue Committee",
+    "what": "Health, safety and cash support for families",
+    "url": "https://www.rescue.org/country/afghanistan",
+    "checked": "2026-11-17"
+   },
+   {
+    "org": "Doctors Without Borders (MSF)",
+    "what": "Emergency medical care",
+    "url": "https://www.msf.org/afghanistan",
+    "checked": "2026-11-17"
+   }
+  ],
+  "HND": [
+   {
+    "org": "UNICEF",
+    "what": "Children: health, nutrition, water, schooling",
+    "url": "https://www.unicef.org/honduras",
+    "checked": "2026-11-17"
+   },
+   {
+    "org": "World Food Programme",
+    "what": "Food and nutrition assistance",
+    "url": "https://www.wfp.org/countries/honduras",
+    "checked": "2026-11-17"
+   },
+   {
+    "org": "International Rescue Committee",
+    "what": "Health, safety and cash support for families",
+    "url": "https://www.rescue.org/country/honduras",
+    "checked": "2026-11-17"
+   },
+   {
+    "org": "Doctors Without Borders (MSF)",
+    "what": "Emergency medical care",
+    "url": "https://www.msf.org/honduras",
+    "checked": "2026-11-17"
+   }
+  ],
+  "MLI": [
+   {
+    "org": "UNICEF",
+    "what": "Children: health, nutrition, water, schooling",
+    "url": "https://www.unicef.org/mali",
+    "checked": "2026-11-17"
+   },
+   {
+    "org": "World Food Programme",
+    "what": "Food and nutrition assistance",
+    "url": "https://www.wfp.org/countries/mali",
+    "checked": "2026-11-17"
+   },
+   {
+    "org": "International Rescue Committee",
+    "what": "Health, safety and cash support for families",
+    "url": "https://www.rescue.org/country/mali",
+    "checked": "2026-11-17"
+   },
+   {
+    "org": "Doctors Without Borders (MSF)",
+    "what": "Emergency medical care",
+    "url": "https://www.msf.org/mali",
+    "checked": "2026-11-17"
+   }
+  ],
+  "BFA": [
+   {
+    "org": "UNICEF",
+    "what": "Children: health, nutrition, water, schooling",
+    "url": "https://www.unicef.org/burkinafaso",
+    "checked": "2026-11-17"
+   },
+   {
+    "org": "World Food Programme",
+    "what": "Food and nutrition assistance",
+    "url": "https://www.wfp.org/countries/burkina-faso",
+    "checked": "2026-11-17"
+   },
+   {
+    "org": "International Rescue Committee",
+    "what": "Health, safety and cash support for families",
+    "url": "https://www.rescue.org/country/burkina-faso",
+    "checked": "2026-11-17"
+   },
+   {
+    "org": "Doctors Without Borders (MSF)",
+    "what": "Emergency medical care",
+    "url": "https://www.msf.org/burkina-faso",
+    "checked": "2026-11-17"
+   }
+  ],
+  "NER": [
+   {
+    "org": "UNICEF",
+    "what": "Children: health, nutrition, water, schooling",
+    "url": "https://www.unicef.org/niger",
+    "checked": "2026-11-17"
+   },
+   {
+    "org": "World Food Programme",
+    "what": "Food and nutrition assistance",
+    "url": "https://www.wfp.org/countries/niger",
+    "checked": "2026-11-17"
+   },
+   {
+    "org": "International Rescue Committee",
+    "what": "Health, safety and cash support for families",
+    "url": "https://www.rescue.org/country/niger",
+    "checked": "2026-11-17"
+   },
+   {
+    "org": "Doctors Without Borders (MSF)",
+    "what": "Emergency medical care",
+    "url": "https://www.msf.org/niger",
+    "checked": "2026-11-17"
+   }
+  ],
+  "SYR": [
+   {
+    "org": "UNICEF",
+    "what": "Children: health, nutrition, water, schooling",
+    "url": "https://www.unicef.org/syria",
+    "checked": "2026-11-17"
+   },
+   {
+    "org": "World Food Programme",
+    "what": "Food and nutrition assistance",
+    "url": "https://www.wfp.org/countries/syrian-arab-republic",
+    "checked": "2026-11-17"
+   },
+   {
+    "org": "International Rescue Committee",
+    "what": "Health, safety and cash support for families",
+    "url": "https://www.rescue.org/country/syria",
+    "checked": "2026-11-17"
+   },
+   {
+    "org": "Doctors Without Borders (MSF)",
+    "what": "Emergency medical care",
+    "url": "https://www.msf.org/syria",
+    "checked": "2026-11-17"
+   },
+   {
+    "org": "UNRWA",
+    "what": "Palestine refugees in Syria",
+    "url": "https://www.unrwa.org/donate",
+    "checked": "2026-11-17"
+   }
+  ],
+  "MMR": [
+   {
+    "org": "UNICEF",
+    "what": "Children: health, nutrition, water, schooling",
+    "url": "https://www.unicef.org/myanmar",
+    "checked": "2026-11-17"
+   },
+   {
+    "org": "World Food Programme",
+    "what": "Food and nutrition assistance",
+    "url": "https://www.wfp.org/countries/myanmar",
+    "checked": "2026-11-17"
+   },
+   {
+    "org": "International Rescue Committee",
+    "what": "Health, safety and cash support for families",
+    "url": "https://www.rescue.org/country/myanmar",
+    "checked": "2026-11-17"
+   },
+   {
+    "org": "Doctors Without Borders (MSF)",
+    "what": "Emergency medical care",
+    "url": "https://www.msf.org/myanmar",
+    "checked": "2026-11-17"
+   }
+  ],
+  "SDN": [
+   {
+    "org": "UNICEF",
+    "what": "Children: health, nutrition, water, schooling",
+    "url": "https://www.unicef.org/sudan",
+    "checked": "2026-11-17"
+   },
+   {
+    "org": "World Food Programme",
+    "what": "Food and nutrition assistance",
+    "url": "https://www.wfp.org/countries/sudan",
+    "checked": "2026-11-17"
+   },
+   {
+    "org": "International Rescue Committee",
+    "what": "Health, safety and cash support for families",
+    "url": "https://www.rescue.org/country/sudan",
+    "checked": "2026-11-17"
+   },
+   {
+    "org": "Doctors Without Borders (MSF)",
+    "what": "Emergency medical care",
+    "url": "https://www.msf.org/sudan",
+    "checked": "2026-11-17"
+   }
+  ],
+  "COL": [
+   {
+    "org": "UNICEF",
+    "what": "Children: health, nutrition, water, schooling",
+    "url": "https://www.unicef.org/colombia",
+    "checked": "2026-11-17"
+   },
+   {
+    "org": "World Food Programme",
+    "what": "Food and nutrition assistance",
+    "url": "https://www.wfp.org/countries/colombia",
+    "checked": "2026-11-17"
+   },
+   {
+    "org": "International Rescue Committee",
+    "what": "Health, safety and cash support for families",
+    "url": "https://www.rescue.org/country/colombia",
+    "checked": "2026-11-17"
+   },
+   {
+    "org": "Doctors Without Borders (MSF)",
+    "what": "Emergency medical care",
+    "url": "https://www.msf.org/colombia",
+    "checked": "2026-11-17"
+   }
+  ],
+  "CMR": [
+   {
+    "org": "UNICEF",
+    "what": "Children: health, nutrition, water, schooling",
+    "url": "https://www.unicef.org/cameroon",
+    "checked": "2026-11-17"
+   },
+   {
+    "org": "World Food Programme",
+    "what": "Food and nutrition assistance",
+    "url": "https://www.wfp.org/countries/cameroon",
+    "checked": "2026-11-17"
+   },
+   {
+    "org": "International Rescue Committee",
+    "what": "Health, safety and cash support for families",
+    "url": "https://www.rescue.org/country/cameroon",
+    "checked": "2026-11-17"
+   },
+   {
+    "org": "Doctors Without Borders (MSF)",
+    "what": "Emergency medical care",
+    "url": "https://www.msf.org/cameroon",
+    "checked": "2026-11-17"
+   }
+  ],
+  "SSD": [
+   {
+    "org": "UNICEF",
+    "what": "Children: health, nutrition, water, schooling",
+    "url": "https://www.unicef.org/southsudan",
+    "checked": "2026-11-17"
+   },
+   {
+    "org": "World Food Programme",
+    "what": "Food and nutrition assistance",
+    "url": "https://www.wfp.org/countries/south-sudan",
+    "checked": "2026-11-17"
+   },
+   {
+    "org": "International Rescue Committee",
+    "what": "Health, safety and cash support for families",
+    "url": "https://www.rescue.org/country/south-sudan",
+    "checked": "2026-11-17"
+   },
+   {
+    "org": "Doctors Without Borders (MSF)",
+    "what": "Emergency medical care",
+    "url": "https://www.msf.org/south-sudan",
+    "checked": "2026-11-17"
+   }
+  ],
+  "SOM": [
+   {
+    "org": "UNICEF",
+    "what": "Children: health, nutrition, water, schooling",
+    "url": "https://www.unicef.org/somalia",
+    "checked": "2026-11-17"
+   },
+   {
+    "org": "World Food Programme",
+    "what": "Food and nutrition assistance",
+    "url": "https://www.wfp.org/countries/somalia",
+    "checked": "2026-11-17"
+   },
+   {
+    "org": "International Rescue Committee",
+    "what": "Health, safety and cash support for families",
+    "url": "https://www.rescue.org/country/somalia",
+    "checked": "2026-11-17"
+   },
+   {
+    "org": "Doctors Without Borders (MSF)",
+    "what": "Emergency medical care",
+    "url": "https://www.msf.org/somalia",
+    "checked": "2026-11-17"
+   }
+  ],
+  "VEN": [
+   {
+    "org": "UNICEF",
+    "what": "Children: health, nutrition, water, schooling",
+    "url": "https://www.unicef.org/venezuela",
+    "checked": "2026-11-17"
+   },
+   {
+    "org": "International Rescue Committee",
+    "what": "Health, safety and cash support for families",
+    "url": "https://www.rescue.org/country/venezuela",
+    "checked": "2026-11-17"
+   },
+   {
+    "org": "Doctors Without Borders (MSF)",
+    "what": "Emergency medical care",
+    "url": "https://www.msf.org/venezuela",
+    "checked": "2026-11-17"
+   }
+  ],
+  "COD": [
+   {
+    "org": "UNICEF",
+    "what": "Children: health, nutrition, water, schooling",
+    "url": "https://www.unicef.org/drcongo",
+    "checked": "2026-11-17"
+   },
+   {
+    "org": "World Food Programme",
+    "what": "Food and nutrition assistance",
+    "url": "https://www.wfp.org/countries/democratic-republic-congo",
+    "checked": "2026-11-17"
+   },
+   {
+    "org": "International Rescue Committee",
+    "what": "Health, safety and cash support for families",
+    "url": "https://www.rescue.org/country/democratic-republic-congo",
+    "checked": "2026-11-17"
+   },
+   {
+    "org": "Doctors Without Borders (MSF)",
+    "what": "Emergency medical care",
+    "url": "https://www.msf.org/drc",
+    "checked": "2026-11-17"
+   }
+  ],
+  "HTI": [
+   {
+    "org": "UNICEF",
+    "what": "Children: health, nutrition, water, schooling",
+    "url": "https://www.unicef.org/haiti",
+    "checked": "2026-11-17"
+   },
+   {
+    "org": "World Food Programme",
+    "what": "Food and nutrition assistance",
+    "url": "https://www.wfp.org/countries/haiti",
+    "checked": "2026-11-17"
+   },
+   {
+    "org": "International Rescue Committee",
+    "what": "Health, safety and cash support for families",
+    "url": "https://www.rescue.org/country/haiti",
+    "checked": "2026-11-17"
+   },
+   {
+    "org": "Doctors Without Borders (MSF)",
+    "what": "Emergency medical care",
+    "url": "https://www.msf.org/haiti",
+    "checked": "2026-11-17"
+   }
+  ],
+  "TCD": [
+   {
+    "org": "UNICEF",
+    "what": "Children: health, nutrition, water, schooling",
+    "url": "https://www.unicef.org/chad",
+    "checked": "2026-11-17"
+   },
+   {
+    "org": "World Food Programme",
+    "what": "Food and nutrition assistance",
+    "url": "https://www.wfp.org/countries/chad",
+    "checked": "2026-11-17"
+   },
+   {
+    "org": "International Rescue Committee",
+    "what": "Health, safety and cash support for families",
+    "url": "https://www.rescue.org/country/chad",
+    "checked": "2026-11-17"
+   },
+   {
+    "org": "Doctors Without Borders (MSF)",
+    "what": "Emergency medical care",
+    "url": "https://www.msf.org/chad",
+    "checked": "2026-11-17"
+   }
+  ],
+  "MOZ": [
+   {
+    "org": "UNICEF",
+    "what": "Children: health, nutrition, water, schooling",
+    "url": "https://www.unicef.org/mozambique",
+    "checked": "2026-11-17"
+   },
+   {
+    "org": "World Food Programme",
+    "what": "Food and nutrition assistance",
+    "url": "https://www.wfp.org/countries/mozambique",
+    "checked": "2026-11-17"
+   },
+   {
+    "org": "Doctors Without Borders (MSF)",
+    "what": "Emergency medical care",
+    "url": "https://www.msf.org/mozambique",
+    "checked": "2026-11-17"
+   }
+  ],
+  "NGA": [
+   {
+    "org": "UNICEF",
+    "what": "Children: health, nutrition, water, schooling",
+    "url": "https://www.unicef.org/nigeria",
+    "checked": "2026-11-17"
+   },
+   {
+    "org": "World Food Programme",
+    "what": "Food and nutrition assistance",
+    "url": "https://www.wfp.org/countries/nigeria",
+    "checked": "2026-11-17"
+   },
+   {
+    "org": "International Rescue Committee",
+    "what": "Health, safety and cash support for families",
+    "url": "https://www.rescue.org/country/nigeria",
+    "checked": "2026-11-17"
+   },
+   {
+    "org": "Doctors Without Borders (MSF)",
+    "what": "Emergency medical care",
+    "url": "https://www.msf.org/nigeria",
+    "checked": "2026-11-17"
+   }
+  ],
+  "CAF": [
+   {
+    "org": "UNICEF",
+    "what": "Children: health, nutrition, water, schooling",
+    "url": "https://www.unicef.org/car",
+    "checked": "2026-11-17"
+   },
+   {
+    "org": "World Food Programme",
+    "what": "Food and nutrition assistance",
+    "url": "https://www.wfp.org/countries/central-african-republic",
+    "checked": "2026-11-17"
+   },
+   {
+    "org": "International Rescue Committee",
+    "what": "Health, safety and cash support for families",
+    "url": "https://www.rescue.org/country/central-african-republic",
+    "checked": "2026-11-17"
+   },
+   {
+    "org": "Doctors Without Borders (MSF)",
+    "what": "Emergency medical care",
+    "url": "https://www.msf.org/central-african-republic",
+    "checked": "2026-11-17"
+   }
+  ],
+  "UKR": [
+   {
+    "org": "UNICEF",
+    "what": "Children: health, nutrition, water, schooling",
+    "url": "https://www.unicef.org/ukraine",
+    "checked": "2026-11-17"
+   },
+   {
+    "org": "World Food Programme",
+    "what": "Food and nutrition assistance",
+    "url": "https://www.wfp.org/countries/ukraine",
+    "checked": "2026-11-17"
+   },
+   {
+    "org": "International Rescue Committee",
+    "what": "Health, safety and cash support for families",
+    "url": "https://www.rescue.org/country/ukraine",
+    "checked": "2026-11-17"
+   },
+   {
+    "org": "Doctors Without Borders (MSF)",
+    "what": "Emergency medical care",
+    "url": "https://www.msf.org/ukraine",
+    "checked": "2026-11-17"
+   }
+  ],
+  "PSE": [
+   {
+    "org": "World Food Programme",
+    "what": "Food and nutrition assistance",
+    "url": "https://www.wfp.org/countries/palestine",
+    "checked": "2026-11-17"
+   },
+   {
+    "org": "Doctors Without Borders (MSF)",
+    "what": "Emergency medical care",
+    "url": "https://www.msf.org/palestine",
+    "checked": "2026-11-17"
+   },
+   {
+    "org": "UNRWA",
+    "what": "Palestine refugees: food, health, schooling",
+    "url": "https://www.unrwa.org/donate",
+    "checked": "2026-11-17"
+   }
+  ],
+  "LBN": [
+   {
+    "org": "UNICEF",
+    "what": "Children: health, nutrition, water, schooling",
+    "url": "https://www.unicef.org/lebanon",
+    "checked": "2026-11-17"
+   },
+   {
+    "org": "World Food Programme",
+    "what": "Food and nutrition assistance",
+    "url": "https://www.wfp.org/countries/lebanon",
+    "checked": "2026-11-17"
+   },
+   {
+    "org": "International Rescue Committee",
+    "what": "Health, safety and cash support for families",
+    "url": "https://www.rescue.org/country/lebanon",
+    "checked": "2026-11-17"
+   },
+   {
+    "org": "Doctors Without Borders (MSF)",
+    "what": "Emergency medical care",
+    "url": "https://www.msf.org/lebanon",
+    "checked": "2026-11-17"
+   },
+   {
+    "org": "UNRWA",
+    "what": "Palestine refugees in Lebanon",
+    "url": "https://www.unrwa.org/donate",
+    "checked": "2026-11-17"
+   }
+  ],
+  "MDG": [
+   {
+    "org": "UNICEF",
+    "what": "Children: health, nutrition, water, schooling",
+    "url": "https://www.unicef.org/madagascar",
+    "checked": "2026-11-17"
+   },
+   {
+    "org": "World Food Programme",
+    "what": "Food and nutrition assistance",
+    "url": "https://www.wfp.org/countries/madagascar",
+    "checked": "2026-11-17"
+   },
+   {
+    "org": "Doctors Without Borders (MSF)",
+    "what": "Emergency medical care",
+    "url": "https://www.msf.org/madagascar",
+    "checked": "2026-11-17"
+   }
+  ],
+  "NPL": [
+   {
+    "org": "UNICEF",
+    "what": "Children: health, nutrition, water, schooling",
+    "url": "https://www.unicef.org/nepal",
+    "checked": "2026-11-17"
+   },
+   {
+    "org": "World Food Programme",
+    "what": "Food and nutrition assistance",
+    "url": "https://www.wfp.org/countries/nepal",
+    "checked": "2026-11-17"
+   },
+   {
+    "org": "Doctors Without Borders (MSF)",
+    "what": "Emergency medical care",
+    "url": "https://www.msf.org/nepal",
+    "checked": "2026-11-17"
+   }
+  ],
+  "VNM": [
+   {
+    "org": "UNICEF",
+    "what": "Children: health, nutrition, water, schooling",
+    "url": "https://www.unicef.org/vietnam",
+    "checked": "2026-11-17"
+   },
+   {
+    "org": "Doctors Without Borders (MSF)",
+    "what": "Emergency medical care",
+    "url": "https://www.msf.org/vietnam",
+    "checked": "2026-11-17"
+   }
+  ],
+  "CUB": [
+   {
+    "org": "UNICEF",
+    "what": "Children: health, nutrition, water, schooling",
+    "url": "https://www.unicef.org/cuba",
+    "checked": "2026-11-17"
+   },
+   {
+    "org": "World Food Programme",
+    "what": "Food and nutrition assistance",
+    "url": "https://www.wfp.org/countries/cuba",
+    "checked": "2026-11-17"
+   },
+   {
+    "org": "Doctors Without Borders (MSF)",
+    "what": "Emergency medical care",
+    "url": "https://www.msf.org/cuba",
+    "checked": "2026-11-17"
+   }
+  ],
+  "PAK": [
+   {
+    "org": "UNICEF",
+    "what": "Children: health, nutrition, water, schooling",
+    "url": "https://www.unicef.org/pakistan",
+    "checked": "2026-11-17"
+   },
+   {
+    "org": "World Food Programme",
+    "what": "Food and nutrition assistance",
+    "url": "https://www.wfp.org/countries/pakistan",
+    "checked": "2026-11-17"
+   },
+   {
+    "org": "International Rescue Committee",
+    "what": "Health, safety and cash support for families",
+    "url": "https://www.rescue.org/country/pakistan",
+    "checked": "2026-11-17"
+   },
+   {
+    "org": "Doctors Without Borders (MSF)",
+    "what": "Emergency medical care",
+    "url": "https://www.msf.org/pakistan",
+    "checked": "2026-11-17"
+   }
+  ],
+  "ALL": [
+   {
+    "org": "Charity Navigator",
+    "what": "Independent charity ratings: check before you give",
+    "url": "https://www.charitynavigator.org/",
+    "checked": "2026-11-17"
+   },
+   {
+    "org": "CharityWatch",
+    "what": "Independent charity watchdog",
+    "url": "https://www.charitywatch.org/",
+    "checked": "2026-11-17"
+   },
+   {
+    "org": "OCHA Financial Tracking Service",
+    "what": "See exactly who has funded each appeal",
+    "url": "https://fts.unocha.org/",
+    "checked": "2026-11-17"
+   }
+  ]
+ },
+ "sources": [
+  {
+   "id": "hapi_needs",
+   "name": "HDX HAPI v2: humanitarian needs",
+   "publisher": "OCHA Centre for Humdata (HDX)",
+   "url": "https://hapi.humdata.org/",
+   "used_for": "People in need per country (intersectoral, national level)",
+   "terms": "See HDX / HAPI terms of use; credit OCHA and HDX",
+   "accessed": "2026-11-17",
+   "status": "used",
+   "notes": "Needs data is often a year behind the funding year; such rows are flagged."
   },
   {
-   "location_code": "VNM",
-   "location_name": "Viet Nam",
-   "appeal_types": "Other",
-   "requirements_usd": 61132366.0,
-   "funding_usd": 5351609.0,
-   "funding_pct": 8.7541336123
+   "id": "hapi_funding",
+   "name": "HDX HAPI v2: funding",
+   "publisher": "OCHA Centre for Humdata (HDX); data from OCHA FTS",
+   "url": "https://hapi.humdata.org/",
+   "used_for": "Funding requirements and amounts received per appeal",
+   "terms": "See HDX / HAPI terms of use; credit OCHA FTS",
+   "accessed": "2026-11-17",
+   "status": "used",
+   "notes": "Current year only; appeals with no requirement are dropped."
   },
   {
-   "location_code": "NPL",
-   "location_name": "Nepal",
-   "appeal_types": "Flash appeal",
-   "requirements_usd": 49568000.0,
-   "funding_usd": 26565229.0,
-   "funding_pct": 53.5935058909
+   "id": "fts_api",
+   "name": "OCHA Financial Tracking Service public API",
+   "publisher": "UN OCHA",
+   "url": "https://api.hpc.tools/v1/public/fts/flow",
+   "used_for": "Who funds each crisis: donor country totals per recipient (flows grouped by donor country)",
+   "terms": "Public API; credit OCHA FTS",
+   "accessed": "2026-11-17",
+   "status": "used",
+   "notes": "Counts only money given to one country (single flows). Money split across several countries is excluded to avoid double counting. Totals include money outside the formal appeal, so they are larger than the appeal funding."
+  },
+  {
+   "id": "gdelt",
+   "name": "GDELT Project DOC 2.0 API",
+   "publisher": "The GDELT Project",
+   "url": "https://api.gdeltproject.org/api/v2/doc/doc",
+   "used_for": "Recent English-language articles per crisis; outlet country; coverage mix",
+   "terms": "Free and open; credit GDELT",
+   "accessed": "2026-11-17",
+   "status": "used",
+   "notes": "Rate limits are strict, so data arrives slowly. Sample of up to 250 articles per crisis."
+  },
+  {
+   "id": "geo",
+   "name": "World country outlines",
+   "publisher": "johan/world.geo.json (outlines from Natural Earth)",
+   "url": "https://github.com/johan/world.geo.json",
+   "used_for": "Map shapes (drawn with the Equal Earth projection)",
+   "terms": "Natural Earth is public domain",
+   "accessed": "2026-11-17",
+   "status": "used",
+   "notes": "Palestine appears as the West Bank only."
+  },
+  {
+   "id": "manual_pin",
+   "name": "Hand-found people-in-need figures",
+   "publisher": "OCHA / UNICEF / WFP / ECHO documents (see data/reference/manual_pin.csv)",
+   "url": "https://github.com/elicuya1/AidGap/blob/main/data/reference/manual_pin.csv",
+   "used_for": "Missing people-in-need figures for Palestine, Lebanon, Madagascar, Nepal, Viet Nam (used) and Cuba, Pakistan, Honduras (found but not used)",
+   "terms": "Each row lists its own source URL",
+   "accessed": "2026-11-17",
+   "status": "used",
+   "notes": "Figures were read from search-result summaries; the primary PDFs blocked our tools (HTTP 403). Please verify in the original documents."
+  },
+  {
+   "id": "donate_links",
+   "name": "Where-to-donate pages",
+   "publisher": "UNICEF, World Food Programme, International Rescue Committee, MSF, UNRWA, Charity Navigator, CharityWatch, OCHA FTS (see data/reference/donate_links.csv)",
+   "url": "https://github.com/elicuya1/AidGap/blob/main/data/reference/donate_links.csv",
+   "used_for": "Links to relief organisations' country pages",
+   "terms": "Links only. Not an endorsement or rating",
+   "accessed": "2026-11-17",
+   "status": "used",
+   "notes": "Each address was checked to load on the date shown. 'Loads' does not mean 'recommended'."
+  },
+  {
+   "id": "eisensee",
+   "name": "News Droughts News Floods and US Disaster Relief",
+   "publisher": "Eisensee and Stromberg, Quarterly Journal of Economics (2007)",
+   "url": "https://doi.org/10.1162/qjec.122.2.693",
+   "used_for": "Research context: news coverage affects whether disaster relief is given",
+   "terms": "Cited for context only",
+   "accessed": "2026-11-17",
+   "status": "cited",
+   "notes": "Please check the exact finding before quoting it in the final write-up."
+  },
+  {
+   "id": "care_silence",
+   "name": "Suffering in Silence (annual report)",
+   "publisher": "CARE International",
+   "url": "https://www.care.org/",
+   "used_for": "Planned: compare with the most under-reported crises list",
+   "terms": "Cited for context only",
+   "accessed": "2026-11-17",
+   "status": "planned",
+   "notes": "Not yet matched to our ranking."
+  },
+  {
+   "id": "rejected_gnews",
+   "name": "Google News RSS",
+   "publisher": "Google",
+   "url": "https://news.google.com/rss",
+   "used_for": "Considered for article lists",
+   "terms": "The feed states it is for personal feed readers only; any other use is prohibited",
+   "accessed": "2026-11-17",
+   "status": "rejected",
+   "notes": "Not used because the terms forbid use on a public website."
+  },
+  {
+   "id": "rejected_reliefweb",
+   "name": "ReliefWeb API v2",
+   "publisher": "UN OCHA",
+   "url": "https://apidoc.reliefweb.int/",
+   "used_for": "Considered for humanitarian reports per country",
+   "terms": "Needs a pre-approved app name; requests returned HTTP 403 without one",
+   "accessed": "2026-11-17",
+   "status": "not_yet",
+   "notes": "Good future option: register a free app name, then add humanitarian reports per country."
   }
  ]
 };

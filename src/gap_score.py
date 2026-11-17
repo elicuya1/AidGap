@@ -47,12 +47,15 @@ def main() -> pd.DataFrame:
     # Be honest about data quality: flag needs figures from an older year
     # (the funding is for the current year, the people-in-need figure is older,
     # so $ per person mixes two different years -> low confidence)
-    df["low_confidence"] = df["pin_year"] < df["year"]
+    older = df["pin_year"] < df["year"]
+    shaky = df["pin_confidence"] == "low"          # hand-found figure with conflicting sources
+    df["low_confidence"] = older | shaky
     df["data_note"] = ""
-    df.loc[df["low_confidence"], "data_note"] = (
+    df.loc[older, "data_note"] = (
         "LOW CONFIDENCE: needs from " + df["pin_year"].astype("Int64").astype(str)
         + ", funding from " + df["year"].astype("Int64").astype(str)
     )
+    df.loc[shaky & ~older, "data_note"] = "LOW CONFIDENCE: hand-added needs figure, sources disagree"
 
     df = df.sort_values("neglect_score", ascending=False)
     # Tied scores share a rank (e.g. 8, 8, 10) instead of an arbitrary order
@@ -77,9 +80,13 @@ def main() -> pd.DataFrame:
     skipped = gap[~gap["has_national_plan"]
                   & (gap["appeal_types"] != "Regional response plan")].copy()
     skipped["note"] = "no people-in-need figure in HAPI; not scored"
+    ref = ROOT / "data" / "reference" / "manual_pin.csv"
+    if ref.exists():                      # say WHY a hand-found figure was not used
+        why = pd.read_csv(ref).set_index("location_code")["note"].to_dict()
+        skipped["note"] = [why.get(c, n) for c, n in zip(skipped["location_code"], skipped["note"])]
     skipped = skipped.sort_values("requirements_usd", ascending=False)
-    skipped[["location_name", "appeal_types", "requirements_usd", "funding_pct",
-             "note"]].to_csv(PROCESSED / "unranked_appeals.csv", index=False)
+    skipped[["location_code", "location_name", "appeal_types", "requirements_usd",
+             "funding_pct", "note"]].to_csv(PROCESSED / "unranked_appeals.csv", index=False)
 
     print("\nNOT RANKED (own appeal, but no people-in-need data):\n")
     print(skipped[["location_name", "appeal_types", "requirements_usd",
