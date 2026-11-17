@@ -14,7 +14,16 @@ Goal: a full ongoing program (data pipeline + scoring model + dashboard + alerts
 1. `src/fetch_funding.py` → `data/raw/fts_funding.csv` (OCHA FTS funding per appeal)
 2. `src/fetch_needs.py` → `data/raw/humanitarian_needs.csv`, `data/processed/pin_national.csv` (people in need per country/year)
 3. `src/build_gap_table.py` → `data/processed/gap_table.csv` (funding + PIN joined per country, current year)
-4. `src/gap_score.py` → `data/processed/neglect_scores.csv` (Neglect Score v1)
+4. `src/gap_score.py` → `data/processed/neglect_scores.csv`, `unranked_appeals.csv` (Neglect Score v1)
+5. `src/sensitivity.py` → `data/processed/sensitivity_ranks.csv` (rank under 6 weightings)
+6. `src/export_dashboard_data.py` → `dashboard/data.js` (the only file the web page reads)
+
+## Dashboard (`dashboard/`)
+Custom static web page, NOT Streamlit (chosen for a smoother, more striking UI; hosts free on GitHub Pages).
+- `index.html` = all UI (plain JS + canvas, no libraries); `score.js` = Neglect Score in JS (same maths as `gap_score.py`, tested: 0 mismatches); `data.js` = generated, committed.
+- Centerpiece: dot-people field (1 dot = 100k people; blue = funded share of the appeal, orange = unfunded), toggle "Everyone together" / "By country". Plus live weight sliders that re-rank, detail drawer per country, "Not ranked" section, table view.
+- To view: run steps 4-6, then double-click `dashboard/index.html` (no server needed).
+- Dark/light theme; respects reduced-motion. Tested in headless Chrome (desktop + 375px phone). No world map yet.
 
 ## Data source
 - HDX HAPI **v2**: `https://hapi.humdata.org/api/v2/...` (funding: `coordination-context/funding`; needs: `affected-people/humanitarian-needs`)
@@ -43,7 +52,8 @@ Percentile ranks among national-plan countries, weighted: coverage (% funded) 40
 - [x] Run gap_score.py on real data and review the ranking
 - [ ] Verify Palestine PIN from the Flash Appeal PDF and add it (then scored normally)
 - [x] Sensitivity analysis on weights (src/sensitivity.py): Yemen + Afghanistan top 5 in all 6 scenarios; Honduras, Mali, Sudan depend on weights
-- [ ] Streamlit dashboard: world map colored by Neglect Score, country detail view
+- [x] Dashboard v1 (custom web page, see Dashboard section): dot-people field, live re-ranking, country drawer
+- [ ] Dashboard v2: world map view, shareable link for a weighting, polish after Eli's feedback
 - [ ] Multi-year trends + automated alerts (GitHub Actions, weekly)
 - [ ] Media coverage phase: GDELT DOC API (volume, tone, source country). Frame as "narrative analysis", not "propaganda". Validate against CARE's under-reported crises list.
-- [ ] Deploy (Streamlit Community Cloud) + polished README with methodology and limitations
+- [ ] Deploy (GitHub Pages, serving `dashboard/`) + polished README with methodology and limitations

@@ -1,0 +1,786 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AidGap</title>
+<meta name="description" content="Humanitarian need versus funding: which crises are being left behind?">
+<style>
+  :root {
+    color-scheme: light;
+    --bg: #f9f9f7;  --surface: #fcfcfb;  --ink: #0b0b0b;  --ink2: #52514e;
+    --muted: #898781;  --grid: #e1e0d9;  --base: #c3c2b7;
+    --funded: #2a78d6;  --unmet: #eb6834;  --unmet-text: #b8431a;
+    --border: rgba(11,11,11,.10);  --shadow: 0 8px 30px rgba(0,0,0,.10);
+    --warn-bg: #fff4dc; --warn-ink: #6b4a00;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:where(:not([data-theme="light"])) {
+      color-scheme: dark;
+      --bg: #0d0d0d;  --surface: #1a1a19;  --ink: #f0efec;  --ink2: #c3c2b7;
+      --muted: #898781;  --grid: #2c2c2a;  --base: #383835;
+      --funded: #3987e5;  --unmet: #d95926;  --unmet-text: #f08a5d;
+      --border: rgba(255,255,255,.10);  --shadow: 0 8px 30px rgba(0,0,0,.55);
+      --warn-bg: #2b2208; --warn-ink: #f2cd7a;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --bg: #0d0d0d;  --surface: #1a1a19;  --ink: #f0efec;  --ink2: #c3c2b7;
+    --muted: #898781;  --grid: #2c2c2a;  --base: #383835;
+    --funded: #3987e5;  --unmet: #d95926;  --unmet-text: #f08a5d;
+    --border: rgba(255,255,255,.10);  --shadow: 0 8px 30px rgba(0,0,0,.55);
+    --warn-bg: #2b2208; --warn-ink: #f2cd7a;
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    line-height: 1.5; -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 16px; }
+  button { font: inherit; color: inherit; }
+  :focus-visible { outline: 2px solid var(--funded); outline-offset: 2px; border-radius: 4px; }
+
+  /* ---------- top bar ---------- */
+  .top { display: flex; align-items: center; justify-content: space-between; padding: 18px 0; }
+  .brand { font-weight: 700; letter-spacing: -.01em; font-size: 18px; }
+  .brand span { color: var(--unmet-text); }
+  .top nav { display: flex; gap: 18px; align-items: center; font-size: 14px; }
+  .top nav a { color: var(--ink2); text-decoration: none; }
+  .top nav a:hover { color: var(--ink); }
+  .icon-btn {
+    background: transparent; border: 1px solid var(--border); border-radius: 999px;
+    padding: 6px 12px; font-size: 13px; color: var(--ink2); cursor: pointer;
+  }
+  .icon-btn:hover { color: var(--ink); border-color: var(--base); }
+
+  /* ---------- hero ---------- */
+  .hero { padding: 28px 0 8px; }
+  .eyebrow { font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink2); }
+  .hero-number {
+    font-size: clamp(56px, 11vw, 124px); font-weight: 800; letter-spacing: -.04em;
+    line-height: 1; margin: 10px 0 6px;
+  }
+  .hero-number small { font-size: .38em; font-weight: 600; letter-spacing: -.01em; color: var(--ink2); margin-left: .15em; }
+  .hero p.lead { font-size: clamp(17px, 2.2vw, 22px); max-width: 760px; margin: 0; color: var(--ink2); }
+  .hero p.lead b { color: var(--ink); font-weight: 600; }
+  .hero p.lead .unmet { color: var(--unmet-text); font-weight: 700; }
+
+  .field-bar { display: flex; flex-wrap: wrap; gap: 14px 24px; align-items: center; justify-content: space-between; margin: 26px 0 10px; }
+  .seg { display: inline-flex; background: var(--surface); border: 1px solid var(--border); border-radius: 999px; padding: 3px; }
+  .seg button { border: 0; background: transparent; padding: 7px 16px; border-radius: 999px; cursor: pointer; font-size: 14px; color: var(--ink2); }
+  .seg button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+  .legend { display: flex; flex-wrap: wrap; gap: 6px 20px; font-size: 14px; color: var(--ink2); align-items: center; }
+  .legend i { display: inline-block; width: 11px; height: 11px; border-radius: 50%; margin-right: 7px; vertical-align: -1px; }
+  .legend .funded i { background: var(--funded); }
+  .legend .unmet i { background: var(--unmet); }
+
+  .field-card { position: relative; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 14px 14px 10px; }
+  .field-wrap { position: relative; overflow: hidden; transition: height .7s cubic-bezier(.65,0,.35,1); }
+  #field { display: block; cursor: default; }
+  #field.pointer { cursor: pointer; }
+  .tip {
+    position: absolute; pointer-events: none; z-index: 5; min-width: 180px; max-width: 260px;
+    background: var(--ink); color: var(--bg); border-radius: 10px; padding: 9px 12px; font-size: 13px;
+    opacity: 0; transform: translateY(4px); transition: opacity .12s, transform .12s; box-shadow: var(--shadow);
+  }
+  .tip.on { opacity: 1; transform: none; }
+  .tip b { display: block; font-size: 14px; margin-bottom: 2px; }
+  .field-note { font-size: 13px; color: var(--ink2); margin: 8px 2px 2px; }
+  .field-note a { color: inherit; }
+  .caption { min-height: 24px; font-size: 15px; color: var(--ink2); margin: 12px 2px 0; }
+  .caption b { color: var(--ink); }
+
+  /* ---------- sections ---------- */
+  section { padding: 56px 0 8px; }
+  h2 { font-size: clamp(24px, 3.4vw, 34px); letter-spacing: -.02em; margin: 0 0 6px; }
+  .sub { color: var(--ink2); margin: 0 0 22px; max-width: 700px; }
+
+  .layout { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 28px; align-items: start; }
+  @media (max-width: 880px) { .layout { grid-template-columns: 1fr; } .panel { position: static !important; order: -1; } }
+
+  .panel {
+    position: sticky; top: 16px; background: var(--surface); border: 1px solid var(--border);
+    border-radius: 16px; padding: 18px;
+  }
+  .panel h3 { margin: 0 0 4px; font-size: 16px; }
+  .panel p { margin: 0 0 14px; font-size: 13px; color: var(--ink2); }
+  .slider { margin: 0 0 14px; }
+  .slider label { display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 4px; }
+  .slider label span:last-child { color: var(--ink2); }
+  input[type=range] { width: 100%; accent-color: var(--ink); height: 28px; margin: 0; }
+  .presets { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 14px; }
+  .presets button {
+    border: 1px solid var(--border); background: transparent; border-radius: 999px;
+    padding: 5px 11px; font-size: 13px; cursor: pointer; color: var(--ink2);
+  }
+  .presets button:hover { border-color: var(--base); color: var(--ink); }
+  .presets button[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+  .stable { font-size: 13px; color: var(--ink2); border-top: 1px solid var(--border); padding-top: 12px; margin: 0; }
+  .stable b { color: var(--ink); }
+
+  /* ranking list */
+  .rank-list { position: relative; list-style: none; margin: 0; padding: 0; }
+  .rank-row { position: absolute; left: 0; right: 0; height: 64px; transition: top .6s cubic-bezier(.65,0,.35,1), opacity .3s; }
+  .rank-row button {
+    width: 100%; height: 100%; display: grid; grid-template-columns: 40px minmax(0,1fr) 150px; gap: 12px; align-items: center;
+    text-align: left; background: transparent; border: 0; border-bottom: 1px solid var(--grid); padding: 0 8px; cursor: pointer; border-radius: 8px;
+  }
+  .rank-row button:hover { background: var(--surface); }
+  .rk { font-size: 20px; font-weight: 700; color: var(--ink2); letter-spacing: -.02em; }
+  .rk.top3 { color: var(--ink); }
+  .who { display: block; min-width: 0; }
+  .nm { display: block; font-weight: 600; font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .meta { display: block; font-size: 13px; color: var(--ink2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .lowc { display: inline-block; font-size: 11px; background: var(--warn-bg); color: var(--warn-ink); border-radius: 999px; padding: 1px 8px; margin-left: 6px; vertical-align: 1px; font-weight: 600; }
+  .sc { display: grid; gap: 5px; justify-items: end; }
+  .sc b { font-size: 18px; letter-spacing: -.02em; }
+  .bar { width: 100%; height: 5px; background: var(--grid); border-radius: 3px; overflow: hidden; }
+  .bar i { display: block; height: 100%; background: var(--unmet); border-radius: 3px; transition: width .6s cubic-bezier(.65,0,.35,1); }
+  @media (max-width: 560px) { .rank-row button { grid-template-columns: 30px minmax(0,1fr) 84px; gap: 8px; padding: 0 2px; } .meta .hide-s { display: none; } }
+
+  details.table-view { margin-top: 26px; }
+  details.table-view summary { cursor: pointer; color: var(--ink2); font-size: 14px; }
+  .tbl-scroll { overflow-x: auto; margin-top: 12px; }
+  table { border-collapse: collapse; width: 100%; font-size: 13px; }
+  th, td { text-align: right; padding: 7px 10px; border-bottom: 1px solid var(--grid); white-space: nowrap; }
+  th:first-child, td:first-child, th:nth-child(2), td:nth-child(2) { text-align: left; }
+  th { color: var(--ink2); font-weight: 600; }
+  td { font-variant-numeric: tabular-nums; }
+
+  /* unranked */
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 14px 16px; }
+  .card b { display: block; font-size: 16px; }
+  .card .t { font-size: 12px; color: var(--ink2); margin-bottom: 8px; }
+  .card .big { font-size: 22px; font-weight: 700; letter-spacing: -.02em; }
+  .card .big small { font-size: 13px; font-weight: 500; color: var(--ink2); letter-spacing: 0; }
+  .card.largest { border-color: var(--unmet); }
+  .flag { font-size: 11px; color: var(--unmet-text); font-weight: 700; text-transform: uppercase; letter-spacing: .06em; }
+
+  .method ul { padding-left: 20px; color: var(--ink2); max-width: 760px; }
+  .method li { margin-bottom: 6px; }
+  footer { padding: 40px 0 60px; color: var(--ink2); font-size: 13px; border-top: 1px solid var(--grid); margin-top: 48px; }
+
+  /* ---------- drawer ---------- */
+  .backdrop { position: fixed; inset: 0; background: rgba(0,0,0,.45); opacity: 0; pointer-events: none; transition: opacity .25s; z-index: 20; }
+  .backdrop.on { opacity: 1; pointer-events: auto; }
+  .drawer {
+    position: fixed; top: 0; right: 0; bottom: 0; width: min(460px, 100%); background: var(--surface);
+    border-left: 1px solid var(--border); box-shadow: var(--shadow); z-index: 21; overflow-y: auto;
+    transform: translateX(104%); transition: transform .4s cubic-bezier(.65,0,.35,1); padding: 22px 22px 40px;
+  }
+  .drawer.on { transform: none; }
+  .drawer .close { position: absolute; top: 14px; right: 14px; }
+  .d-rank { font-size: 13px; color: var(--ink2); text-transform: uppercase; letter-spacing: .08em; }
+  .drawer h3 { font-size: 30px; letter-spacing: -.02em; margin: 2px 40px 4px 0; }
+  .d-score { display: flex; align-items: baseline; gap: 8px; margin-bottom: 14px; }
+  .d-score b { font-size: 54px; letter-spacing: -.04em; line-height: 1; }
+  .d-score span { color: var(--ink2); font-size: 14px; }
+  .notice { background: var(--warn-bg); color: var(--warn-ink); border-radius: 10px; padding: 10px 12px; font-size: 13px; margin: 0 0 16px; }
+  .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 18px; }
+  .stat { border: 1px solid var(--border); border-radius: 12px; padding: 10px 12px; }
+  .stat span { display: block; font-size: 12px; color: var(--ink2); }
+  .stat b { font-size: 20px; letter-spacing: -.02em; }
+  .stat small { display: block; color: var(--ink2); font-size: 12px; }
+  .drawer h4 { margin: 20px 0 6px; font-size: 14px; }
+  .drawer p.small { font-size: 13px; color: var(--ink2); margin: 0 0 10px; }
+  #miniField { display: block; width: 100%; }
+  .driver { display: grid; grid-template-columns: 1fr 44px; gap: 4px 10px; align-items: center; font-size: 13px; margin-bottom: 9px; }
+  .driver .bar { height: 7px; }
+  .driver .bar i { background: var(--ink2); }
+  .driver .lbl { grid-column: 1 / -1; display: flex; justify-content: space-between; color: var(--ink2); }
+  .driver .lbl b { color: var(--ink); font-weight: 600; }
+  .driver .pts { text-align: right; font-weight: 600; }
+  .compare { font-size: 15px; margin: 6px 0 0; }
+  .compare b { color: var(--unmet-text); }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition-duration: 0s !important; scroll-behavior: auto !important; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">Aid<span>Gap</span></div>
+    <nav>
+      <a href="#ranking">Ranking</a>
+      <a href="#unranked">Not ranked</a>
+      <a href="#method">Method</a>
+      <button class="icon-btn" id="themeBtn" type="button" aria-label="Switch colour theme">Theme</button>
+    </nav>
+  </header>
+
+  <main>
+    <div class="hero">
+      <div class="eyebrow" id="eyebrow">Humanitarian need vs. funding</div>
+      <h1 class="hero-number" id="heroNum" aria-live="off">0<small>million people</small></h1>
+      <p class="lead" id="heroLead"></p>
+
+      <div class="field-bar">
+        <div class="seg" role="group" aria-label="Dot layout">
+          <button type="button" id="modeAll" aria-pressed="true">Everyone together</button>
+          <button type="button" id="modeCountry" aria-pressed="false">By country</button>
+        </div>
+        <div class="legend">
+          <span class="funded"><i></i>Funded share</span>
+          <span class="unmet"><i></i>Not funded</span>
+          <span id="dotKey">1 dot = 100,000 people</span>
+        </div>
+      </div>
+
+      <div class="field-card">
+        <div class="field-wrap" id="fieldWrap">
+          <canvas id="field" role="img" aria-label="Dot chart. Each dot is 100,000 people in need; blue dots are the funded share of each appeal, orange dots are unfunded."></canvas>
+          <div class="tip" id="tip" role="status"></div>
+        </div>
+        <p class="field-note">Dots are proportional: in each crisis the blue share of dots equals the share of its appeal that is funded. Covers only crises with a people-in-need figure; <span id="exclNote"></span> Every number is also in the <a href="#ranking">ranking and table below</a>.</p>
+      </div>
+      <p class="caption" id="caption"></p>
+    </div>
+
+    <section id="ranking">
+      <h2>Who is being left behind?</h2>
+      <p class="sub">The Neglect Score combines how little of each appeal is funded, how few dollars reach each person, and how many people are affected. The weights are a judgement call, so change them and watch the ranking move.</p>
+      <div class="layout">
+        <div>
+          <ol class="rank-list" id="rankList" aria-label="Crises ranked by neglect score"></ol>
+          <details class="table-view">
+            <summary>View all numbers as a table</summary>
+            <div class="tbl-scroll"><table id="tbl"></table></div>
+          </details>
+        </div>
+        <aside class="panel" aria-label="Score weights">
+          <h3>What counts as “neglected”?</h3>
+          <p>Drag to re-weight. Scores and ranks update instantly.</p>
+          <div class="slider"><label for="wCov"><span>Share of appeal funded</span><span id="vCov"></span></label><input type="range" id="wCov" min="0" max="100" step="5"></div>
+          <div class="slider"><label for="wPer"><span>Dollars per person</span><span id="vPer"></span></label><input type="range" id="wPer" min="0" max="100" step="5"></div>
+          <div class="slider"><label for="wScl"><span>Number of people in need</span><span id="vScl"></span></label><input type="range" id="wScl" min="0" max="100" step="5"></div>
+          <div class="presets" id="presets" role="group" aria-label="Weight presets"></div>
+          <p class="stable" id="stable"></p>
+        </aside>
+      </div>
+    </section>
+
+    <section id="unranked">
+      <h2>Not ranked: appeals with no needs data</h2>
+      <p class="sub">These countries have their own appeal, but the data source has no people-in-need figure for them, so a fair score is not possible. They are listed rather than hidden.</p>
+      <div class="cards" id="cards"></div>
+    </section>
+
+    <section id="method" class="method">
+      <h2>Method and limits</h2>
+      <ul>
+        <li><b>Data:</b> funding per appeal from OCHA FTS and people in need from HDX HAPI (humanitarian needs, intersectoral, national level). Funding is for the current year.</li>
+        <li><b>Score:</b> each crisis gets a percentile rank on three measures, combined with the weights you set (default 40% funded, 40% dollars per person, 20% scale). 100 means the most neglected of the crises compared.</li>
+        <li><b>Relative, not absolute:</b> a low score means better off than the others here, not that the need is met.</li>
+        <li><b>Regional response plans</b> (refugee-hosting countries) are excluded because per-country funding is not reliable.</li>
+        <li><b>Older needs figures</b> are flagged: the funding is for this year but the people-in-need number is older, so dollars per person is indicative only.</li>
+        <li><b>Dots</b> show the funded share proportionally. Funding covers the whole appeal, not each person individually.</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer id="foot"></footer>
+</div>
+
+<div class="backdrop" id="backdrop"></div>
+<aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-labelledby="dName" aria-hidden="true">
+  <button class="icon-btn close" id="dClose" type="button">Close</button>
+  <div id="dBody"></div>
+</aside>
+
+<script src="data.js"></script>
+<script src="score.js"></script>
+<script>
+(function () {
+  "use strict";
+  var D = window.AIDGAP;
+  var PER_DOT = 100000;
+  var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var $ = function (id) { return document.getElementById(id); };
+
+  /* ---------- formatting ---------- */
+  function fmtPeople(n) { return n >= 1e6 ? (n / 1e6).toFixed(1) + "M" : Math.round(n / 1e3) + "K"; }
+  function fmtUSD(n) {
+    if (n >= 1e9) return "$" + (n / 1e9).toFixed(n >= 1e10 ? 0 : 2) + "B";
+    if (n >= 1e6) return "$" + Math.round(n / 1e6) + "M";
+    return "$" + Math.round(n / 1e3) + "K";
+  }
+  function fmtPerDay(usdPerYear) {
+    var cents = usdPerYear / 365 * 100;
+    if (cents < 1) return cents.toFixed(2) + "¢";
+    if (cents < 10) return cents.toFixed(1) + "¢";
+    return "$" + (cents / 100).toFixed(2);
+  }
+  function el(tag, cls, html) { var e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; }
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+
+  /* ---------- data ---------- */
+  var crises = D.crises.slice();            // fixed order = the order in the file
+  var N = crises.length;
+  var totals = crises.reduce(function (a, c) {
+    a.pin += c.people_in_need; a.req += c.requirements_usd; a.fund += c.funding_usd; a.unmet += c.unmet_usd; return a;
+  }, { pin: 0, req: 0, fund: 0, unmet: 0 });
+  var fundedPct = totals.fund / totals.req * 100;
+  var medianPer = (function () {
+    var v = crises.map(function (c) { return c.funding_per_person_usd; }).sort(function (a, b) { return a - b; });
+    return N % 2 ? v[(N - 1) / 2] : (v[N / 2 - 1] + v[N / 2]) / 2;
+  })();
+
+  var PRESETS = [
+    { id: "baseline",   label: "Default",         w: { cov: 40, per: 40, scl: 20 } },
+    { id: "equal",      label: "Equal",           w: { cov: 34, per: 33, scl: 33 } },
+    { id: "coverage",   label: "Funding gap",     w: { cov: 60, per: 20, scl: 20 } },
+    { id: "per_person", label: "$ per person",    w: { cov: 20, per: 60, scl: 20 } },
+    { id: "scale",      label: "Biggest crises",  w: { cov: 20, per: 20, scl: 60 } },
+    { id: "no_scale",   label: "Ignore size",     w: { cov: 50, per: 50, scl: 0 } }
+  ];
+  var weights = { cov: 40, per: 40, scl: 20 };
+  var scored = computeScores(crises, weights);
+  var order = [];                            // crisis indexes sorted by current rank
+
+  function refreshOrder() {
+    scored = computeScores(crises, weights);
+    order = crises.map(function (_, i) { return i; }).sort(function (a, b) {
+      return scored[b].score - scored[a].score || crises[b].people_in_need - crises[a].people_in_need;
+    });
+  }
+
+  /* ---------- hero ---------- */
+  function setHero(frac) {
+    $("heroNum").innerHTML = (totals.pin / 1e6 * frac).toFixed(1) + "<small>million people</small>";
+  }
+  $("eyebrow").textContent = D.year + " humanitarian appeals: need vs. funding";
+  $("heroLead").innerHTML =
+    "need humanitarian help across <b>" + N + " crises</b>. Their appeals are only <b>" + fundedPct.toFixed(0) +
+    "% funded</b>, leaving <span class=\"unmet\">" + fmtUSD(totals.unmet) + "</span> unpaid.";
+  $("foot").innerHTML = "AidGap · data refreshed " + esc(D.generated) +
+    " · Sources: OCHA Financial Tracking Service, UN OCHA HDX HAPI · A portfolio project by Eli.";
+
+  /* ---------- colours for canvas (read from CSS so themes work) ---------- */
+  var COL = {};
+  function readColors() {
+    var cs = getComputedStyle(document.documentElement);
+    ["--funded", "--unmet", "--ink", "--ink2", "--surface", "--grid"].forEach(function (k) { COL[k] = cs.getPropertyValue(k).trim(); });
+    COL.fundedRGB = hexToRgb(COL["--funded"]); COL.unmetRGB = hexToRgb(COL["--unmet"]);
+  }
+  function hexToRgb(h) {
+    h = h.replace("#", ""); if (h.length === 3) h = h.split("").map(function (x) { return x + x; }).join("");
+    return [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)];
+  }
+  function mix(a, b, t) { return "rgb(" + Math.round(a[0] + (b[0] - a[0]) * t) + "," + Math.round(a[1] + (b[1] - a[1]) * t) + "," + Math.round(a[2] + (b[2] - a[2]) * t) + ")"; }
+
+  /* ---------- the dot field ---------- */
+  var canvas = $("field"), ctx = canvas.getContext("2d");
+  var wrap = $("fieldWrap"), tip = $("tip");
+  var dots = [];
+  var mode = "all";
+  var W = 0, step = 12, dpr = 1;
+  var layouts = { all: null, country: null };
+  var clusters = [];                        // rects for hover in country mode
+  var hover = -1;
+  var labelAlpha = 0, labelFrom = 0, labelT0 = 0;
+  var introStart = 0;
+  var rafOn = false;
+
+  function buildDots() {
+    dots = [];
+    crises.forEach(function (c, ci) {
+      var n = Math.max(1, Math.round(c.people_in_need / PER_DOT));
+      var f = Math.round(n * Math.min(c.funding_pct, 100) / 100);
+      for (var k = 0; k < n; k++) dots.push({ ci: ci, funded: k < f, x: 0, y: 0, sx: 0, sy: 0, tx: 0, ty: 0, t0: 0, delay: 0, dur: 0, appear: 0, lightAt: 0 });
+    });
+  }
+
+  function measureLabel(text) { ctx.font = "600 12px system-ui, sans-serif"; return ctx.measureText(text).width; }
+
+  function computeLayouts() {
+    var pad = 6;
+    var cols = Math.max(10, Math.floor((W - pad * 2) / step));
+    // --- everyone together: funded dots first, then unfunded ---
+    var idxs = dots.map(function (_, i) { return i; });
+    var fundedFirst = idxs.filter(function (i) { return dots[i].funded; }).concat(idxs.filter(function (i) { return !dots[i].funded; }));
+    var allPos = new Array(dots.length);
+    fundedFirst.forEach(function (di, k) {
+      allPos[di] = { x: pad + (k % cols) * step + step / 2, y: pad + Math.floor(k / cols) * step + step / 2, order: k };
+    });
+    var allH = pad * 2 + Math.ceil(dots.length / cols) * step;
+
+    // --- by country: shelf-packed clusters in current rank order ---
+    var byC = {}; dots.forEach(function (d, i) { (byC[d.ci] = byC[d.ci] || []).push(i); });
+    var cPos = new Array(dots.length), rects = [];
+    var gapX = 26, labelH = 20, gapY = 16;
+    var x = pad, y = pad, rowH = 0;
+    order.forEach(function (ci, rk) {
+      var list = byC[ci], n = list.length;
+      var ccols = Math.max(4, Math.ceil(Math.sqrt(n * 1.7)));
+      var rows = Math.ceil(n / ccols);
+      var label = crises[ci].location_name.replace(" (Bolivarian Republic of)", "").replace("Democratic Republic of the Congo", "DR Congo").replace("Syrian Arab Republic", "Syria");
+      var w = Math.max(ccols * step, measureLabel(label) + 6), h = labelH + rows * step + gapY;
+      if (x + w > W - pad && x > pad) { x = pad; y += rowH; rowH = 0; }
+      list.sort(function (a, b) { return (dots[b].funded ? 1 : 0) - (dots[a].funded ? 1 : 0); });
+      list.forEach(function (di, k) {
+        cPos[di] = { x: x + (k % ccols) * step + step / 2, y: y + labelH + Math.floor(k / ccols) * step + step / 2, order: rk * 3 + k / n };
+      });
+      rects.push({ ci: ci, x: x - 6, y: y - 4, w: w + 12, h: h - gapY + 10, label: label, lx: x, ly: y + 12 });
+      x += w + gapX; rowH = Math.max(rowH, h);
+    });
+    var cH = y + rowH + pad;
+    layouts.all = { pos: allPos, h: allH };
+    layouts.country = { pos: cPos, h: cH, rects: rects };
+  }
+
+  function sizeCanvas() {
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    W = wrap.clientWidth || 600;
+    step = Math.max(7, Math.min(14, Math.floor(W / 82)));
+    computeLayouts();
+    var maxH = Math.max(layouts.all.h, layouts.country.h);
+    canvas.width = Math.round(W * dpr); canvas.height = Math.round(maxH * dpr);
+    canvas.style.width = W + "px"; canvas.style.height = maxH + "px";
+    wrap.style.height = layouts[mode].h + "px";
+    clusters = layouts.country.rects;
+  }
+
+  function retarget(animate) {
+    var L = layouts[mode], now = performance.now(), n = dots.length;
+    dots.forEach(function (d, i) {
+      var p = L.pos[i];
+      d.sx = d.x; d.sy = d.y; d.tx = p.x; d.ty = p.y;
+      d.t0 = now; d.dur = animate && !reduceMotion ? 750 : 0;
+      d.delay = animate && !reduceMotion ? Math.min(380, (p.order / (mode === "all" ? n : order.length * 3)) * 380) : 0;
+    });
+    wrap.style.height = L.h + "px";
+    tick();
+  }
+
+  function setMode(m, animate) {
+    mode = m;
+    $("modeAll").setAttribute("aria-pressed", String(m === "all"));
+    $("modeCountry").setAttribute("aria-pressed", String(m === "country"));
+    labelFrom = labelAlpha; labelT0 = performance.now();
+    hover = -1; hideTip();
+    canvas.classList.remove("pointer");
+    retarget(animate);
+    updateCaption();
+  }
+
+  function ease(t) { return t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; }
+  function clamp01(v) { return v < 0 ? 0 : v > 1 ? 1 : v; }
+
+  function draw(now) {
+    var busy = false;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    var R = Math.max(2.2, step * 0.33);
+    var targetLabel = mode === "country" ? 1 : 0;
+    var lp = reduceMotion ? 1 : clamp01((now - labelT0) / 500);
+    labelAlpha = labelFrom + (targetLabel - labelFrom) * lp;
+    if (lp < 1) busy = true;
+
+    if (mode === "country" && hover >= 0) {
+      var hr = clusters.filter(function (r) { return r.ci === hover; })[0];
+      if (hr) { ctx.fillStyle = COL["--grid"]; roundRect(hr.x, hr.y, hr.w, hr.h, 10); ctx.fill(); }
+    }
+
+    for (var i = 0; i < dots.length; i++) {
+      var d = dots[i];
+      var p = clamp01((now - d.t0 - d.delay) / (d.dur || 1));
+      if (d.dur === 0) p = 1;
+      if (p < 1) busy = true;
+      var e = ease(p);
+      d.x = d.sx + (d.tx - d.sx) * e; d.y = d.sy + (d.ty - d.sy) * e;
+      var a = clamp01((now - d.appear) / 350);
+      if (a < 1) busy = true;
+      var l = d.funded ? clamp01((now - d.lightAt) / 500) : 0;
+      if (d.funded && l < 1) busy = true;
+      if (mode === "country" && hover >= 0 && d.ci !== hover) a *= 0.3;
+      ctx.globalAlpha = a;
+      ctx.fillStyle = mix(COL.unmetRGB, COL.fundedRGB, l);
+      ctx.beginPath(); ctx.arc(d.x, d.y, R, 0, 6.2832); ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+
+    if (labelAlpha > 0.01) {
+      ctx.font = "600 12px system-ui, sans-serif"; ctx.textBaseline = "alphabetic";
+      clusters.forEach(function (r) {
+        ctx.globalAlpha = labelAlpha * (hover >= 0 && r.ci !== hover ? 0.4 : 1);
+        ctx.fillStyle = COL["--ink"]; ctx.fillText(r.label, r.lx, r.ly);
+      });
+      ctx.globalAlpha = 1;
+    }
+    return busy;
+  }
+  function roundRect(x, y, w, h, r) {
+    ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath();
+  }
+  function tick() {
+    if (rafOn) return; rafOn = true;
+    (function loop(now) { var busy = draw(now || performance.now()); if (busy) requestAnimationFrame(loop); else rafOn = false; })(performance.now());
+  }
+
+  /* intro: dots appear in a wave as unfunded, then the funded ones turn blue */
+  function playIntro() {
+    var now = performance.now(), n = dots.length, L = layouts.all;
+    introStart = now;
+    dots.forEach(function (d, i) {
+      var o = L.pos[i].order;
+      d.appear = reduceMotion ? -1e9 : now + (o / n) * 900;
+      d.lightAt = reduceMotion ? -1e9 : now + 1500 + (o / n) * 1200;
+    });
+    var t0 = now, DUR = reduceMotion ? 1 : 2200;
+    (function count(t) { var f = clamp01((t - t0) / DUR); setHero(1 - Math.pow(1 - f, 3)); if (f < 1) requestAnimationFrame(count); })(t0);
+  }
+
+  /* hover / click in country mode */
+  function hitCluster(ev) {
+    var b = canvas.getBoundingClientRect(), x = ev.clientX - b.left, y = ev.clientY - b.top;
+    for (var i = 0; i < clusters.length; i++) { var r = clusters[i]; if (x >= r.x && x <= r.x + r.w && y >= r.y && y <= r.y + r.h) return r; }
+    return null;
+  }
+  function hideTip() { tip.classList.remove("on"); }
+  canvas.addEventListener("mousemove", function (ev) {
+    if (mode !== "country") return;
+    var r = hitCluster(ev), ci = r ? r.ci : -1;
+    canvas.classList.toggle("pointer", !!r);
+    if (ci !== hover) { hover = ci; tick(); }
+    if (!r) { hideTip(); return; }
+    var c = crises[ci], s = scored[ci];
+    tip.innerHTML = "<b>" + esc(c.location_name) + "</b>#" + s.rank + " · " + fmtPeople(c.people_in_need) + " in need · " + c.funding_pct.toFixed(0) + "% funded";
+    var b = canvas.getBoundingClientRect(), tx = ev.clientX - b.left + 14, ty = ev.clientY - b.top + 14;
+    if (tx + 200 > W) tx = ev.clientX - b.left - 210;
+    tip.style.left = tx + "px"; tip.style.top = ty + "px"; tip.classList.add("on");
+  });
+  canvas.addEventListener("mouseleave", function () { hover = -1; hideTip(); tick(); });
+  canvas.addEventListener("click", function (ev) { if (mode !== "country") return; var r = hitCluster(ev); if (r) openDrawer(r.ci); });
+
+  function updateCaption() {
+    var cap = $("caption");
+    if (mode === "all") {
+      var fundedDots = dots.filter(function (d) { return d.funded; }).length;
+      cap.innerHTML = "Every dot is 100,000 people. <b>" + Math.round(fundedDots / dots.length * 100) +
+        "% of the dots</b> sit inside funded appeals; the orange mass is need that nobody has paid for. <b>Switch to “By country”</b> to see where.";
+    } else {
+      cap.innerHTML = "Crises are ordered from most to least neglected. <b>Hover</b> for the numbers, <b>click</b> a cluster for the full story. Compare Sudan's field with Honduras': size and neglect are different things.";
+    }
+  }
+
+  /* ---------- ranking list ---------- */
+  var rankList = $("rankList"), ROW = 64, rows = [];
+  function buildRows() {
+    crises.forEach(function (c, ci) {
+      var li = el("li", "rank-row");
+      var b = el("button");
+      b.type = "button";
+      b.innerHTML =
+        '<span class="rk"></span>' +
+        '<span class="who"><span class="nm">' + esc(c.location_name) + (c.low_confidence ? '<span class="lowc" title="The people-in-need figure is from ' + c.pin_year + ' but funding is from ' + c.year + '">older needs data</span>' : "") + '</span>' +
+        '<span class="meta">' + c.funding_pct.toFixed(0) + '% funded · $' + c.funding_per_person_usd.toFixed(c.funding_per_person_usd < 10 ? 2 : 0) + '/person<span class="hide-s"> · ' + fmtPeople(c.people_in_need) + ' in need</span></span></span>' +
+        '<span class="sc"><b></b><span class="bar"><i></i></span></span>';
+      b.addEventListener("click", function () { openDrawer(ci); });
+      li.appendChild(b); rankList.appendChild(li);
+      rows[ci] = li;
+    });
+  }
+  function renderRows() {
+    rankList.style.height = N * ROW + "px";
+    order.forEach(function (ci, pos) {
+      var li = rows[ci], s = scored[ci];
+      li.style.top = pos * ROW + "px";
+      var rk = li.querySelector(".rk"); rk.textContent = s.rank; rk.className = "rk" + (s.rank <= 3 ? " top3" : "");
+      li.querySelector(".sc b").textContent = s.score.toFixed(1);
+      li.querySelector(".bar i").style.width = s.score + "%";
+      li.querySelector("button").setAttribute("aria-label", "Rank " + s.rank + ", " + crises[ci].location_name + ", neglect score " + s.score.toFixed(1));
+    });
+  }
+  function renderTable() {
+    var h = "<thead><tr><th>Rank</th><th>Crisis</th><th>Score</th><th>People in need</th><th>Funded</th><th>Requested</th><th>Received</th><th>$ per person</th></tr></thead><tbody>";
+    order.forEach(function (ci) {
+      var c = crises[ci], s = scored[ci];
+      h += "<tr><td>" + s.rank + "</td><td>" + esc(c.location_name) + (c.low_confidence ? " *" : "") + "</td><td>" + s.score.toFixed(1) + "</td><td>" + Math.round(c.people_in_need).toLocaleString() +
+        "</td><td>" + c.funding_pct.toFixed(1) + "%</td><td>" + fmtUSD(c.requirements_usd) + "</td><td>" + fmtUSD(c.funding_usd) + "</td><td>$" + c.funding_per_person_usd.toFixed(2) + "</td></tr>";
+    });
+    $("tbl").innerHTML = h + "</tbody>";
+  }
+
+  /* ---------- weights panel ---------- */
+  function buildPresets() {
+    var box = $("presets");
+    PRESETS.forEach(function (p) {
+      var b = el("button", null, p.label); b.type = "button"; b.dataset.id = p.id;
+      b.addEventListener("click", function () { weights = { cov: p.w.cov, per: p.w.per, scl: p.w.scl }; syncSliders(); update(); });
+      box.appendChild(b);
+    });
+  }
+  function syncSliders() { $("wCov").value = weights.cov; $("wPer").value = weights.per; $("wScl").value = weights.scl; }
+  function renderWeightLabels() {
+    var t = weights.cov + weights.per + weights.scl || 1;
+    $("vCov").textContent = Math.round(weights.cov / t * 100) + "%";
+    $("vPer").textContent = Math.round(weights.per / t * 100) + "%";
+    $("vScl").textContent = Math.round(weights.scl / t * 100) + "%";
+    var tt = weights.cov + weights.per + weights.scl;
+    Array.prototype.forEach.call($("presets").children, function (b) {
+      var p = PRESETS.filter(function (q) { return q.id === b.dataset.id; })[0];
+      var pt = p.w.cov + p.w.per + p.w.scl;
+      var same = tt > 0 && Math.abs(p.w.cov / pt - weights.cov / tt) < .015 && Math.abs(p.w.per / pt - weights.per / tt) < .015 && Math.abs(p.w.scl / pt - weights.scl / tt) < .015;
+      b.setAttribute("aria-pressed", String(same));
+    });
+  }
+  function bindSlider(id, key) {
+    $(id).addEventListener("input", function (e) {
+      weights[key] = +e.target.value;
+      if (weights.cov + weights.per + weights.scl === 0) { weights[key] = 5; e.target.value = 5; }
+      update();
+    });
+  }
+  function renderStable() {
+    var sure = crises.filter(function (c) { return c.times_in_top === D.scenarios.length; }).map(function (c) { return c.location_name; });
+    $("stable").innerHTML = sure.length
+      ? "<b>" + sure.join(" and ") + "</b> stay in the top 5 under all " + D.scenarios.length + " presets. The rest of the order depends on what you value."
+      : "No crisis stays in the top 5 under every preset.";
+  }
+
+  var pendingUpdate = false;
+  function update() {
+    refreshOrder(); renderWeightLabels(); renderRows(); renderTable();
+    if (!pendingUpdate) {
+      pendingUpdate = true;
+      requestAnimationFrame(function () {
+        pendingUpdate = false;
+        computeLayouts(); clusters = layouts.country.rects;
+        wrap.style.height = layouts[mode].h + "px";
+        var maxH = Math.max(layouts.all.h, layouts.country.h);
+        if (parseInt(canvas.style.height, 10) < maxH) { canvas.height = Math.round(maxH * dpr); canvas.style.height = maxH + "px"; }
+        if (mode === "country") retarget(true); else tick();
+      });
+    }
+    if (drawerCi >= 0) renderDrawer(drawerCi);
+  }
+
+  /* ---------- unranked cards ---------- */
+  function renderUnranked() {
+    var maxRanked = Math.max.apply(null, crises.map(function (c) { return c.requirements_usd; }));
+    var biggest = D.unranked.slice().sort(function (a, b) { return b.requirements_usd - a.requirements_usd; })[0];
+    $("exclNote").innerHTML = D.unranked.length + ' other appeals' +
+      (biggest && biggest.requirements_usd > maxRanked ? ', including the largest (' + esc(biggest.location_name) + '),' : '') +
+      ' have no needs data and are <a href="#unranked">listed separately</a>.';
+    var box = $("cards");
+    D.unranked.forEach(function (u) {
+      var big = u.requirements_usd > maxRanked;
+      var c = el("div", "card" + (big ? " largest" : ""));
+      c.innerHTML = (big ? '<div class="flag">Largest appeal in the data</div>' : "") +
+        "<b>" + esc(u.location_name) + '</b><div class="t">' + esc(u.appeal_types) + '</div>' +
+        '<div class="big">' + fmtUSD(u.requirements_usd) + ' <small>requested</small></div>' +
+        '<div class="t" style="margin:4px 0 0">' + u.funding_pct.toFixed(0) + '% funded · no people-in-need figure</div>';
+      box.appendChild(c);
+    });
+  }
+
+  /* ---------- drawer ---------- */
+  var drawer = $("drawer"), backdrop = $("backdrop"), drawerCi = -1, lastFocus = null;
+  function openDrawer(ci) {
+    lastFocus = document.activeElement; drawerCi = ci;
+    renderDrawer(ci);
+    drawer.classList.add("on"); backdrop.classList.add("on"); drawer.setAttribute("aria-hidden", "false");
+    $("dClose").focus();
+  }
+  function closeDrawer() {
+    drawer.classList.remove("on"); backdrop.classList.remove("on"); drawer.setAttribute("aria-hidden", "true"); drawerCi = -1;
+    if (lastFocus && lastFocus.focus) lastFocus.focus();
+  }
+  function renderDrawer(ci) {
+    var c = crises[ci], s = scored[ci];
+    var swing = c.worst_rank - c.best_rank;
+    var robust = swing <= 2
+      ? "Rank <b>#" + c.best_rank + (swing ? "–#" + c.worst_rank : "") + "</b> across all " + D.scenarios.length + " weightings: <b>a robust result</b>."
+      : "Rank swings from <b>#" + c.best_rank + " to #" + c.worst_rank + "</b> depending on the weights: <b>treat the exact position with care</b>.";
+    var ratio = c.funding_per_person_usd / medianPer;
+    var compare = ratio < 1
+      ? "Receives <b>" + (1 / ratio).toFixed(1) + "× less</b> per person than the median of these " + N + " crises ($" + medianPer.toFixed(0) + ")."
+      : "Receives <b>" + ratio.toFixed(1) + "× more</b> per person than the median of these " + N + " crises ($" + medianPer.toFixed(0) + ").";
+    var tw = weights.cov + weights.per + weights.scl || 1;
+    function drv(label, pts, w) {
+      return '<div class="driver"><div class="lbl"><span>' + label + '</span><span>weight ' + Math.round(w / tw * 100) + '%</span></div>' +
+        '<div class="bar"><i style="width:' + pts + '%"></i></div><div class="pts">' + Math.round(pts) + '</div></div>';
+    }
+    $("dBody").innerHTML =
+      '<div class="d-rank">Rank ' + s.rank + " of " + N + '</div>' +
+      '<h3 id="dName">' + esc(c.location_name) + '</h3>' +
+      '<div class="d-score"><b>' + s.score.toFixed(1) + '</b><span>neglect score (100 = most neglected)</span></div>' +
+      (c.low_confidence ? '<p class="notice"><b>Older needs data.</b> The people-in-need figure is from ' + c.pin_year + ' but funding is from ' + c.year + ', so dollars per person mixes two years. Treat this rank as indicative.</p>' : "") +
+      '<div class="stats">' +
+        '<div class="stat"><span>People in need</span><b>' + fmtPeople(c.people_in_need) + '</b><small>' + (c.pin_year | 0) + ' figure</small></div>' +
+        '<div class="stat"><span>Appeal funded</span><b>' + c.funding_pct.toFixed(1) + '%</b><small>' + fmtUSD(c.funding_usd) + ' of ' + fmtUSD(c.requirements_usd) + '</small></div>' +
+        '<div class="stat"><span>Per person, per year</span><b>$' + c.funding_per_person_usd.toFixed(2) + '</b><small>about ' + fmtPerDay(c.funding_per_person_usd) + ' a day</small></div>' +
+        '<div class="stat"><span>Still unpaid</span><b>' + fmtUSD(c.unmet_usd) + '</b><small>of the appeal</small></div>' +
+      '</div>' +
+      '<h4>The people</h4><p class="small">Each dot is 100,000 people. Blue is the funded share, orange is not.</p><canvas id="miniField"></canvas>' +
+      '<h4>What drives the score</h4><p class="small">Points 0–100: higher means worse off than other crises on that measure.</p>' +
+      drv("Low share of appeal funded", s.cov, weights.cov) + drv("Low dollars per person", s.per, weights.per) + drv("Large number of people", s.scl, weights.scl) +
+      '<h4>How solid is this rank?</h4><p class="compare">' + robust + '</p>' +
+      '<h4>In proportion</h4><p class="compare">' + compare + '</p>';
+    drawMini(c);
+  }
+  function drawMini(c) {
+    var cv = $("miniField"), w = cv.clientWidth || 400, st = 11;
+    var n = Math.max(1, Math.round(c.people_in_need / PER_DOT)), f = Math.round(n * Math.min(c.funding_pct, 100) / 100);
+    var cols = Math.max(1, Math.floor(w / st)), rws = Math.ceil(n / cols), h = rws * st + 4, r = dpr || 1;
+    cv.width = w * r; cv.height = h * r; cv.style.height = h + "px";
+    var g = cv.getContext("2d"); g.setTransform(r, 0, 0, r, 0, 0);
+    for (var i = 0; i < n; i++) {
+      g.fillStyle = i < f ? COL["--funded"] : COL["--unmet"];
+      g.beginPath(); g.arc((i % cols) * st + st / 2, Math.floor(i / cols) * st + st / 2 + 2, 3.6, 0, 6.2832); g.fill();
+    }
+  }
+  $("dClose").addEventListener("click", closeDrawer);
+  backdrop.addEventListener("click", closeDrawer);
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && drawerCi >= 0) closeDrawer();
+    if (e.key === "Tab" && drawerCi >= 0) {   // keep keyboard focus inside the open drawer
+      var f = drawer.querySelectorAll("button"); if (f.length) { var first = f[0], last = f[f.length - 1];
+        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); } }
+    }
+  });
+
+  /* ---------- theme ---------- */
+  function applyTheme(t) {
+    if (t) document.documentElement.setAttribute("data-theme", t); else document.documentElement.removeAttribute("data-theme");
+    readColors(); tick(); if (drawerCi >= 0) renderDrawer(drawerCi);
+  }
+  $("themeBtn").addEventListener("click", function () {
+    var cur = document.documentElement.getAttribute("data-theme");
+    var isDark = cur ? cur === "dark" : window.matchMedia("(prefers-color-scheme: dark)").matches;
+    var next = isDark ? "light" : "dark";
+    try { localStorage.setItem("aidgap-theme", next); } catch (e) {}
+    applyTheme(next);
+  });
+  try { var saved = localStorage.getItem("aidgap-theme"); if (saved) document.documentElement.setAttribute("data-theme", saved); } catch (e) {}
+  window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", function () { readColors(); tick(); });
+
+  /* ---------- start ---------- */
+  readColors();
+  buildDots(); buildRows(); buildPresets(); renderStable(); renderUnranked();
+  bindSlider("wCov", "cov"); bindSlider("wPer", "per"); bindSlider("wScl", "scl");
+  syncSliders(); refreshOrder(); renderWeightLabels(); renderRows(); renderTable();
+  sizeCanvas();
+  dots.forEach(function (d, i) { var p = layouts.all.pos[i]; d.x = d.sx = d.tx = p.x; d.y = d.sy = d.ty = p.y; });
+  $("modeAll").addEventListener("click", function () { if (mode !== "all") setMode("all", true); });
+  $("modeCountry").addEventListener("click", function () { if (mode !== "country") setMode("country", true); });
+  updateCaption(); playIntro(); tick();
+
+  var rzT;
+  window.addEventListener("resize", function () {
+    clearTimeout(rzT);
+    rzT = setTimeout(function () { var m = mode; sizeCanvas(); retarget(false); if (drawerCi >= 0) drawMini(crises[drawerCi]); }, 120);
+  });
+})();
+</script>
+</body>
+</html>
