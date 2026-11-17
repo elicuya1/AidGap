@@ -137,6 +137,8 @@ def main() -> None:
     wanted = [c for c in dict.fromkeys(wanted) if c in TERMS]
 
     modes = DEFAULT_MODES + (("tone",) if "--tone" in sys.argv else ())
+    if "--only" in sys.argv:                      # e.g. --only volume : just the news-volume numbers
+        modes = (sys.argv[sys.argv.index("--only") + 1],)
     jobs = [(c, k) for k in modes for c in wanted if k != "lang" or c in LANGS]
     todo = [(c, k) for c, k in jobs if not (RAW / f"{c}_{k}.json").exists()]
     print(f"{len(wanted)} countries, {len(jobs)} requests, {len(todo)} still to fetch "

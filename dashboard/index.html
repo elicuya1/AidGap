@@ -418,6 +418,17 @@
   .give a:hover { border-color: var(--ink); transform: translateX(3px); }
   .give b { display: block; font-size: 15px; } .give span { font-size: 13px; color: var(--ink2); }
 
+  /* ---------- black-and-white photograph behind everything; it fades out as you scroll past the intro ---------- */
+  .photo { position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background: url("img/hero.jpg?v=9") center 30% / cover no-repeat; filter: grayscale(1) contrast(1.25) brightness(.9);
+    opacity: calc(.95 - var(--sp, 0) * 7); }
+  .photo::after { content: ""; position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 35% 50%, transparent 20%, var(--bg) 95%), linear-gradient(to bottom, rgba(0,0,0,.15), var(--bg) 100%); }
+  :root[data-theme="light"] .photo { mix-blend-mode: multiply; opacity: calc(.4 - var(--sp, 0) * 5); }
+  .photo-credit { position: absolute; right: 24px; bottom: 22px; font: 10px/1.5 var(--mono); letter-spacing: .05em; color: var(--ink2); text-align: right; max-width: 36ch; }
+  .photo-credit a { color: inherit; }
+  .cta { display: inline-block; margin-top: 26px; }
+
   /* ---------- the background: two soft colour fields that drift with your scroll, under the dots ---------- */
   .orbs { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
   .orbs i { position: absolute; width: 62vmax; height: 62vmax; border-radius: 50%; filter: blur(80px); will-change: transform; }
@@ -468,6 +479,7 @@
 </style>
 </head>
 <body>
+<div class="photo" aria-hidden="true"></div>
 <div class="orbs" aria-hidden="true"><i></i><i></i></div>
 <canvas id="bg" aria-hidden="true"></canvas>
 <div class="progress" id="progress"></div>
@@ -485,7 +497,9 @@
       <h1 id="heroNum" aria-live="off"></h1>
       <p class="sub rv" style="--i:3" id="heroLead"></p>
       <div class="dateline rv" style="--i:4" id="dateline"></div>
+      <a class="btn cta rv" style="--i:5" href="#s-rank">See who is being forgotten</a>
     </div>
+    <div class="photo-credit">Photo: WFP food distribution, Bannu, Pakistan. Public domain, via <a href="https://commons.wikimedia.org/wiki/File:Food_Distribution_at_a_Camp_in_Bannu_-_Photo_Credit_WFP_(14502236274).jpg" target="_blank" rel="noopener">Wikimedia Commons</a>.</div>
     <button class="scroll-cue" id="cue" type="button">Scroll</button>
   </section>
 
@@ -647,13 +661,13 @@
   </div>
 </div>
 
-<!-- ?v=8 makes your browser fetch fresh copies after each update instead of reusing an old saved page -->
-<script src="data.js?v=8"></script>
-<script src="score.js?v=8"></script>
-<script src="map.js?v=8"></script>
-<script src="media.js?v=8" onerror="window.AIDGAP_MEDIA=null"></script>
-<script src="reports.js?v=8" onerror="window.AIDGAP_REPORTS=null"></script>
-<script src="donors.js?v=8" onerror="window.AIDGAP_DONORS=null"></script>
-<script src="app.js?v=8"></script>
+<!-- ?v=9 makes your browser fetch fresh copies after each update instead of reusing an old saved page -->
+<script src="data.js?v=9"></script>
+<script src="score.js?v=9"></script>
+<script src="map.js?v=9"></script>
+<script src="media.js?v=9" onerror="window.AIDGAP_MEDIA=null"></script>
+<script src="reports.js?v=9" onerror="window.AIDGAP_REPORTS=null"></script>
+<script src="donors.js?v=9" onerror="window.AIDGAP_DONORS=null"></script>
+<script src="app.js?v=9"></script>
 </body>
 </html>
