@@ -19,6 +19,13 @@ def load_funding(year: int) -> pd.DataFrame:
     f = pd.read_csv(RAW / "fts_funding.csv")
     f["year"] = pd.to_datetime(f["reference_period_start"], errors="coerce").dt.year
     f = f[(f["year"] == year) & (f["requirements_usd"].fillna(0) > 0)]
+    # When a country has its OWN plan AND a slice of a regional plan (Colombia: national
+    # plan + part of the Venezuela refugee response), keep only its own plan. The
+    # people-in-need figure belongs to the national plan, so adding the regional slice to
+    # the funding would mix two different things (found by verify_data.py: $855M vs $620M).
+    has_own = f.groupby("location_code")["appeal_type"].transform(
+        lambda t: (t != "Regional response plan").any())
+    f = f[~((f["appeal_type"] == "Regional response plan") & has_own)]
     # A country can have several appeals in a year (response plan, flash appeal...)
     return (f.groupby(["location_code", "location_name"], as_index=False)
               .agg(appeals=("appeal_code", "nunique"),
@@ -48,6 +55,7 @@ def add_manual_pin(gap: pd.DataFrame) -> pd.DataFrame:
     gap["pin_confidence"] = gap["pin_source"].map({"HAPI": "high", "": ""})
     gap["pin_note"] = ""
     gap["pin_url"] = ""
+    gap["pin_verified"] = ""
     ref = ROOT / "data" / "reference" / "manual_pin.csv"
     if not ref.exists():
         return gap
@@ -63,6 +71,7 @@ def add_manual_pin(gap: pd.DataFrame) -> pd.DataFrame:
         gap.loc[row, "pin_confidence"] = m["confidence"]
         gap.loc[row, "pin_note"] = str(m["plan_name"])
         gap.loc[row, "pin_url"] = m["source_url"]
+        gap.loc[row, "pin_verified"] = m["verified_how"]
         print(f"  + hand-added people in need: {m['location_name']} = {int(m['people_in_need']):,} "
               f"({m['confidence']} confidence)")
     return gap

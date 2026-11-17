@@ -15,6 +15,7 @@
   /* ---------- helpers ---------- */
   function fmtPeople(n) { return n >= 1e6 ? (n / 1e6).toFixed(1) + "M" : n >= 1e3 ? Math.round(n / 1e3) + "K" : String(Math.round(n)); }
   function fmtUSD(n) {
+    if (n < 1) return "$0";
     if (n >= 1e9) return "$" + (n / 1e9).toFixed(n >= 1e10 ? 0 : 2) + "B";
     if (n >= 1e6) return "$" + Math.round(n / 1e6) + "M";
     return "$" + Math.round(n / 1e3) + "K";
@@ -97,7 +98,7 @@
     firstScale.observe($("s-scale"));
   } else { setTimeout(function () { startField(); }, 0); }
   function observeReveals() {       // called AFTER the page is built, so JavaScript-made rows are included
-    document.querySelectorAll(".rv, .mask, .bar-t, .tanks").forEach(function (n) {
+    document.querySelectorAll(".rv, .mask, .bar-t").forEach(function (n) {
       if (n.classList.contains("in")) return;
       if (revealIO) revealIO.observe(n); else n.classList.add("in");
     });
@@ -432,23 +433,63 @@
       '<span>Size: ' + Math.round(c0.scale_pts) + ' points × 20%</span><span>' + k0[2].toFixed(1) + "</span></div>" +
       '<div class="tot"><span>Neglect Score</span><span>' + c0.neglect_score.toFixed(1) + "</span></div>";
   }
-  var tankSeq = 0;
-  function buildTanks() {
-    var box = $("tanks");
-    crises.forEach(function (c, i) {
-      var id = "tkc" + (tankSeq++), lvl = clamp01(c.funding_pct / 100);
-      var b = el("button", "tank"); b.type = "button"; b.style.setProperty("--i", Math.min(i, 14));
-      b.setAttribute("aria-label", c.location_name + ": " + c.funding_pct.toFixed(0) + "% of the appeal funded, rank " + c.rank);
-      b.title = c.location_name + ": " + c.funding_pct.toFixed(1) + "% funded";
-      var wave = "M0,0 q10,-4 20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 t20,0 V140 H0 Z";
-      b.innerHTML = '<svg class="tk" viewBox="0 0 80 130" aria-hidden="true"><defs><clipPath id="' + id + '"><rect x="6" y="6" width="68" height="118" rx="10"/></clipPath></defs>' +
-        '<rect class="tk-bg" x="6" y="6" width="68" height="118" rx="10"/>' +
-        '<g clip-path="url(#' + id + ')"><g class="tk-water" style="--lvl:' + lvl.toFixed(3) + '"><g class="tk-wave"><path d="' + wave + '"/></g></g></g>' +
-        '<rect class="tk-glass" x="6" y="6" width="68" height="118" rx="10"/></svg>' +
-        '<div class="pc">' + c.funding_pct.toFixed(0) + '%</div><div class="tn">' + esc(shortName(c.location_name)) + '</div><div class="tm">#' + c.rank + ' · $' + c.funding_per_person_usd.toFixed(c.funding_per_person_usd < 10 ? 2 : 0) + '/person</div>';
-      b.addEventListener("click", function () { openCountry(c.location_code); });
-      box.appendChild(b);
+  /* ---- the fairness test: share the SAME total money so every appeal is funded to the same level ---- */
+  function buildEqualizer() {
+    var card = $("eqCard"), req = 0, fund = 0;
+    crises.forEach(function (c) { req += c.requirements_usd; fund += c.funding_usd; });
+    var avg = fund / req;                                           // the one funded share everyone would get
+    var rows = crises.map(function (c) { return { c: c, delta: avg * c.requirements_usd - c.funding_usd }; });
+    var moved = rows.reduce(function (s, r) { return s + Math.max(0, r.delta); }, 0);
+    var topGain = rows.slice().sort(function (a, b) { return b.delta / b.c.funding_usd - a.delta / a.c.funding_usd; })[0];
+    var topGive = rows.slice().sort(function (a, b) { return a.delta - b.delta; })[0];
+    var h = '<div class="eq-ctl"><span class="end">Today</span><input type="range" id="eqRange" min="0" max="100" step="1" value="0" aria-label="Share the money evenly: 0 is today, 100 is fully even"><span class="end">Shared evenly</span>' +
+      '<span><button type="button" class="eq-btn" id="eqPlay">Play</button> <button type="button" class="eq-btn" id="eqReset">Reset</button></span></div>' +
+      '<div class="eq-sum"><div><b id="eqMoved">$0</b>moved between appeals (' + Math.round(moved / fund * 100) + '% of all funding if fully even)</div>' +
+      '<div><b id="eqLow">0</b>appeals less than 20% funded</div><div><b id="eqGain" class="up">–</b><span id="eqGainTxt">biggest relative gain</span></div></div>' +
+      '<div class="eq-key"><span><i style="background:var(--funded)"></i>paid</span><span><i style="background:color-mix(in srgb, var(--unmet) 34%, transparent)"></i>gap</span><span><i style="border-left:2px dashed var(--ink2);width:0;height:10px;border-radius:0"></i>even share (' + Math.round(avg * 100) + '%)</span></div><ol class="eq-rows">';
+    rows.forEach(function (r, i) {
+      h += '<li><button type="button" class="eq-row" data-i="' + i + '" aria-label="' + esc(r.c.location_name) + '"><span class="en"><small>#' + r.c.rank + '</small>' + esc(shortName(r.c.location_name)) + '</span>' +
+        '<span class="eq-track"><span class="eq-fill"></span><span class="eq-mark" style="left:' + (avg * 100).toFixed(1) + '%"></span></span><span class="eq-delta"></span><span class="eq-pct"></span></button></li>';
     });
+    h += '</ol><p class="eq-note">A thought experiment, not a recommendation. Real money is earmarked by donors, can’t always move between countries, and costs differ from place to place. The point is how uneven today’s funding is, measured against what each appeal says it needs.</p>';
+    card.innerHTML = h;
+    var els = Array.prototype.map.call(card.querySelectorAll(".eq-row"), function (b) { return { fill: b.querySelector(".eq-fill"), d: b.querySelector(".eq-delta"), p: b.querySelector(".eq-pct") }; });
+    var range = $("eqRange");
+    function setT(t) {
+      var low = 0, best = { x: 0, i: 0 };
+      rows.forEach(function (r, i) {
+        var f = r.c.funding_usd + t * r.delta, pct = f / r.c.requirements_usd, d = t * r.delta;
+        els[i].fill.style.width = Math.min(100, pct * 100).toFixed(2) + "%";
+        els[i].p.textContent = Math.round(pct * 100) + "%";
+        els[i].d.textContent = Math.abs(d) < 0.4e6 ? "" : (d > 0 ? "+" : "−") + fmtUSD(Math.abs(d));
+        els[i].d.className = "eq-delta" + (d > 0.4e6 ? " up" : "");
+        if (pct < 0.2) low++;
+        var mult = f / Math.max(1, r.c.funding_usd); if (mult > best.x) best = { x: mult, i: i };
+      });
+      $("eqMoved").textContent = fmtUSD(t * moved); $("eqLow").textContent = low;
+      $("eqGain").textContent = t < 0.02 ? "–" : (best.x >= 10 ? Math.round(best.x) : best.x.toFixed(1)) + "×";
+      $("eqGainTxt").textContent = t < 0.02 ? "biggest relative gain (drag the slider)" : "more money for " + shortName(rows[best.i].c.location_name) + " than today";
+    }
+    var anim = 0;
+    function play(from, to, ms, done) {
+      cancelAnimationFrame(anim); var t0 = performance.now();
+      (function f(now) {
+        var p = clamp01((now - t0) / ms), t = from + (to - from) * ease(p); range.value = Math.round(t * 100); setT(t);
+        if (p < 1) anim = requestAnimationFrame(f); else if (done) done();
+      })(t0);
+    }
+    range.addEventListener("input", function () { cancelAnimationFrame(anim); demoOn = false; setT(+range.value / 100); });
+    $("eqPlay").addEventListener("click", function () { demoOn = false; var t = +range.value / 100; play(t >= 0.99 ? 1 : t, t >= 0.99 ? 0 : 1, 3200); });
+    $("eqReset").addEventListener("click", function () { demoOn = false; play(+range.value / 100, 0, 700); });
+    card.querySelectorAll(".eq-row").forEach(function (b) { b.addEventListener("click", function () { openCountry(rows[+b.dataset.i].c.location_code); }); });
+    var demoOn = true; setT(0);
+    if (!reduceMotion && "IntersectionObserver" in window) {      // a short demo the first time it scrolls into view
+      var io = new IntersectionObserver(function (es) {
+        if (!es[0].isIntersecting) return; io.disconnect();
+        setTimeout(function () { if (demoOn) play(0, 1, 3000, function () { setTimeout(function () { if (demoOn) play(1, 0, 1400); }, 900); }); }, 600);
+      }, { threshold: 0.5 });
+      io.observe(card);
+    }
   }
 
   /* =====================================================================
@@ -540,7 +581,7 @@
     var html = '<div class="tiles">' +
       (topState ? '<div class="card tile rv"><div class="big-n violet">' + pctTxt(topState.m.state_share) + '</div><p><b>of sampled coverage of ' + esc(shortName(topState.name)) + '</b> comes from state-linked outlets' + (topState.m.state_by_gov.length ? " (" + topState.m.state_by_gov.map(function (g) { return esc(g.gov); }).join(", ") + ")" : "") + ", the highest of any crisis.</p></div>" : "") +
       '<div class="card tile rv" style="--i:1"><div class="big-n violet">' + Math.round(byC[topCountry] / tot * 100) + '%</div><p>of all sampled articles were published by outlets based in <b>' + esc(topCountry) + '</b>. Where a story is told from shapes how it is told.</p></div>' +
-      '<div class="card tile rv" style="--i:2"><div class="big-n violet">' + Math.round(nLocal / tot * 100) + '%</div><p>of ' + tot.toLocaleString() + ' sampled articles across <b>' + rows.length + ' crises</b> (' + esc(MEDIA.window) + ') came from outlets <b>inside the affected country</b>. The people living it are rarely the ones telling it, in English at least.</p></div></div>';
+      '<div class="card tile rv" style="--i:2"><div class="big-n violet">' + Math.round(nLocal / tot * 100) + '%</div><p>of ' + tot.toLocaleString() + ' sampled articles across <b>' + rows.length + ' crises</b> (' + esc(MEDIA.window) + ') came from outlets <b>inside the affected country</b> (in any language we searched). The people living it are rarely the ones telling it to the world.</p></div></div>';
     html += '<div class="mrows"><div class="mhead"><span>#</span><span>Crisis</span><span>Where the coverage comes from</span><span style="text-align:center">In-country</span><span style="text-align:right">State-linked outlets</span></div>';
     rows.forEach(function (r, i) {
       html += '<button class="mrow rv" type="button" data-code="' + esc(r.code) + '" style="--i:' + Math.min(i, 6) + '"><span class="rn">' + (r.rank || "–") + '</span><span class="nm">' + esc(shortName(r.name)) + '</span>' +
@@ -584,10 +625,23 @@
   function buildUnranked() {
     var maxRanked = Math.max.apply(null, crises.map(function (c) { return c.requirements_usd; }));
     var sorted = D.unranked.slice().sort(function (a, b) { return b.requirements_usd - a.requirements_usd; });
-    var biggest = sorted[0], box = $("cards"), added = crises.filter(function (c) { return c.pin_source === "manual"; }).length;
+    var biggest = sorted[0], box = $("cards"), hand = crises.filter(function (c) { return c.pin_source === "manual"; }), added = hand.length;
+    if (!sorted.length) {                                   // every appeal could be scored: show how the hand-found ones were checked
+      $("exclNote").innerHTML = "Refugee-hosting countries inside regional plans are left out because their per-country funding is unreliable.";
+      $("gapsKicker").textContent = "By hand"; $("gapsTitle").textContent = "The gaps we filled by hand."; $("s-gaps").dataset.label = "By hand";
+      if ($("s-gaps")._rail) $("s-gaps")._rail.querySelector(".lbl").textContent = "By hand";
+      $("hatchLegend").style.display = "none";
+      $("gapsSub").innerHTML = added + " countries had no people-in-need figure in the main data source. We <b>found theirs in official documents and checked each against the funding data</b>. Confidence differs, so every one is labelled and links to its source.";
+      hand.forEach(function (c) {
+        var b = el("button", "gcard"); b.type = "button";
+        b.innerHTML = "<b>" + esc(c.location_name) + '</b><div class="t">Rank ' + c.rank + " · " + esc(c.pin_confidence) + ' confidence</div><div class="big">' + fmtPeople(c.people_in_need) + ' <small>in need</small></div>' +
+          '<div class="why">' + esc(c.pin_verified || c.pin_note) + "</div>";
+        b.addEventListener("click", function () { openCountry(c.location_code); }); box.appendChild(b);
+      });
+      return;
+    }
     $("exclNote").innerHTML = D.unranked.length + " other appeals" + (biggest && biggest.requirements_usd > maxRanked ? ", including the largest (" + esc(biggest.location_name) + "),": "") + " could not be scored and are listed <a href=\"#s-gaps\">separately</a>.";
     $("gapsSub").innerHTML = "These have their own appeal, but <b>we could not match a trustworthy people-in-need figure to their funding total</b>, so a fair score isn't possible. " + (added ? added + " other countries were added to the ranking using figures found by hand (see the method section). " : "") + "They are listed, not hidden.";
-    if (!sorted.length) { box.innerHTML = '<div class="card empty">Every appeal in the data could be scored.</div>'; return; }
     sorted.forEach(function (u) {
       var c = el("button", "gcard"); c.type = "button";
       c.innerHTML = "<b>" + esc(u.location_name) + '</b><div class="t">' + esc(u.appeal_types) + '</div><div class="big">' + fmtUSD(u.requirements_usd) + ' <small>requested</small></div>' +
@@ -598,8 +652,8 @@
   }
   function buildMethod() {
     var hand = crises.filter(function (c) { return c.pin_source === "manual"; });
-    $("hand").innerHTML = hand.length ? '<p class="note" style="max-width:none;margin:0 0 10px">These figures fill gaps in the main data source. Each was read from a search summary of an official document (the originals blocked our tools), so please verify them before relying on them. The full record, including figures we found but did not use, is in <b>data/reference/manual_pin.csv</b>.</p><div class="tbl-scroll"><table><thead><tr><th>Country</th><th>People in need</th><th>Confidence</th><th>Plan</th><th>Source</th></tr></thead><tbody>' +
-      hand.map(function (c) { return "<tr><td>" + esc(c.location_name) + "</td><td>" + Math.round(c.people_in_need).toLocaleString() + "</td><td>" + esc(c.pin_confidence) + "</td><td>" + esc(c.pin_note) + "</td><td>" + ext(c.pin_url, "link") + "</td></tr>"; }).join("") + "</tbody></table></div>" : '<p class="note">No hand-added figures.</p>';
+    $("hand").innerHTML = hand.length ? '<p class="note" style="max-width:none;margin:0 0 10px">These figures fill gaps in the main data source. Each was checked against an official or plan-tracking document, and against the funding total it should match. Confidence is lower where sources disagree. The full record, including a figure we found but did not use (Honduras), is in <b>data/reference/manual_pin.csv</b>, and the checks are in <b>verification_report.csv</b>.</p><div class="tbl-scroll"><table><thead><tr><th>Country</th><th>People in need</th><th>Confidence</th><th>How it was checked</th><th>Source</th></tr></thead><tbody>' +
+      hand.map(function (c) { return "<tr><td>" + esc(c.location_name) + "</td><td>" + Math.round(c.people_in_need).toLocaleString() + "</td><td>" + esc(c.pin_confidence) + '</td><td style="text-align:left;white-space:normal;min-width:260px">' + esc(c.pin_verified || c.pin_note) + "</td><td>" + ext(c.pin_url, "link") + "</td></tr>"; }).join("") + "</tbody></table></div>" : '<p class="note">No hand-added figures.</p>';
     $("srcs").innerHTML = (D.sources || []).map(function (s) {
       return "<li>" + ext(s.url, esc(s.name)) + '<span class="st">' + esc(String(s.status).replace("_", " ")) + "</span><br>" + esc(s.publisher) + ". " + esc(s.used_for) + ". " + esc(s.notes || "") + "</li>";
     }).join("");
@@ -620,7 +674,7 @@
   }
   function openCountry(code, tab) {
     if (!byCode[code]) return;
-    lastFocus = document.activeElement; mCode = code;
+    lastFocus = document.activeElement; mCode = code; artFilter = "all";
     renderLeft();
     var tabs = tabsFor(code);
     var pick = tab || (tabs[0].count ? "abroad" : tabs[1].count ? "local" : "donors");
@@ -645,27 +699,67 @@
       bar.appendChild(b);
     });
     var panel = $("mPanel"); panel.setAttribute("aria-labelledby", "tab-" + active); panel.innerHTML = panelHTML(active); panel.scrollTop = 0;
+    if (active === "abroad" || active === "local") wireArticles(active);
   }
   function panelHTML(id) {
     if (id === "abroad" || id === "local") return articlesHTML(id);
     if (id === "donors") return donorsHTML();
     return giveHTML();
   }
+  /* ---- articles: original wording, language filter, and translation ----
+     Headlines are shown in their ORIGINAL language (right-to-left scripts included). For a
+     non-English headline you can (1) translate it on the spot if your browser has the
+     built-in on-device Translator (recent Chrome/Edge), or (2) open the whole page through
+     Google Translate. If a translation was stored at build time (title_en) it is shown first. */
+  var LANGCODE = { Arabic: "ar", French: "fr", Spanish: "es", Portuguese: "pt", Ukrainian: "uk", Russian: "ru", Burmese: "my", Somali: "so", Vietnamese: "vi", Nepali: "ne", Urdu: "ur", Persian: "fa", Pashto: "ps", "Haitian Creole": "ht", Hausa: "ha" };
+  var artFilter = "all", panelList = [];
+  function isEnglish(x) { return !x.lang || x.lang === "English"; }
+  function translateTitle(text, langName) {
+    var code = LANGCODE[langName];
+    if (!code || typeof self.Translator === "undefined") return Promise.resolve(null);
+    return self.Translator.availability({ sourceLanguage: code, targetLanguage: "en" }).then(function (a) {
+      if (a === "unavailable") return null;
+      return self.Translator.create({ sourceLanguage: code, targetLanguage: "en" }).then(function (t) { return t.translate(text); });
+    }).catch(function () { return null; });
+  }
   function articlesHTML(which) {
     var m = MED[mCode], name = shortName(nameOf(mCode));
     var intro = which === "abroad"
-      ? "Articles about <b>" + esc(name) + "</b> published by outlets based <b>in other countries</b>."
-      : "Articles about <b>" + esc(name) + "</b> published by outlets based <b>inside " + esc(name) + "</b>.";
+      ? "Articles about <b>" + esc(name) + "</b> published by outlets based <b>in other countries</b>, in English and in " + esc(name) + "'s main language."
+      : "Articles about <b>" + esc(name) + "</b> published by outlets based <b>inside " + esc(name) + "</b>, in any language.";
     if (!m || !m.n) return '<p class="pp">' + intro + '</p><p class="none">No articles are loaded for this country yet. The media download is slow because the free news data source limits how fast it can be asked. Run <b>src/fetch_media.py</b> and <b>src/build_media_summary.py</b>, then refresh.</p>';
-    var list = which === "abroad" ? m.abroad : m.local, h = '<p class="pp">' + intro + " A sample of English-language articles with humanitarian framing from " + esc(MEDIA.window) + ".</p>";
-    if (!list.length) return h + '<p class="none">' + (which === "local"
-      ? "No English-language articles from outlets based in " + esc(name) + " turned up in this sample. That does not mean nothing is published there: reporting in the country's own languages is not searched yet, and some governments restrict local media."
+    var all = (which === "abroad" ? m.abroad : m.local) || [], h = '<p class="pp">' + intro + " A sample from " + esc(MEDIA.window) + ", matched with humanitarian keywords (GDELT machine-translates other languages for matching).</p>";
+    if (!all.length) return h + '<p class="none">' + (which === "local"
+      ? "Nothing from outlets based in " + esc(name) + " turned up in this sample. That does not mean nothing is published there: some governments restrict local media, and the free search covers only about a week of coverage."
       : "No articles from abroad in this sample.") + "</p>";
+    var nEn = all.filter(isEnglish).length, nOther = all.length - nEn;
+    var list = all.filter(function (x) { return artFilter === "en" ? isEnglish(x) : artFilter === "other" ? !isEnglish(x) : true; });
+    panelList = list;
+    if (nOther > 0) h += '<div class="chipbar" role="group" aria-label="Filter by language"><button type="button" class="lchip" data-f="all" aria-pressed="' + (artFilter === "all") + '">All ' + all.length + '</button><button type="button" class="lchip" data-f="en" aria-pressed="' + (artFilter === "en") + '">English ' + nEn + '</button><button type="button" class="lchip" data-f="other" aria-pressed="' + (artFilter === "other") + '">Other languages ' + nOther + "</button></div>";
     if (which === "abroad") h += '<p class="pp">Outlets by country: ' + srcText(m) + (m.state_share > 0 ? ". <b>" + pctTxt(m.state_share) + "</b> of this country's sample comes from state-linked outlets (owned, funded or controlled by a government; that describes ownership, not accuracy)." : ".") + "</p>";
-    h += '<ul class="arts">' + list.map(function (x) {
-      return "<li>" + ext(x.url, esc(x.title || x.url)) + '<div class="am">' + esc(x.domain) + (x.country ? " · " + esc(x.country) : "") + (x.date ? " · " + esc(x.date) : "") + (x.state ? '<span class="tagst" title="Owned, funded or controlled by a government">state-linked · ' + esc(x.state) + "</span>" : "") + "</div></li>";
-    }).join("") + '</ul><p class="fine">Headlines come from GDELT and link to the publishers. Listing an article is not an endorsement.</p>';
+    h += '<ul class="arts">' + list.map(function (x, i) {
+      var en = isEnglish(x), main = x.title_en || x.title;
+      var tr = en ? "" : '<div class="tr"><button type="button" data-tr="' + i + '">Translate headline</button>' + ext("https://translate.google.com/translate?sl=auto&tl=en&u=" + encodeURIComponent(x.url), "Read translated page ↗") + '<span class="out" data-out="' + i + '"></span></div>';
+      return "<li>" + '<a dir="auto" href="' + esc(safeUrl(x.url)) + '" target="_blank" rel="noopener noreferrer">' + esc(main || x.url) + "</a>" +
+        (x.title_en && x.title ? '<div class="am" dir="auto">Original: ' + esc(x.title) + "</div>" : "") +
+        '<div class="am">' + esc(x.domain) + (x.country ? " · " + esc(x.country) : "") + (x.date ? " · " + esc(x.date) : "") + (en ? "" : '<span class="lang-tag">' + esc(x.lang) + "</span>") +
+        (x.state ? '<span class="tagst" title="Owned, funded or controlled by a government">state-linked · ' + esc(x.state) + "</span>" : "") + "</div>" + tr + "</li>";
+    }).join("") + '</ul><p class="fine">Headlines come from GDELT and link to the publishers. Machine translation can be wrong, so read the original when it matters. Listing an article is not an endorsement.</p>';
     return h;
+  }
+  function wireArticles(which) {
+    var panel = $("mPanel");
+    panel.querySelectorAll(".lchip").forEach(function (b) { b.addEventListener("click", function () { artFilter = b.dataset.f; panel.innerHTML = articlesHTML(which); wireArticles(which); }); });
+    panel.querySelectorAll("button[data-tr]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        var x = panelList[+b.dataset.tr], out = panel.querySelector('[data-out="' + b.dataset.tr + '"]');
+        b.disabled = true; b.textContent = "Translating…";
+        translateTitle(x.title, x.lang).then(function (t) {
+          if (t) { out.textContent = t; b.remove(); }
+          else { b.textContent = "Built-in translator not available here. Use “Read translated page”."; }
+        });
+      });
+    });
   }
   function donorsHTML() {
     var x = DON[mCode], name = shortName(nameOf(mCode));
@@ -737,7 +831,7 @@
 
   /* ---------- start ---------- */
   readColors();
-  buildDots(); buildMap(); paintMap(); buildRanking(); buildTanks(); buildDonors(); buildMedia(); buildUnranked(); buildMethod();
+  buildDots(); buildMap(); paintMap(); buildRanking(); buildEqualizer(); buildDonors(); buildMedia(); buildUnranked(); buildMethod();
   sizeCanvas();
   dots.forEach(function (d, i) { var p = layouts.all.pos[i]; d.x = d.sx = d.tx = p.x; d.y = d.sy = d.ty = p.y; });
   updateCaption(); countUp(); observeReveals();

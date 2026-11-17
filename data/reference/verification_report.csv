@@ -1,0 +1,20 @@
+group,check,status,detail,checked
+A funding,requirements agree with FTS plans API within 15% (45 countries compared),PASS,,2026-11-17
+B scores,independent recomputation matches neglect_scores.csv (28 crises),PASS,max difference 0.00,2026-11-17
+B scores,no missing values in ranked rows,PASS,,2026-11-17
+B scores,funding percent = funding / requirement,PASS,,2026-11-17
+B scores,dollars per person = funding / people in need,PASS,,2026-11-17
+C needs figures,"PSE 3,620,000 people in need (used)",PASS,figure '3.62 million' appears in the document,2026-11-17
+C needs figures,"LBN 1,400,000 people in need (used)",PASS,figure '1.4 million' appears in the document,2026-11-17
+C needs figures,"MDG 581,000 people in need (used)",PASS,figure '581 000' appears in the document,2026-11-17
+C needs figures,"NPL 84,270 people in need (used)",PASS,"figure '84,270' appears in the document",2026-11-17
+C needs figures,"VNM 1,400,000 people in need (used)",PASS,figure '1.4M' appears in the document,2026-11-17
+C needs figures,"CUB 4,200,000 people in need (used)",PASS,figure '4.2M' appears in the document,2026-11-17
+C needs figures,"PAK 2,800,000 people in need (used)",PASS,figure '2.8M' appears in the document,2026-11-17
+C needs figures,"HND 1,400,000 people in need (not used)",NOTE,document opened but the figure was not found in its text,2026-11-17
+D dashboard,data.js has every ranked crisis,PASS,28 vs 28,2026-11-17
+D dashboard,scores in data.js equal the CSV,PASS,,2026-11-17
+D dashboard,map has a shape for every ranked/unranked country,PASS,,2026-11-17
+D dashboard,hero number = sum of people in need,NOTE,page shows 218.9 million,2026-11-17
+D dashboard,hero 'funded' share,NOTE,"43.4% funded, $16.6B unpaid",2026-11-17
+E donors,donor parts never exceed the country total,PASS,,2026-11-17

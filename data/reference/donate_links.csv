@@ -111,9 +111,9 @@ PAK,Pakistan,UNICEF,"Children: health, nutrition, water, schooling",https://www.
 PAK,Pakistan,World Food Programme,Food and nutrition assistance,https://www.wfp.org/countries/pakistan,country,ok,https://www.wfp.org/countries/pakistan,2026-11-17
 PAK,Pakistan,International Rescue Committee,"Health, safety and cash support for families",https://www.rescue.org/country/pakistan,country,ok,https://www.rescue.org/country/pakistan,2026-11-17
 PAK,Pakistan,Doctors Without Borders (MSF),Emergency medical care,https://www.msf.org/pakistan,country,ok,https://www.msf.org/pakistan,2026-11-17
-PSE,State of Palestine,UNRWA,"Palestine refugees: food, health, schooling",https://www.unrwa.org/donate,country,ok,https://donate.unrwa.org/int/en/general,2026-11-17
-LBN,Lebanon,UNRWA,Palestine refugees in Lebanon,https://www.unrwa.org/donate,country,ok,https://donate.unrwa.org/int/en/general,2026-11-17
-SYR,Syrian Arab Republic,UNRWA,Palestine refugees in Syria,https://www.unrwa.org/donate,country,ok,https://donate.unrwa.org/int/en/general,2026-11-17
+PSE,State of Palestine,UNRWA,"Palestine refugees: food, health, schooling",https://www.unrwa.org/donate,country,http 403,https://www.unrwa.org/donate,2026-11-17
+LBN,Lebanon,UNRWA,Palestine refugees in Lebanon,https://www.unrwa.org/donate,country,http 403,https://www.unrwa.org/donate,2026-11-17
+SYR,Syrian Arab Republic,UNRWA,Palestine refugees in Syria,https://www.unrwa.org/donate,country,http 403,https://www.unrwa.org/donate,2026-11-17
 ALL,All crises,Charity Navigator,Independent charity ratings: check before you give,https://www.charitynavigator.org/,general,ok,https://www.charitynavigator.org/,2026-11-17
 ALL,All crises,CharityWatch,Independent charity watchdog,https://www.charitywatch.org/,general,ok,https://charitywatch.org/,2026-11-17
 ALL,All crises,OCHA Financial Tracking Service,See exactly who has funded each appeal,https://fts.unocha.org/,general,ok,https://fts.unocha.org/,2026-11-17

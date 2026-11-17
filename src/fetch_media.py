@@ -66,25 +66,46 @@ FIPS = {
 
 # IMPORTANT (found by testing): GDELT answers `{}` (empty) to windows longer than about a
 # week, even though it works fine for "1week". So every request uses a 1-week window.
+# The main local language(s) of each country, as GDELT names them. English-speaking
+# countries (Nigeria, South Sudan) need no extra search. GDELT machine-translates every
+# article for matching, so ENGLISH keywords find articles written in these languages.
+LANGS = {
+    "YEM": "arabic", "SYR": "arabic", "SDN": "arabic", "PSE": "arabic", "LBN": "arabic",
+    "MLI": "french", "BFA": "french", "NER": "french", "TCD": "french", "COD": "french",
+    "CAF": "french", "CMR": "french", "HTI": "french", "MDG": "french",
+    "HND": "spanish", "COL": "spanish", "VEN": "spanish", "CUB": "spanish",
+    "MOZ": "portuguese", "UKR": "ukrainian", "MMR": "burmese", "SOM": "somali",
+    "VNM": "vietnamese", "NPL": "nepali", "PAK": "urdu", "AFG": "persian",
+}
+
 MODES = {
-    # a sample of recent articles from anywhere (we later split into "abroad" vs "local")
+    # a sample of recent ENGLISH articles from anywhere (later split into "abroad" / "local")
     "articles": {"mode": "artlist", "timespan": "1week", "maxrecords": "250", "sort": "hybridrel"},
-    # articles published by outlets based IN the country itself
-    "local":    {"mode": "artlist", "timespan": "1week", "maxrecords": "75", "sort": "hybridrel"},
+    # articles published by outlets based IN the country itself, in ANY language
+    "inland":   {"mode": "artlist", "timespan": "1week", "maxrecords": "100", "sort": "hybridrel"},
+    # articles written in the country's main local language, published anywhere
+    "lang":     {"mode": "artlist", "timespan": "1week", "maxrecords": "100", "sort": "hybridrel"},
     # hourly article counts (and the total monitored), for "share of all coverage"
     "volume":   {"mode": "timelinevolraw", "timespan": "1week"},
     # average tone; slow, only fetched with --tone
     "tone":     {"mode": "timelinetone", "timespan": "1week"},
 }
-DEFAULT_MODES = ("articles", "local", "volume")
+DEFAULT_MODES = ("articles", "inland", "lang", "volume")
+
+
+def build_query(code: str, key: str) -> str:
+    base = f"{TERMS[code]} {CONTEXT}"
+    if key == "inland":
+        return f"{base} sourcecountry:{FIPS[code]}"          # any language
+    if key == "lang":
+        return f"{base} sourcelang:{LANGS[code]}"            # local language, any outlet
+    return f"{base} sourcelang:english"
 
 
 def ask(code: str, key: str):
     """One GDELT request with patient retries. Returns parsed JSON or None."""
     spec = MODES[key]
-    extra = f" sourcecountry:{FIPS[code]}" if key == "local" else ""
-    params = {"query": f"{TERMS[code]} {CONTEXT} sourcelang:english{extra}",
-              "format": "json", **spec}
+    params = {"query": build_query(code, key), "format": "json", **spec}
     url = API + "?" + urllib.parse.urlencode(params)
     req = urllib.request.Request(url, headers={"User-Agent": "AidGap-portfolio-project/0.1"})
     for attempt in range(len(BACKOFF) + 1):
@@ -116,7 +137,7 @@ def main() -> None:
     wanted = [c for c in dict.fromkeys(wanted) if c in TERMS]
 
     modes = DEFAULT_MODES + (("tone",) if "--tone" in sys.argv else ())
-    jobs = [(c, k) for k in modes for c in wanted]
+    jobs = [(c, k) for k in modes for c in wanted if k != "lang" or c in LANGS]
     todo = [(c, k) for c, k in jobs if not (RAW / f"{c}_{k}.json").exists()]
     print(f"{len(wanted)} countries, {len(jobs)} requests, {len(todo)} still to fetch "
           f"(~{len(todo) * GAP_BETWEEN_CALLS // 60} min minimum)", flush=True)
@@ -126,10 +147,10 @@ def main() -> None:
         data = ask(code, key)
         if data is None:
             print("    gave up for now (will retry next run)", flush=True)
-        elif not data and key != "local":
+        elif not data and key not in ("inland", "lang"):
             # An empty {} is "no data", not a result, so do NOT save it (a later run
-            # will try again). For "local" an empty answer is normal (many countries have
-            # no English-language outlet publishing about the crisis), so that one IS saved.
+            # will try again). For "inland" and "lang" an empty answer is normal (some
+            # countries have no outlet publishing about the crisis this week), so those ARE saved.
             print("    empty answer - not saved", flush=True)
         else:
             (RAW / f"{code}_{key}.json").write_text(json.dumps(data), encoding="utf-8")

@@ -23,7 +23,9 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "data" / "reference" / "donate_links.csv"
-UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124 Safari/537.36"
+# We say who we are. If a site refuses an honest request we simply leave its link out;
+# we never disguise the client to get past a block.
+UA = "AidGap-portfolio-project/0.1 (link check)"
 
 # code -> (name, {org: slug on that org's site})
 SLUGS = {

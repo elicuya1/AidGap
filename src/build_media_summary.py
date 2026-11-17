@@ -88,6 +88,23 @@ TITLE_TERMS = {
     "NPL": "nepal|nepali|nepalese|kathmandu",
 }
 TITLE_RE = {c: re.compile(r"\b(" + t + r")\b", re.I) for c, t in TITLE_TERMS.items()}
+# The same country names as written in its local language(s), so non-English headlines
+# can pass the filter too (matched as plain text because \b is unreliable in some scripts).
+TITLE_NATIVE = {
+    "YEM": "اليمن|يمني|اليمنية|الحوثي|صنعاء|تعز", "AFG": "أفغانستان|افغانستان|طالبان|کابل|کابل",
+    "SYR": "سوريا|سورية|السوري|دمشق", "SDN": "السودان|سوداني|الخرطوم|دارفور",
+    "PSE": "فلسطين|غزة|الضفة|فلسطيني|رفح", "LBN": "لبنان|لبناني|بيروت",
+    "MLI": "malien|bamako", "BFA": "burkinab|ouagadougou", "NER": "nigérien|niamey",
+    "TCD": "tchad|tchadien|n'djamena", "COD": "rdc|congolais|kinshasa|goma|kivu",
+    "CAF": "centrafrique|centrafricain|bangui", "CMR": "cameroun|camerounais",
+    "HTI": "haïti|haitien|haïtien|port-au-prince", "MDG": "madagascar|malgache",
+    "HND": "honduras|hondureñ", "COL": "colombia|colombian|bogotá", "VEN": "venezuela|venezolan|caracas",
+    "CUB": "cuba|cubano|cubanos|la habana", "MOZ": "moçambique|moçambican|cabo delgado",
+    "UKR": "україн|украин|киев|київ", "MMR": "မြန်မာ|ရိုဟင်ဂျာ", "SOM": "soomaali|muqdisho",
+    "VNM": "việt nam|viêt nam|việt", "NPL": "नेपाल|नेपाली|काठमाडौं",
+    "PAK": "پاکستان|پاکستانی|اسلام آباد",
+}
+NATIVE_RE = {c: re.compile(t, re.I) for c, t in TITLE_NATIVE.items()}
 # words that signal the headline is about something else
 NOISE_RE = {
     "VNM": re.compile(r"veteran|vietnam war|war memorial", re.I),
@@ -99,7 +116,8 @@ def relevant(code: str, title: str) -> bool:
     rx = TITLE_RE.get(code)
     if rx is None:
         return True
-    if not rx.search(title or ""):
+    nat = NATIVE_RE.get(code)
+    if not rx.search(title or "") and not (nat and nat.search(title or "")):
         return False
     t = (title or "").lower()
     if code == "SDN" and "south sudan" in t and not re.search(r"\b(?<!south )sudan\b|khartoum|darfur", t):
@@ -120,7 +138,8 @@ def state_link(domain: str):
 
 
 def clean_title(t: str) -> str:
-    t = re.sub(r"\s+([,.;:!?%])", r"\1", t or "").strip()   # GDELT puts spaces before punctuation
+    t = (t or "").replace("�", "").strip()              # GDELT sometimes cuts a letter in half
+    t = re.sub(r"\s+([,.;:!?%])", r"\1", t).strip()          # GDELT puts spaces before punctuation
     t = re.sub(r"(\d), (\d{3})\b", r"\1,\2", t)              # "333, 000" -> "333,000"
     return re.sub(r"\s{2,}", " ", t)
 
@@ -132,7 +151,7 @@ def parse_date(s: str) -> str:
 def load_articles(code: str) -> list[dict]:
     """All articles for a crisis from every file we have, repeated headlines removed."""
     seen, out = set(), []
-    for key in ("local", "articles"):                    # local first so they win ties
+    for key in ("inland", "lang", "articles"):           # in-country first so they win ties
         f = RAW / f"{code}_{key}.json"
         if not f.exists():
             continue
@@ -144,7 +163,7 @@ def load_articles(code: str) -> list[dict]:
             if not relevant(code, clean_title(a.get("title"))):
                 continue
             seen.add(k)
-            a["_from_local_query"] = key == "local"
+            a["_from_local_query"] = key == "inland"
             out.append(a)
     return out
 
@@ -152,7 +171,9 @@ def load_articles(code: str) -> list[dict]:
 def article_row(a: dict) -> dict:
     return {"title": clean_title(a.get("title")), "url": a["url"], "domain": a.get("domain", ""),
             "country": a.get("sourcecountry") or "", "date": parse_date(a.get("seendate", "")),
-            "state": state_link(a.get("domain", ""))}
+            "state": state_link(a.get("domain", "")),
+            "lang": a.get("language") or "",            # original language, e.g. "Arabic"
+            "title_en": None}                            # room for a machine translation (see README)
 
 
 def summarise(code: str) -> dict | None:

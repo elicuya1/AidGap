@@ -71,11 +71,11 @@ def main() -> None:
         "unmet_usd", "people_in_need", "pin_year", "year", "funding_pct",
         "funding_per_person_usd", "neglect_score", "rank", "low_confidence",
         "coverage_pts", "per_person_pts", "scale_pts",
-        "pin_source", "pin_confidence", "pin_note", "pin_url", "data_note",
+        "pin_source", "pin_confidence", "pin_note", "pin_url", "pin_verified", "data_note",
     ]].copy()
     for c in ("coverage_pts", "per_person_pts", "scale_pts"):
         crises[c] = crises[c].round(1)
-    crises = crises.fillna({"pin_note": "", "pin_url": "", "data_note": ""})
+    crises = crises.fillna({"pin_note": "", "pin_url": "", "pin_verified": "", "data_note": ""})
 
     # Rank range under the 6 weightings (how stable is each country's rank?)
     sens = sens.rename(columns={"location_name": "name"})
