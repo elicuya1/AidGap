@@ -75,7 +75,7 @@
   (function () {
     var d = new Date(D.generated + "T00:00:00"), nice = isNaN(d) ? D.generated : d.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
     $("dateline").textContent = "Data as of " + nice + " · " + crises.length + " crises · OCHA FTS · HDX HAPI · ReliefWeb · GDELT";
-    $("mast").textContent = "Field report " + D.year + " · v9";
+    $("mast").textContent = "Field report " + D.year + " · v10";
   })();
   function countUp() {
     var t0 = performance.now(), DUR = reduceMotion ? 1 : 2200;
