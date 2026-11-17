@@ -42,7 +42,7 @@ Percentile ranks among national-plan countries, weighted: coverage (% funded) 40
 - [x] Setup, funding data, needs data, gap table, Neglect Score v1
 - [x] Run gap_score.py on real data and review the ranking
 - [ ] Verify Palestine PIN from the Flash Appeal PDF and add it (then scored normally)
-- [ ] Sensitivity analysis on weights (does the top 5 hold? Sudan ranks only #8 despite the largest PIN)
+- [x] Sensitivity analysis on weights (src/sensitivity.py): Yemen + Afghanistan top 5 in all 6 scenarios; Honduras, Mali, Sudan depend on weights
 - [ ] Streamlit dashboard: world map colored by Neglect Score, country detail view
 - [ ] Multi-year trends + automated alerts (GitHub Actions, weekly)
 - [ ] Media coverage phase: GDELT DOC API (volume, tone, source country). Frame as "narrative analysis", not "propaganda". Validate against CARE's under-reported crises list.
