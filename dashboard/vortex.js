@@ -42,7 +42,7 @@
   window.__aidgapMerge = true;
   var ctx = cv.getContext("2d"), W = 0, H = 0, forceQ = null, raf = 0, running = false;
   var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  var RINGS = 9, TAU = Math.PI * 2, t0 = performance.now(), cols = null, ring = null, Q = 0, mapped = null, mappedFor = "";
+  var RINGS = 9, TAU = Math.PI * 2, t0 = performance.now(), cols = null, ring = null, mapped = null;
   function readColours() {
     var s = getComputedStyle(document.documentElement);
     cols = { red: s.getPropertyValue("--unmet").trim() || "#a3202a", blue: s.getPropertyValue("--funded").trim() || "#4a86b8", theme: document.documentElement.getAttribute("data-theme") };
@@ -64,21 +64,30 @@
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0); draw();
   }
   function ease(x) { x = Math.max(0, Math.min(1, x)); return x * x * (3 - 2 * x); }
-  // how far the next screen (The scale) has risen into view: 0 = not yet, 1 = ring dots have landed on the real dots
-  function progress() {
+  // The merge is timed, not tied to scroll speed: once "The scale" has slid up the screen the ring dots fly for ~1.2 s, land on the real dots, then dissolve.
+  var E = 0, landedAt = 0, lastT = performance.now(), gone = false, FLY = 1.2, DISSOLVE = 0.8;
+  function goal() {
     var sc = document.getElementById("s-scale"); if (!sc) return 0;
-    return (window.innerHeight - sc.getBoundingClientRect().top) / (0.7 * window.innerHeight);
+    return sc.getBoundingClientRect().top < window.innerHeight * 0.7 ? 1 : 0;
   }
   function draw() {
-    var q = forceQ != null ? forceQ : Q;
+    var now = performance.now(), dt = Math.min(0.1, (now - lastT) / 1000); lastT = now;
     ctx.clearRect(0, 0, W, H);
-    var fieldOK = window.__aidgapField && window.__aidgapField.ready();
-    var alpha = q <= 1 ? 1 : 1 - (q - 1) / 0.3;                     // after landing, the ring dots dissolve into the real ones
-    if (alpha <= 0.01) { running = false; return; }
+    var fieldOK = window.__aidgapField && window.__aidgapField.ready(), g = goal(), alpha = 1, q;
+    if (forceQ != null) { q = forceQ; alpha = q <= 1 ? 1 : 1 - (q - 1) / 0.3; E = Math.min(1, q); }
+    else {
+      if (!fieldOK) g = 0;
+      E = reduce ? g : E + (g > E ? 1 : -1) * Math.min(Math.abs(g - E), dt / FLY);
+      if (E >= 1) { if (!landedAt) landedAt = now; alpha = 1 - Math.min(1, (now - landedAt) / (DISSOLVE * 1000)); } else landedAt = 0;
+      q = E;
+    }
+    cv.classList.toggle("front", E > 0.02);
+    if (alpha <= 0.01) { running = false; gone = true; return; }
+    gone = false;
     if (!ring) buildRing();
     if (!cols || cols.theme !== document.documentElement.getAttribute("data-theme")) readColours();
-    if (q >= 0.9 && fieldOK && !draw.started) { draw.started = true; window.__aidgapField.start(); }
-    var t = reduce ? 0 : (performance.now() - t0) / 1000, e = ease(q), fund = funded();
+    if (q >= 0.85 && fieldOK && !draw.started) { draw.started = true; window.__aidgapField.start(); }
+    var t = reduce ? 0 : (now - t0) / 1000, e = ease(q), fund = funded();
     var cx = W * 0.91, cy = H * 0.52, R = Math.min(W * 0.475, H * 0.46);
     var F = fieldOK ? window.__aidgapField : null, lists = F ? F.lists() : null, tr = F ? F.radius() : 2.4;
     // ring dot -> real dot (blue to blue, red to red, spread evenly)
@@ -102,8 +111,8 @@
   function loop() { draw(); raf = (running && !reduce) ? requestAnimationFrame(loop) : 0; }
   function start() { if (!running) { running = true; if (!raf) loop(); } }
   function onScroll() {
-    Q = progress();
-    if (Q < 1.3) { if (reduce) draw(); else start(); }
+    if (goal() === 0) { gone = false; landedAt = 0; }
+    if (!gone) { if (reduce) draw(); else start(); }
   }
   window.addEventListener("resize", resize);
   window.addEventListener("scroll", onScroll, { passive: true });
