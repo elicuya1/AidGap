@@ -198,7 +198,7 @@
   th { color: var(--ink2); font-weight: 600; }
   td { font-variant-numeric: tabular-nums; }
 
-  /* "Be one of them": draw a random life from everyone in need */
+  /* "One person at a time": pick a random person from everyone in need */
   .life { margin-top: 24px; padding: 20px 22px 18px; }
   .life-grid { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 28px; align-items: start; }
   @media (max-width: 820px) { .life-grid { grid-template-columns: 1fr; gap: 18px; } }
@@ -581,15 +581,15 @@
           <details class="table-view"><summary>View all numbers as a table</summary><div class="tbl-scroll"><table id="tbl"></table></div></details>
         </div>
       </div>
-      <h3 class="mid mask"><span>Be one of them.</span></h3>
-      <p class="sub rv" style="margin-top:6px">Averages hide people. Pick one person at random from everyone in need today, and see which appeal they belong to. <b>Then do it again.</b></p>
+      <h3 class="mid mask"><span>One person at a time.</span></h3>
+      <p class="sub rv" style="margin-top:6px">Averages hide people. Pick one person at random from everyone in need today and see which appeal they belong to. <b>Then pick another.</b></p>
       <div class="card life rv" id="lifeCard">
         <div class="life-grid">
           <canvas id="lifeCv" role="img" aria-label="Every person in need as a grey dot. A randomly chosen dot is highlighted."></canvas>
           <div class="life-out" id="lifeOut" aria-live="polite"></div>
         </div>
         <div class="life-ctl">
-          <button type="button" class="btn" id="lifeOne">Draw a life</button>
+          <button type="button" class="btn" id="lifeOne">Pick a person</button>
           <button type="button" class="btn ghost" id="lifeMany">Draw 100</button>
           <button type="button" class="btn ghost" id="lifeReset">Start over</button>
         </div>
@@ -679,13 +679,13 @@
 </div>
 
 <!-- ?v=9 makes your browser fetch fresh copies after each update instead of reusing an old saved page -->
-<script src="data.js?v=14"></script>
-<script src="score.js?v=14"></script>
-<script src="map.js?v=14"></script>
-<script src="media.js?v=14" onerror="window.AIDGAP_MEDIA=null"></script>
-<script src="reports.js?v=14" onerror="window.AIDGAP_REPORTS=null"></script>
-<script src="donors.js?v=14" onerror="window.AIDGAP_DONORS=null"></script>
-<script src="vortex.js?v=14"></script>
-<script src="app.js?v=14"></script>
+<script src="data.js?v=15"></script>
+<script src="score.js?v=15"></script>
+<script src="map.js?v=15"></script>
+<script src="media.js?v=15" onerror="window.AIDGAP_MEDIA=null"></script>
+<script src="reports.js?v=15" onerror="window.AIDGAP_REPORTS=null"></script>
+<script src="donors.js?v=15" onerror="window.AIDGAP_DONORS=null"></script>
+<script src="vortex.js?v=15"></script>
+<script src="app.js?v=15"></script>
 </body>
 </html>

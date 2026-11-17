@@ -76,7 +76,7 @@
   (function () {
     var d = new Date(D.generated + "T00:00:00"), nice = isNaN(d) ? D.generated : d.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
     $("dateline").textContent = "Data as of " + nice + " · " + crises.length + " crises · OCHA FTS · HDX HAPI · ReliefWeb · GDELT";
-    $("mast").textContent = "Field report " + D.year + " · v14";
+    $("mast").textContent = "Field report " + D.year + " · v15";
   })();
   function countUp() {
     var t0 = performance.now(), DUR = reduceMotion ? 1 : 2200;
@@ -448,7 +448,7 @@
       '<span>Size: ' + Math.round(c0.scale_pts) + ' points × 20%</span><span>' + k0[2].toFixed(1) + "</span></div>" +
       '<div class="tot"><span>Neglect Score</span><span>' + c0.neglect_score.toFixed(1) + "</span></div>";
   }
-  /* ---- Be one of them: draw a random life from everyone in need ----
+  /* ---- One person at a time: pick a random person from everyone in need ----
      One dot = 100,000 people, so a random dot is a random person in need and big crises come up
      more often, as they would in life. A drawn dot turns blue if it sits in the paid part of its
      appeal and red if it sits in the unpaid part. Draw many and the picture fills with red. */
@@ -489,19 +489,19 @@
     }
     function showPerson(i) {
       var p = people[i], c = crises[p.ci];
-      out.innerHTML = '<p class="who2">You are one of <b>' + fmtPeople(c.people_in_need) + '</b> people in need in <b>' + esc(shortName(c.location_name)) + '</b>.</p>' +
-        '<p>Your appeal is <b>' + c.funding_pct.toFixed(0) + '% funded</b>.</p><div class="pbar"><i style="width:' + Math.min(100, c.funding_pct) + '%"></i></div>' +
-        '<p>That comes to about <b>' + fmtPerDay(c.funding_per_person_usd) + ' a day</b> for you ($' + c.funding_per_person_usd.toFixed(2) + ' over the year). Rank <b>' + c.rank + ' of ' + N + '</b> on the Neglect Score.</p>' +
-        '<p class="dotkey">Your dot is ' + (p.funded ? "blue: the paid part of the appeal." : "red: the part not yet paid.") + '</p>' +
+      out.innerHTML = '<p class="who2">One of <b>' + fmtPeople(c.people_in_need) + '</b> people in need in <b>' + esc(shortName(c.location_name)) + '</b>.</p>' +
+        '<p>Their appeal is <b>' + c.funding_pct.toFixed(0) + '% funded</b>.</p><div class="pbar"><i style="width:' + Math.min(100, c.funding_pct) + '%"></i></div>' +
+        '<p>That comes to about <b>' + fmtPerDay(c.funding_per_person_usd) + ' a day</b> per person ($' + c.funding_per_person_usd.toFixed(2) + ' over the year). Rank <b>' + c.rank + ' of ' + N + '</b> on the Neglect Score.</p>' +
+        '<p class="dotkey">This dot is ' + (p.funded ? "blue: the paid part of the appeal." : "red: the part not yet paid.") + '</p>' +
         '<button type="button" class="link" id="lifeOpen">Read about ' + esc(shortName(c.location_name)) + ' →</button>';
       var b = $("lifeOpen"); if (b) b.addEventListener("click", function () { openCountry(c.location_code); });
     }
     function showHist() {
       var maxShare = 0.0001, tShare = trueBand.map(function (v) { return v / N0; }), dShare = counts.map(function (v) { return draws ? v / draws : 0; });
       tShare.concat(dShare).forEach(function (v) { if (v > maxShare) maxShare = v; });
-      var h = '<h4>Where your lives landed</h4><p class="sum">' + (draws
-        ? 'In <b>' + draws + '</b> ' + (draws === 1 ? "life" : "lives") + ', <b>' + under50 + '</b> (' + Math.round(under50 / draws * 100) + '%) were in an appeal that is less than half funded, and <b>' + red + '</b> (' + Math.round(red / draws * 100) + '%) sat in the unpaid part. Across <i>everyone</i> in need, ' + Math.round(trueUnder50 / N0 * 100) + '% live in an appeal under half funded.'
-        : 'Across everyone in need, <b>' + Math.round(trueUnder50 / N0 * 100) + '%</b> live in an appeal that is less than half funded. Draw some lives and see where you land.') + '</p><div class="hbars">';
+      var h = '<h4>Where each pick landed</h4><p class="sum">' + (draws
+        ? 'In <b>' + draws + '</b> ' + (draws === 1 ? "pick" : "picks") + ', <b>' + under50 + '</b> (' + Math.round(under50 / draws * 100) + '%) were in an appeal that is less than half funded, and <b>' + red + '</b> (' + Math.round(red / draws * 100) + '%) sat in the unpaid part. Across <i>everyone</i> in need, ' + Math.round(trueUnder50 / N0 * 100) + '% live in an appeal under half funded.'
+        : 'Across everyone in need, <b>' + Math.round(trueUnder50 / N0 * 100) + '%</b> live in an appeal that is less than half funded. Pick some people and see where they fall.') + '</p><div class="hbars">';
       for (var b = 0; b < 5; b++) h += '<div class="hb" title="' + LABS[b] + ' funded"><div class="fill" style="height:' + (dShare[b] / maxShare * 100).toFixed(1) + '%"></div><div class="truth" style="bottom:' + (tShare[b] / maxShare * 100).toFixed(1) + '%"></div></div>';
       h += '</div><div class="hlab">' + LABS.map(function (l) { return "<span>" + l + "</span>"; }).join("") + '</div>';
       hist.innerHTML = h;
@@ -521,7 +521,7 @@
       })();
     }
     function reset() { people.forEach(function (p) { p.drawn = false; }); counts = [0, 0, 0, 0, 0]; draws = 0; red = 0; under50 = 0; cur = -1; flick = -1; paint(); intro(); showHist(); }
-    function intro() { out.innerHTML = '<p class="who2">Where would <b>you</b> be?</p><p>Press <b>Draw a life</b>. You will land in one of ' + N + ' crises, chosen by chance in proportion to how many people are in need there.</p><p class="dotkey">Grey dot: a person in need. 1 dot = 100,000 people.</p>'; }
+    function intro() { out.innerHTML = '<p class="who2">Who is behind the average?</p><p>Press <b>Pick a person</b>. They will belong to one of ' + N + ' crises, chosen by chance in proportion to how many people are in need there.</p><p class="dotkey">Grey dot: a person in need. 1 dot = 100,000 people.</p>'; }
     $("lifeOne").addEventListener("click", drawOne); $("lifeMany").addEventListener("click", drawMany); $("lifeReset").addEventListener("click", reset);
     var rz; window.addEventListener("resize", function () { clearTimeout(rz); rz = setTimeout(size, 120); });
     intro(); showHist(); size();
