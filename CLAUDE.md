@@ -101,3 +101,9 @@ Percentile ranks among national-plan countries, weighted: coverage (% funded) 40
 - [ ] Multi-year trends + automated alerts (GitHub Actions, weekly)
 - [ ] Media coverage phase: GDELT DOC API (volume, tone, source country). Frame as "narrative analysis", not "propaganda". Validate against CARE's under-reported crises list.
 - [ ] Deploy (GitHub Pages, serving `dashboard/`) + polished README with methodology and limitations
+
+## v5 notes (2026-11-17)
+- Eli reported "the UI didn't change": likely a stale browser copy. Fixed with `?v=5` on every script tag, a no-cache meta tag and a visible "v5" in the masthead. BUMP the number in index.html and the masthead text in app.js each release; tell Eli to hard-refresh (Ctrl+Shift+R).
+- Attention section simplified to ONE comparison (a quiet neglected crisis vs a loud non-neglected one, in big numbers), ONE sentence, ONE bar chart sorted by neglect. No scatter, tiles or table. Keep media UI this simple.
+- Tabs are now LOCAL vs INTERNATIONAL (popup and newsroom). Local = news from outlets inside the country + reports from the country's own government, national Red Cross/Crescent or organisations named for it (`is_local_publisher` in build_reports_summary.py, a rule of thumb). International = everything else. Items carry a "News" / "Aid report" badge; chips filter by kind and language.
+- ReliefWeb app name: their docs say a website URL is preferred but an email address is acceptable. A public GitHub repo URL works. `index.html` + `.nojekyll` at the repo root let GitHub Pages publish the site (Settings > Pages > main / root) at https://elicuya1.github.io/AidGap/.

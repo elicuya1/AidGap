@@ -37,6 +37,40 @@ SCRIPTS = [("Arabic", r"[؀-ۿ]"), ("Russian/Ukrainian", r"[Ѐ-ӿ]"), ("Burmese"
            ("Nepali", r"[ऀ-ॿ]"), ("Chinese", r"[一-鿿]")]
 
 
+# Words that identify a country in a publisher's name (name and adjective, lower case).
+COUNTRY_WORDS = {
+    "YEM": ["yemen"], "AFG": ["afghan"], "HND": ["hondure", "honduras"], "MLI": ["mali", "malien"],
+    "BFA": ["burkina", "burkinab"], "NER": ["niger", "nigérien", "nigerien"], "SYR": ["syria"],
+    "MMR": ["myanmar", "burma", "burmese"], "SDN": ["sudan"], "COL": ["colombia"],
+    "CMR": ["cameroon", "cameroun", "camerounais"], "SSD": ["south sudan"], "SOM": ["somali"],
+    "VEN": ["venezuela"], "COD": ["congo", "congolais", "rdc"], "HTI": ["haiti", "haïti", "haitien", "haïtien"],
+    "TCD": ["tchad", "chad", "tchadien"], "MOZ": ["mozambi", "moçambi"], "NGA": ["nigeria"],
+    "CAF": ["centrafri", "central african"], "UKR": ["ukrain"], "PSE": ["palestin"], "LBN": ["leban", "libanais"],
+    "CUB": ["cuba"], "MDG": ["madagascar", "malagasy", "malgache"], "PAK": ["pakistan"],
+    "VNM": ["viet nam", "vietnam"], "NPL": ["nepal"],
+}
+# publishers that carry a country's name but are international bodies working there
+INTERNATIONAL_HINTS = ("united nations", "un ", "ingo", "international", "humanitarian country team",
+                       "equipo humanitario", "cluster", "mission", "office", "unhcr", "unicef", "wfp", "ocha")
+NATIONAL_SOCIETY = ("red cross", "red crescent", "croix-rouge", "cruz roja", "media luna")
+
+
+def is_local_publisher(code: str, publisher: str) -> bool:
+    """True when the PUBLISHER is based in the country: its government, its national Red
+    Cross or Red Crescent society, or an organisation whose name starts with the country.
+    A rule of thumb, not a guarantee; the page says so."""
+    p = publisher.lower().strip()
+    words = COUNTRY_WORDS.get(code, [])
+    if not words or any(h in p for h in INTERNATIONAL_HINTS):
+        return False
+    if code == "SDN" and "south sudan" in p:
+        return False
+    starts = any(p.startswith(w) for w in words)
+    govt = bool(re.match(r"(government|ministry|ministère|ministerio)\b.*", p)) and any(w in p for w in words)
+    society = any(s in p for s in NATIONAL_SOCIETY) and any(w in p for w in words)
+    return starts or govt or society
+
+
 def guess_language(title: str) -> str:
     for name, rx in SCRIPTS:
         if re.search(rx, title):
@@ -47,7 +81,7 @@ def guess_language(title: str) -> str:
     return best if scores[best] > 0 else "English"
 
 
-def summarise(items: list[dict], today: date) -> dict | None:
+def summarise(code: str, items: list[dict], today: date) -> dict | None:
     if not items:
         return None
     rows = []
@@ -56,7 +90,8 @@ def summarise(items: list[dict], today: date) -> dict | None:
             d = date.fromisoformat(it["date"])
         except (ValueError, KeyError):
             continue
-        rows.append({**it, "d": d, "lang": guess_language(it["title"])})
+        rows.append({**it, "d": d, "lang": guess_language(it["title"]),
+                     "local": is_local_publisher(code, it.get("publisher", ""))})
     if not rows:
         return None
     rows.sort(key=lambda r: r["d"], reverse=True)
@@ -70,7 +105,7 @@ def summarise(items: list[dict], today: date) -> dict | None:
         "tags": [{"name": k, "n": v} for k, v in Counter(t for r in rows for t in r["tags"]).most_common(6)],
         "langs": dict(Counter(r["lang"] for r in rows).most_common()),
         "items": [{"title": r["title"], "url": r["url"], "date": r["d"].isoformat(), "publisher": r["publisher"],
-                   "lang": r["lang"], "tags": r["tags"][:3]} for r in rows[:MAX_ITEMS]],
+                   "lang": r["lang"], "local": r["local"], "tags": r["tags"][:3]} for r in rows[:MAX_ITEMS]],
     }
 
 
@@ -78,7 +113,7 @@ def main() -> None:
     today = date.today()
     by_code = {}
     for f in sorted(RAW.glob("*.json")):
-        s = summarise(json.loads(f.read_text(encoding="utf-8")), today)
+        s = summarise(f.stem, json.loads(f.read_text(encoding="utf-8")), today)
         if s:
             by_code[f.stem] = s
     payload = {

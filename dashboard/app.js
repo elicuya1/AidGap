@@ -75,7 +75,7 @@
   (function () {
     var d = new Date(D.generated + "T00:00:00"), nice = isNaN(d) ? D.generated : d.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
     $("dateline").textContent = "Data as of " + nice + " · " + crises.length + " crises · OCHA FTS · HDX HAPI · ReliefWeb · GDELT";
-    $("mast").textContent = "Field report " + D.year;
+    $("mast").textContent = "Field report " + D.year + " · v5";
   })();
   function countUp() {
     var t0 = performance.now(), DUR = reduceMotion ? 1 : 2200;
@@ -596,65 +596,31 @@
   }
   function buildMedia() {
     var body = $("mediaBody");
-    var rows = crises.map(function (c) { return { c: c, r: REP[c.location_code], m: MED[c.location_code] }; }).filter(function (x) { return x.r; });
+    var rows = crises.map(function (c) { return { c: c, r: REP[c.location_code] }; }).filter(function (x) { return x.r; });
     if (!rows.length) {
-      body.innerHTML = '<div class="card empty rv" style="margin-top:30px">Report data has not been loaded yet. Run <b>src/fetch_reliefweb.py</b> then <b>src/build_reports_summary.py</b>, and refresh this page.</div>' + mediaInfo();
+      body.innerHTML = '<div class="card empty rv" style="margin-top:30px">Report data has not been loaded yet. Run <b>src/fetch_reliefweb.py</b> then <b>src/build_reports_summary.py</b>, and refresh this page.</div>';
       return;
     }
     var rates = rows.map(function (x) { return x.r.per_week; }).sort(function (a, b) { return a - b; }), med = rates[Math.floor(rates.length / 2)];
-    var byRate = rows.slice().sort(function (a, b) { return b.r.per_week - a.r.per_week; }), hi = byRate[0], lo = byRate[byRate.length - 1];
+    var maxRate = rates[rates.length - 1];
     var quiet = rows.filter(function (x) { return x.c.rank <= 10 && x.r.per_week < med; });
-    var pub = {}, tot = 0; rows.forEach(function (x) { tot += x.r.n; x.r.publishers.forEach(function (p) { pub[p.name] = (pub[p.name] || 0) + p.n; }); });
-    var topPub = Object.keys(pub).sort(function (a, b) { return pub[b] - pub[a]; })[0];
-    var html = '<div class="tiles">' +
-      '<div class="card tile rv"><div class="big-n violet">' + Math.round(hi.r.per_week / lo.r.per_week) + '×</div><p>more reports a week on <b>' + esc(shortName(hi.c.location_name)) + '</b> (' + hi.r.per_week.toFixed(0) + ') than on <b>' + esc(shortName(lo.c.location_name)) + '</b> (' + lo.r.per_week.toFixed(1) + '). Need and attention are not the same thing.</p></div>' +
-      '<div class="card tile rv" style="--i:1"><div class="big-n red">' + quiet.length + ' of 10</div><p>of the most neglected crises are among the <b>quieter half</b> for aid reporting' + (quiet.length ? ": " + quiet.map(function (x) { return esc(shortName(x.c.location_name)); }).join(", ") : "") + '.</p></div>' +
-      '<div class="card tile rv" style="--i:2"><div class="big-n violet">' + Math.round(pub[topPub] / tot * 100) + '%</div><p>of the reports we counted come from <b>' + esc(topPub) + '</b>. A few organisations decide what the aid sector writes about.</p></div></div>';
-
-    // scatter: attention (x, log) against neglect (y)
-    var xs = rows.map(function (x) { return Math.log10(x.r.per_week); }), x0 = Math.min.apply(null, xs) - 0.05, x1 = Math.max.apply(null, xs) + 0.05;
-    var Wd = 880, Hd = 400, L = 56, R = 18, T = 18, B = 50, thr = crises[Math.min(9, crises.length - 1)].neglect_score, medX = Math.log10(med);
-    function px(v) { return L + (v - x0) / (x1 - x0) * (Wd - L - R); } function py(v) { return Hd - B - v / 100 * (Hd - T - B); }
-    var rho = spearman(rows.map(function (x) { return x.r.per_week; }), rows.map(function (x) { return x.c.neglect_score; }));
-    var s = '<svg id="scatter" viewBox="0 0 ' + Wd + " " + Hd + '" role="img" aria-label="Scatter plot: reports per week against neglect score">' +
-      '<rect class="qbox" x="' + L + '" y="' + py(100) + '" width="' + (px(medX) - L) + '" height="' + (py(thr) - py(100)) + '"/>' +
-      '<line class="gl" x1="' + L + '" y1="' + (Hd - B) + '" x2="' + (Wd - R) + '" y2="' + (Hd - B) + '"/><line class="gl" x1="' + L + '" y1="' + T + '" x2="' + L + '" y2="' + (Hd - B) + '"/>';
-    [0, 25, 50, 75, 100].forEach(function (v) { s += '<line class="gl" x1="' + L + '" y1="' + py(v) + '" x2="' + (Wd - R) + '" y2="' + py(v) + '" opacity=".5"/><text x="' + (L - 8) + '" y="' + (py(v) + 4) + '" text-anchor="end">' + v + "</text>"; });
-    [1, 2, 5, 10, 20, 40].forEach(function (v) { var lx = Math.log10(v); if (lx > x0 && lx < x1) s += '<text x="' + px(lx) + '" y="' + (Hd - B + 16) + '" text-anchor="middle">' + v + "</text>"; });
-    s += '<text x="' + (L + 10) + '" y="' + (py(100) + 16) + '" class="quad">quiet and neglected</text>' +
-      '<text x="' + (Wd / 2) + '" y="' + (Hd - 8) + '" text-anchor="middle">Reports per week from aid organisations (log scale) →  more attention</text>' +
-      '<text transform="rotate(-90)" x="' + (-(Hd - B + T) / 2) + '" y="14" text-anchor="middle">Neglect Score →</text>';
-    var qset = {}; quiet.forEach(function (x) { qset[x.c.location_code] = 1; });
+    var qTop = quiet[0] || rows.filter(function (x) { return x.c.rank <= 10; }).sort(function (a, b) { return a.r.per_week - b.r.per_week; })[0];
+    var loud = rows.filter(function (x) { return x.c.rank > 10; }).sort(function (a, b) { return b.r.per_week - a.r.per_week; })[0] || rows[rows.length - 1];
+    function fmt(v) { return v < 10 ? v.toFixed(1) : String(Math.round(v)); }
+    var html = '<div class="duel rv">' +
+      '<div class="duo quiet"><div class="d-name">' + esc(shortName(qTop.c.location_name)) + '<small>rank ' + qTop.c.rank + ' of ' + N + ' · among the most neglected</small></div><div class="d-num">' + fmt(qTop.r.per_week) + '</div><div class="d-unit">reports a week from aid organisations</div></div>' +
+      '<div class="vs">vs</div>' +
+      '<div class="duo"><div class="d-name">' + esc(shortName(loud.c.location_name)) + '<small>rank ' + loud.c.rank + ' of ' + N + '</small></div><div class="d-num">' + fmt(loud.r.per_week) + '</div><div class="d-unit">reports a week from aid organisations</div></div></div>' +
+      '<p class="duel-note rv" style="--i:1">Need and attention do not line up. <b>' + quiet.length + ' of the 10 most neglected crises are among the quieter half</b> for aid reporting' + (quiet.length ? ": " + quiet.map(function (x) { return esc(shortName(x.c.location_name)); }).join(", ") : "") + '.</p>';
+    html += '<div class="bars"><h3 class="rv">Aid reports per week, in order of neglect</h3><p class="lead rv">The most neglected crises are at the top. If attention followed need, the bars would be longest there. <b>They are not.</b></p>' +
+      '<div class="keyline rv"><span><i style="background:var(--unmet)"></i>Ten most neglected</span><span><i style="background:var(--media)"></i>Others</span><span><i style="border-left:2px dashed var(--ink2);width:0;height:10px"></i>Median crisis</span></div>';
     rows.forEach(function (x, i) {
-      var isQ = !!qset[x.c.location_code], r = clamp(Math.sqrt(x.c.people_in_need / 1e6) * 2.3 + 4, 5, 17);
-      s += '<circle data-code="' + esc(x.c.location_code) + '" class="' + (isQ ? "quiet" : "") + '" cx="' + px(xs[i]).toFixed(1) + '" cy="' + py(x.c.neglect_score).toFixed(1) + '" r="' + r.toFixed(1) + '"><title>' + esc(x.c.location_name) + ": " + x.r.per_week + " reports/week, score " + x.c.neglect_score.toFixed(0) + "</title></circle>";
-      if (isQ || x.r.per_week >= byRate[2].r.per_week || x.c.rank <= 2) s += '<text x="' + (px(xs[i]) + r + 4).toFixed(1) + '" y="' + (py(x.c.neglect_score) + 4).toFixed(1) + '">' + esc(shortName(x.c.location_name)) + "</text>";
+      html += '<button type="button" class="brow rv' + (x.c.rank <= 10 ? " hot" : "") + '" data-code="' + esc(x.c.location_code) + '" style="--i:' + Math.min(i, 8) + '"><span class="rn">' + x.c.rank + '</span><span class="bn">' + esc(shortName(x.c.location_name)) + '</span>' +
+        '<span class="tr2"><i style="--w:' + Math.max(1.5, x.r.per_week / maxRate * 100).toFixed(1) + '%"></i><u style="left:' + (med / maxRate * 100).toFixed(1) + '%"></u></span><span class="bv">' + fmt(x.r.per_week) + "</span></button>";
     });
-    html += '<div class="card scatter-card rv"><h3>Does the noisiest crisis get the most help?</h3><p class="lead">Each dot is a crisis; bigger dots have more people in need. <b>Red dots are among the ten most neglected and in the quieter half for aid reporting.</b> Rank correlation between attention and neglect: <b>ρ = ' + rho.toFixed(2) + '</b>. It is a pattern, not proof that attention causes funding.</p>' + s + '</svg></div>' +
-      '<p class="fig rv"><b>Fig. 4.</b> Attention = reports per week on ReliefWeb about each country, estimated from the time spanned by its 20 latest reports (a busy crisis fills 20 reports in days, a quiet one takes months). Neglect Score as in Fig. 3. Source: ReliefWeb (UN OCHA), HDX HAPI, OCHA FTS.</p>';
-
-    html += '<div class="mrows"><div class="mhead"><span>#</span><span>Crisis</span><span>Aid reports per week</span><span style="text-align:right">News sampled</span><span style="text-align:right">State-linked</span></div>';
-    var maxRate = byRate[0].r.per_week;
-    rows.forEach(function (x, i) {
-      var m = x.m;
-      html += '<button class="mrow rv" type="button" data-code="' + esc(x.c.location_code) + '" style="--i:' + Math.min(i, 6) + '"><span class="rn">' + x.c.rank + '</span><span class="nm">' + esc(shortName(x.c.location_name)) + '</span>' +
-        '<span class="abar"><span class="bar-t" style="--w:' + Math.max(2, Math.round(x.r.per_week / maxRate * 100)) + '%"><i></i></span><b>' + x.r.per_week.toFixed(x.r.per_week < 10 ? 1 : 0) + '</b></span>' +
-        '<span class="num">' + (m && m.n ? m.n_abroad + " abroad · " + m.n_local + " inside" : "–") + '</span><span class="num">' + (m && m.n ? pctTxt(m.state_share) : "–") + "</span></button>";
-    });
-    html += "</div>" + mediaInfo();
+    html += '</div><p class="fig rv"><b>Fig. 4.</b> Reports per week on ReliefWeb (UN OCHA) about each country, estimated from the time spanned by its 20 latest reports: a busy crisis fills 20 reports in days, a quiet one takes months. This counts what aid organisations publish, not general news. Neglect rank as in Fig. 3. Sources: ReliefWeb, HDX HAPI, OCHA FTS.</p>';
     body.innerHTML = html;
-    Array.prototype.forEach.call(body.querySelectorAll(".mrow"), function (b) { b.addEventListener("click", function () { openCountry(b.dataset.code, "reports"); }); });
-    Array.prototype.forEach.call(body.querySelectorAll("#scatter circle"), function (c) { c.addEventListener("click", function () { openCountry(c.getAttribute("data-code"), "reports"); }); });
-  }
-  function mediaInfo() {
-    return '<div class="two"><div class="card info rv"><h3>Why attention matters</h3><ul>' +
-      '<li>Humanitarian funding is <b>voluntary</b>: donors respond to what they see and what their governments prioritise.</li>' +
-      '<li>Research on disaster relief (for example Eisensee and Strömberg, 2007) found that <b>news coverage affects whether relief is given</b>, not only how bad the disaster is.</li>' +
-      '<li>CARE publishes a yearly “Suffering in Silence” list of the most <b>under-reported crises</b>. Matching it to this ranking is a planned next step.</li></ul></div>' +
-      '<div class="card info rv" style="--i:1"><h3>What this can’t show</h3><ul>' +
-      '<li>Reports from aid organisations are <b>not the same as news</b>. They measure how much the sector itself writes, which is attention from the inside.</li>' +
-      '<li>It cannot tell whether an article is <b>propaganda</b>. That takes reading it, so this page shows who is speaking and stops there.</li>' +
-      '<li>“State-linked” means <b>owned, funded or controlled by a government</b>. It says nothing about accuracy, and the list is short, so shares are a floor.</li></ul></div></div>';
+    Array.prototype.forEach.call(body.querySelectorAll(".brow"), function (b) { b.addEventListener("click", function () { openCountry(b.dataset.code); }); });
   }
 
   function buildNewsroom() {
@@ -662,26 +628,20 @@
     var items = crises.map(function (c) { return { code: c.location_code, name: shortName(c.location_name), rank: c.rank }; });
     D.unranked.forEach(function (u) { if (u.location_code && (REP[u.location_code] || MED[u.location_code])) items.push({ code: u.location_code, name: shortName(u.location_name), rank: null }); });
     items.forEach(function (it) {
-      var li = el("li"), r = REP[it.code], b = el("button", null, '<span class="rn">' + (it.rank || "–") + '</span><span class="nn">' + esc(it.name) + '</span><span class="rt">' + (r ? r.per_week.toFixed(r.per_week < 10 ? 1 : 0) + "/wk" : "") + "</span>");
-      b.type = "button"; b.dataset.code = it.code; b.addEventListener("click", function () { select(it.code); }); li.appendChild(b); list.appendChild(li);
+      var li = el("li"), v = voices(it.code), b = el("button", null, '<span class="rn">' + (it.rank || "–") + '</span><span class="nn">' + esc(it.name) + '</span><span class="rt">' + v.local.length + " · " + v.intl.length + "</span>");
+      b.type = "button"; b.dataset.code = it.code; b.title = "local · international"; b.addEventListener("click", function () { select(it.code); }); li.appendChild(b); list.appendChild(li);
     });
     function select(code, tab) {
       Array.prototype.forEach.call(list.querySelectorAll("button"), function (b) { b.setAttribute("aria-current", String(b.dataset.code === code)); });
-      var ent = byCode[code], r = REP[code], m = MED[code], name = shortName(nameOf(code)), tabs = tabsFor(code);
-      var pick = tab || (tabs[0].count ? "reports" : tabs[1].count ? "abroad" : tabs[2].count ? "local" : "reports");
-      var facts = (ent.kind === "ranked" ? "Rank <b>" + ent.c.rank + "</b> of " + N + " · " : "Not ranked · ") +
-        (r ? "<b>" + r.per_week.toFixed(r.per_week < 10 ? 1 : 0) + "</b> aid reports a week" : "no report data yet") +
-        (m && m.n ? " · <b>" + m.n + "</b> news articles sampled (" + m.n_local + " from inside)" : "");
-      pane.innerHTML = '<div class="np-head"><h3>' + esc(name) + '</h3><div class="facts">' + facts + "</div>" +
-        (r && r.publishers.length ? '<div class="pubs">' + r.publishers.slice(0, 5).map(function (p) { return "<span>" + esc(p.name) + " " + p.n + "</span>"; }).join("") + "</div>" : "") +
-        '<button type="button" class="btn ghost open" id="npOpen">Open the full file: funding, donors, where to give</button></div>' +
+      var ent = byCode[code], v = voices(code), name = shortName(nameOf(code)), tabs = tabsFor(code).slice(0, 2);
+      var pick = tab || (tabs[0].count ? "local" : "intl");
+      pane.innerHTML = '<div class="np-head"><h3>' + esc(name) + '</h3><div class="facts">' + (ent.kind === "ranked" ? "Rank <b>" + ent.c.rank + "</b> of " + N + " · " : "") +
+        "<b>" + v.local.length + "</b> local · <b>" + v.intl.length + "</b> international</div>" +
+        '<button type="button" class="btn ghost open" id="npOpen">Funding, donors and where to give →</button></div>' +
         '<div class="tabs" role="tablist" id="npTabs" aria-label="Sources about ' + esc(name) + '"></div><div class="feed" id="npFeed" role="tabpanel" tabindex="0"></div>';
       $("npOpen").addEventListener("click", function () { openCountry(code); });
       var feed = $("npFeed");
-      function setTab(id) {
-        mountTabs($("npTabs"), tabs.slice(0, 3), id, setTab);
-        feedCode = code; artFilter = "all"; feed.innerHTML = feedHTML(id); wireFeed(feed, id);
-      }
+      function setTab(id) { mountTabs($("npTabs"), tabs, id, setTab); feedCode = code; artFilter = "all"; feed.innerHTML = feedHTML(id); wireFeed(feed, id); }
       setTab(pick);
     }
     select(items[0].code);
@@ -731,12 +691,19 @@
      POPUP (modal) with tabs
      ===================================================================== */
   var modal = $("modal"), backdrop = $("backdrop"), mCode = null, mTab = null, lastFocus = null, feedCode = null;
+  function voices(code) {
+    var m = MED[code], r = REP[code], loc = [], intl = [];
+    function news(x) { return { title: x.title, url: x.url, domain: x.domain, country: x.country, date: x.date, state: x.state, lang: x.lang, title_en: x.title_en || null, kind: "news" }; }
+    if (m) { (m.local || []).forEach(function (x) { loc.push(news(x)); }); (m.abroad || []).forEach(function (x) { intl.push(news(x)); }); }
+    if (r) r.items.forEach(function (x) { (x.local ? loc : intl).push({ title: x.title, url: x.url, domain: x.publisher, country: "", date: x.date, state: null, lang: x.lang, title_en: x.title_en || null, kind: "report" }); });
+    function byDate(a, b) { return a.date < b.date ? 1 : a.date > b.date ? -1 : 0; }
+    return { local: loc.sort(byDate), intl: intl.sort(byDate) };
+  }
   function tabsFor(code) {
-    var m = MED[code], r = REP[code], name = shortName(nameOf(code)), g = (D.donate && D.donate[code]) || [];
+    var v = voices(code), g = (D.donate && D.donate[code]) || [];
     return [
-      { id: "reports", label: "Aid reports", count: r ? r.n : null },
-      { id: "abroad", label: "News from abroad", count: m ? m.n_abroad : null },
-      { id: "local", label: "News from " + name, count: m ? m.n_local : null },
+      { id: "local", label: "Local", count: v.local.length },
+      { id: "intl", label: "International", count: v.intl.length },
       { id: "donors", label: "Who funds it", count: null },
       { id: "give", label: "Where to give", count: g.length || null }
     ];
@@ -760,7 +727,7 @@
     lastFocus = document.activeElement; mCode = code; artFilter = "all";
     renderLeft();
     var tabs = tabsFor(code);
-    var pick = tab || (tabs[0].count ? "reports" : tabs[1].count ? "abroad" : tabs[2].count ? "local" : "donors");
+    var pick = tab || (tabs[0].count ? "local" : "intl");
     renderTabs(tabs, pick);
     focusCountry(code);
     if (selectedPath) selectedPath.classList.remove("sel");
@@ -776,10 +743,10 @@
     mTab = active; mountTabs($("mTabs"), tabs, active, function (id) { renderTabs(tabs, id); });
     var panel = $("mPanel"); panel.setAttribute("aria-labelledby", "mTabs-" + active); feedCode = mCode;
     panel.innerHTML = panelHTML(active); panel.scrollTop = 0;
-    if (active === "reports" || active === "abroad" || active === "local") wireFeed(panel, active);
+    if (active === "local" || active === "intl") wireFeed(panel, active);
   }
   function panelHTML(id) {
-    if (id === "reports" || id === "abroad" || id === "local") return feedHTML(id);
+    if (id === "local" || id === "intl") return feedHTML(id);
     if (id === "donors") return donorsHTML();
     return giveHTML();
   }
@@ -800,42 +767,33 @@
       return self.Translator.create({ sourceLanguage: code, targetLanguage: "en" }).then(function (t) { return t.translate(text); });
     }).catch(function () { return null; });
   }
-  function feedList(introHTML, all, noneText, fine, extraHTML) {
+  function feedList(introHTML, all, noneText, fine) {
     var h = '<p class="pp">' + introHTML + "</p>";
     if (!all.length) return h + '<p class="none">' + noneText + "</p>";
-    var nEn = all.filter(isEnglish).length, nOther = all.length - nEn;
-    var list = all.filter(function (x) { return artFilter === "en" ? isEnglish(x) : artFilter === "other" ? !isEnglish(x) : true; });
+    var nNews = all.filter(function (x) { return x.kind === "news"; }).length, nRep = all.length - nNews, nOther = all.filter(function (x) { return !isEnglish(x); }).length;
+    var list = all.filter(function (x) { return artFilter === "news" ? x.kind === "news" : artFilter === "report" ? x.kind === "report" : artFilter === "other" ? !isEnglish(x) : true; });
     panelList = list;
-    if (nOther > 0) h += '<div class="chipbar" role="group" aria-label="Filter by language"><button type="button" class="lchip" data-f="all" aria-pressed="' + (artFilter === "all") + '">All ' + all.length + '</button><button type="button" class="lchip" data-f="en" aria-pressed="' + (artFilter === "en") + '">English ' + nEn + '</button><button type="button" class="lchip" data-f="other" aria-pressed="' + (artFilter === "other") + '">Other languages ' + nOther + "</button></div>";
-    h += extraHTML || "";
+    function chip(f, label, n) { return '<button type="button" class="lchip" data-f="' + f + '" aria-pressed="' + (artFilter === f) + '">' + label + " " + n + "</button>"; }
+    if ((nNews && nRep) || nOther) h += '<div class="chipbar" role="group" aria-label="Filter">' + chip("all", "All", all.length) + (nNews && nRep ? chip("news", "News", nNews) + chip("report", "Aid reports", nRep) : "") + (nOther ? chip("other", "Not English", nOther) : "") + "</div>";
     h += '<ul class="arts">' + list.map(function (x, i) {
       var en = isEnglish(x), main = x.title_en || x.title;
       var tr = en ? "" : '<div class="tr"><button type="button" data-tr="' + i + '">Translate headline</button>' + ext("https://translate.google.com/translate?sl=auto&tl=en&u=" + encodeURIComponent(x.url), "Read translated page ↗") + '<span class="out" data-out="' + i + '"></span></div>';
       return "<li>" + '<a dir="auto" href="' + esc(safeUrl(x.url)) + '" target="_blank" rel="noopener noreferrer">' + esc(main || x.url) + "</a>" +
         (x.title_en && x.title ? '<div class="am" dir="auto">Original: ' + esc(x.title) + "</div>" : "") +
-        '<div class="am">' + esc(x.domain) + (x.country ? " · " + esc(x.country) : "") + (x.date ? " · " + esc(x.date) : "") + (en ? "" : '<span class="lang-tag">' + esc(x.lang) + "</span>") +
+        '<div class="am"><span class="kind">' + (x.kind === "report" ? "Aid report" : "News") + "</span>" + esc(x.domain) + (x.country ? " · " + esc(x.country) : "") + (x.date ? " · " + esc(x.date) : "") + (en ? "" : '<span class="lang-tag">' + esc(x.lang) + "</span>") +
         (x.state ? '<span class="tagst" title="Owned, funded or controlled by a government">state-linked · ' + esc(x.state) + "</span>" : "") + "</div>" + tr + "</li>";
     }).join("") + '</ul><p class="fine">' + fine + "</p>";
     return h;
   }
   function feedHTML(which) {
-    var code = feedCode, name = shortName(nameOf(code));
-    if (which === "reports") {
-      var r = REP[code], intro = "Reports about <b>" + esc(name) + "</b> from aid organisations, published on ReliefWeb (UN OCHA).";
-      if (!r) return '<p class="pp">' + intro + '</p><p class="none">No reports are loaded yet. Run <b>src/fetch_reliefweb.py</b> and <b>src/build_reports_summary.py</b>, then refresh.</p>';
-      var items = r.items.map(function (x) { return { title: x.title, url: x.url, domain: x.publisher, country: "", date: x.date, state: null, lang: x.lang, title_en: x.title_en || null }; });
-      return feedList(intro + " The latest <b>" + r.n + "</b>: about <b>" + r.per_week + "</b> a week.", items, "None.",
-        "Reports belong to their publishers and link to the originals through ReliefWeb. Language is guessed from the headline. Listing a report is not an endorsement.");
-    }
-    var m = MED[code], intro2 = which === "abroad"
-      ? "News about <b>" + esc(name) + "</b> published by outlets based <b>in other countries</b>, in English and in " + esc(name) + "'s main language."
-      : "News about <b>" + esc(name) + "</b> published by outlets based <b>inside " + esc(name) + "</b>, in any language.";
-    if (!m || !m.n) return '<p class="pp">' + intro2 + '</p><p class="none">No news is loaded for this country yet. The free news source limits how fast it can be asked, so the download is slow. Run <b>src/fetch_media.py</b> and <b>src/build_media_summary.py</b>, then refresh.</p>';
-    var all = (which === "abroad" ? m.abroad : m.local) || [];
-    var extra = which === "abroad" ? '<p class="pp">Outlets by country: ' + srcText(m) + (m.state_share > 0 ? ". <b>" + pctTxt(m.state_share) + "</b> of this country's sample comes from state-linked outlets (owned, funded or controlled by a government; that describes ownership, not accuracy)." : ".") + "</p>" : "";
-    return feedList(intro2 + " A sample from " + esc(MEDIA.window) + ", matched with humanitarian keywords (GDELT machine-translates other languages for matching).", all,
-      which === "local" ? "Nothing from outlets based in " + esc(name) + " turned up in this sample. That does not mean nothing is published there: some governments restrict local media, and the free search covers only about a week of coverage." : "No articles from abroad in this sample.",
-      "Headlines come from GDELT and link to the publishers. Machine translation can be wrong, so read the original when it matters. Listing an article is not an endorsement.", extra);
+    var code = feedCode, name = shortName(nameOf(code)), all = voices(code)[which];
+    var intro = which === "local"
+      ? "Published <b>inside " + esc(name) + "</b>: local news outlets, and reports from the country's own government, its national Red Cross or Red Crescent, and organisations named for it."
+      : "Published <b>outside " + esc(name) + "</b>: international news, and reports from aid organisations such as UN agencies and international NGOs.";
+    var none = which === "local"
+      ? "Nothing local turned up yet. That is a limit of the free sources, not proof that nothing is published: they cover only about a week of news, in English plus one local language, and local outlets are often missing. A keyed source (Media Cloud or the ReliefWeb API) would fill this in."
+      : "Nothing international has loaded yet.";
+    return feedList(intro, all, none, "Headlines belong to their publishers and link to the originals. Language is partly guessed. Machine translation can be wrong, so read the original when it matters. Listing an item is not an endorsement.");
   }
   function wireFeed(container, which) {
     container.querySelectorAll(".lchip").forEach(function (b) { b.addEventListener("click", function () { artFilter = b.dataset.f; container.innerHTML = feedHTML(which); wireFeed(container, which); }); });
