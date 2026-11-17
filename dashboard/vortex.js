@@ -7,7 +7,7 @@
   if (!cv) return;
   var ctx = cv.getContext("2d"), W = 0, H = 0, P = 0, forceP = null, raf = 0, running = false;
   var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  var ARMS = 2, PER = 130, TAU = Math.PI * 2, t0 = performance.now(), cols = null;
+  var RINGS = 9, TAU = Math.PI * 2, t0 = performance.now(), cols = null;
   var FADE = 0.22;                                  // fully gone by this share of the page
 
   function readColours() {
@@ -29,17 +29,17 @@
     ctx.clearRect(0, 0, W, H);
     if (a <= 0.01) { running = false; return; }
     if (!cols || cols.theme !== document.documentElement.getAttribute("data-theme")) readColours();
-    var t = reduce ? 0 : (performance.now() - t0) / 1000, ease = a * a * (3 - 2 * a);
-    var cx = W * 0.2, cy = H * 0.54, R = Math.min(W * 0.58, H * 0.44) * (1 + (1 - ease) * 0.7);
-    var spin = t * 0.22 + p * 5, fund = funded();
-    ctx.globalAlpha = Math.min(1, ease * 0.8);
-    for (var arm = 0; arm < ARMS; arm++) {
-      for (var j = 0; j < PER; j++) {
-        var f = j / (PER - 1), r = R * (0.05 + 0.95 * Math.pow(f, 0.85));
-        var ang = f * TAU * 2.2 + arm * (TAU / ARMS) + spin;
-        var x = cx + r * Math.cos(ang), y = cy + r * Math.sin(ang);
-        ctx.fillStyle = ((j * 37 + arm * 53) % 100) / 100 < fund ? cols.blue : cols.red;
-        ctx.beginPath(); ctx.arc(x, y, 1.1 + 1.9 * f, 0, TAU); ctx.fill();
+    var t = reduce ? 0 : (performance.now() - t0) / 1000, ease = a * a * (3 - 2 * a), fund = funded();
+    var cx = W * 0.82, cy = H * 0.52, R = Math.min(W * 0.95, H * 0.46) * (1 + (1 - ease) * 0.5);
+    ctx.globalAlpha = Math.min(1, ease * 0.85);
+    // concentric rings, each turning at its own speed; on every ring the blue arc is the funded share, the rest red
+    for (var k = 0; k < RINGS; k++) {
+      var f = (k + 1) / RINGS, r = R * f, n = Math.round(18 + 70 * f), dir = k % 2 ? -1 : 1;
+      var rot = dir * (t * (0.28 - 0.18 * f) + p * 3) + k * 0.7, dr = 1.2 + 1.3 * f;
+      for (var j = 0; j < n; j++) {
+        var ang = rot + (j / n) * TAU;
+        ctx.fillStyle = j / n < fund ? cols.blue : cols.red;
+        ctx.beginPath(); ctx.arc(cx + r * Math.cos(ang), cy + r * Math.sin(ang), dr, 0, TAU); ctx.fill();
       }
     }
     ctx.globalAlpha = 1;
