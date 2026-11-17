@@ -45,11 +45,18 @@ def main() -> pd.DataFrame:
     ).round(1)
 
     # Be honest about data quality: flag needs figures from an older year
+    # (the funding is for the current year, the people-in-need figure is older,
+    # so $ per person mixes two different years -> low confidence)
+    df["low_confidence"] = df["pin_year"] < df["year"]
     df["data_note"] = ""
-    df.loc[df["pin_year"] < df["year"], "data_note"] = "needs data from earlier year"
+    df.loc[df["low_confidence"], "data_note"] = (
+        "LOW CONFIDENCE: needs from " + df["pin_year"].astype("Int64").astype(str)
+        + ", funding from " + df["year"].astype("Int64").astype(str)
+    )
 
     df = df.sort_values("neglect_score", ascending=False)
-    df["rank"] = range(1, len(df) + 1)
+    # Tied scores share a rank (e.g. 8, 8, 10) instead of an arbitrary order
+    df["rank"] = df["neglect_score"].rank(ascending=False, method="min").astype(int)
     df.to_csv(PROCESSED / "neglect_scores.csv", index=False)
 
     print(f"Neglect Score for {len(df)} crises (100 = most neglected)\n")
@@ -60,6 +67,9 @@ def main() -> pd.DataFrame:
         "funding_per_person_usd": "${:,.2f}".format,
         "people_in_need": "{:,.0f}".format,
     }))
+    if df["low_confidence"].any():
+        print("\nLOW CONFIDENCE rows use an older needs figure than the funding "
+              "year; treat their rank as indicative only.")
 
     # Countries we could NOT score, but that have their own (non-regional) appeal.
     # They are missing a people-in-need figure, so they are shown separately
