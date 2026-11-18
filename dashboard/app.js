@@ -76,7 +76,7 @@
   (function () {
     var d = new Date(D.generated + "T00:00:00"), nice = isNaN(d) ? D.generated : d.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
     $("dateline").textContent = "Data as of " + nice + " · " + crises.length + " crises · OCHA FTS · HDX HAPI · ReliefWeb · GDELT";
-    $("mast").textContent = "Field report " + D.year + " · v19";
+    $("mast").textContent = "Field report " + D.year + " · v20";
   })();
   function countUp() {
     if ("IntersectionObserver" in window && !countUp.go) { var io = new IntersectionObserver(function (es) { if (es[0].isIntersecting) { io.disconnect(); countUp.go = 1; countUp(); } }, { threshold: 0.4 }); io.observe($("s-intro")); return; }
@@ -909,7 +909,7 @@
      ===================================================================== */
   var KEYS = {
     "s-what": ["What is this?", [["txt", "gap", "<b>Funding gap</b>: the money an appeal asks for, minus what donors have actually given."], ["txt", "rank", "AidGap ranks the crises by how neglected they are. Scroll down for the numbers."]]],
-    "s-intro": ["Start here", [["dot", "var(--funded)", "<b>Blue dots</b>: the share of need that has been paid for. In the word GAP the blue part is that share."], ["dot", "var(--unmet)", "<b>Red dots</b>: need nobody has funded yet."], ["txt", "N", "The big number is every person in need across the crises we could compare."]]],
+    "s-intro": ["Start here", [["dot", "var(--funded)", "<b>Blue dots</b>: the share of need that has been paid for."], ["dot", "var(--unmet)", "<b>Red dots</b>: need nobody has funded yet."], ["txt", "100", "<b>The square of 100 dots</b>: of every $100 the appeals asked for, about $43 arrived. One square = $1."], ["txt", "N", "The big number is every person in need across the crises we could compare."]]],
     "s-scale": ["Every dot is 100,000 people", [["dot", "var(--funded)", "<b>Blue</b>: the share of this crisis's appeal that has been paid for."], ["dot", "var(--unmet)", "<b>Red</b>: not funded."], ["txt", "N", "More dots = more people in need. Use the switch to see everyone together or split by country."]]],
     "s-map": ["The map", [["ramp", "", "<b>Darker red</b> = higher Neglect Score (more neglected)."], ["hatch", "", "<b>Hatched</b>: an appeal exists but we have no people-in-need figure, so it is not scored."], ["txt", "N", "Dark grey: not in this analysis. <b>Click a country</b> to open its file."]]],
     "s-rank": ["The ranking", [["txt", "1", "<b>Rank 1</b> is the most neglected crisis of the " + "ones compared, so a lower number means more neglected."], ["txt", "0-100", "<b>Neglect Score</b>: 100 = worst off on every measure, 0 = best off. A comparison between these crises, not a measure of how bad a crisis is."], ["txt", "40%", "<b>Coverage</b>: how little of the appeal is funded."], ["txt", "40%", "<b>Money per person</b>: how few dollars reach each person in need."], ["txt", "20%", "<b>Scale</b>: how many people are in need."], ["txt", "bar", "The coloured bar shows how many points each of the three measures adds to the score."], ["txt", "*", "<b>Hand-added figure / older data</b>: the people-in-need number was found by hand or is from an earlier year, so treat that rank as indicative."]]],
