@@ -1,6 +1,6 @@
 group,check,status,detail,checked
-A funding,requirements agree with FTS plans API within 15% (45 countries compared),PASS,,2026-11-18
-B scores,independent recomputation matches neglect_scores.csv (28 crises),PASS,max difference 0.00,2026-11-18
+A funding,requirements agree with FTS plans API within 15% (46 countries compared),PASS,,2026-11-18
+B scores,independent recomputation matches neglect_scores.csv (30 crises),PASS,max difference 0.00,2026-11-18
 B scores,no missing values in ranked rows,PASS,,2026-11-18
 B scores,funding percent = funding / requirement,PASS,,2026-11-18
 B scores,dollars per person = funding / people in need,PASS,,2026-11-18
@@ -12,9 +12,12 @@ C needs figures,"VNM 1,400,000 people in need (used)",PASS,figure '1.4M' appears
 C needs figures,"CUB 4,200,000 people in need (used)",PASS,figure '4.2M' appears in the document,2026-11-18
 C needs figures,"PAK 2,800,000 people in need (used)",PASS,figure '2.8M' appears in the document,2026-11-18
 C needs figures,"HND 1,400,000 people in need (not used)",NOTE,document opened but the figure was not found in its text,2026-11-18
-D dashboard,data.js has every ranked crisis,PASS,28 vs 28,2026-11-18
+C needs figures,"MWI 6,124,766 people in need (not used)",PASS,figure '6.1M' appears in the document,2026-11-18
+C needs figures,"ZMB 5,500,000 people in need (not used)",PASS,figure '5.5M' appears in the document,2026-11-18
+C needs figures,"ZWE 7,611,301 people in need (not used)",PASS,figure '7.6 million' appears in the document,2026-11-18
+D dashboard,data.js has every ranked crisis,PASS,30 vs 30,2026-11-18
 D dashboard,scores in data.js equal the CSV,PASS,,2026-11-18
 D dashboard,map has a shape for every ranked/unranked country,PASS,,2026-11-18
-D dashboard,hero number = sum of people in need,NOTE,page shows 218.9 million,2026-11-18
-D dashboard,hero 'funded' share,NOTE,"43.4% funded, $16.6B unpaid",2026-11-18
+D dashboard,hero number = sum of people in need,NOTE,page shows 221.9 million,2026-11-18
+D dashboard,hero 'funded' share,NOTE,"43.3% funded, $16.7B unpaid",2026-11-18
 E donors,donor parts never exceed the country total,PASS,,2026-11-18

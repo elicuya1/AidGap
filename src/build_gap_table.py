@@ -84,13 +84,25 @@ def main() -> pd.DataFrame:
         year -= 1
         funding = load_funding(year)
 
+    funding["year"] = year
+    # Countries that had their OWN plan last year but none yet this year (e.g. a 2025 plan that
+    # has not been renewed): add them with LAST year's appeal and mark them as prior-year data.
+    # Regional refugee plans are never used for this, because they have no per-country people in need.
+    prev = load_funding(year - 1)
+    prev = prev[~prev["location_code"].isin(funding["location_code"])
+                & (prev["appeal_types"] != "Regional response plan")].copy()
+    prev["year"] = year - 1
+    if len(prev):
+        print(f"  + prior-year ({year - 1}) appeals for countries with none in {year}: "
+              + ", ".join(prev["location_code"]))
+    funding = pd.concat([funding, prev], ignore_index=True)
+
     gap = funding.merge(load_pin(), on="location_code", how="left")
     gap = add_manual_pin(gap)
     gap["funding_usd"] = gap["funding_usd"].fillna(0)
     gap["funding_pct"] = gap["funding_usd"] / gap["requirements_usd"] * 100
     gap["unmet_usd"] = (gap["requirements_usd"] - gap["funding_usd"]).clip(lower=0)
     gap["funding_per_person_usd"] = gap["funding_usd"] / gap["people_in_need"]
-    gap["year"] = year
     # Countries with a people-in-need figure have their own national response
     # plan. The rest are mostly part of REGIONAL plans (e.g. refugee hosting
     # countries), where funding is often reported for the region as a whole,
@@ -98,7 +110,7 @@ def main() -> pd.DataFrame:
     gap["has_national_plan"] = gap["people_in_need"].notna()
 
     gap.to_csv(PROCESSED / "gap_table.csv", index=False)
-    print(f"Saved gap table: {len(gap)} countries with appeals in {year}")
+    print(f"Saved gap table: {len(gap)} countries with appeals in {year} (or {year - 1} where marked)")
     missing = gap["people_in_need"].isna().sum()
     if missing:
         print(f"  ({missing} have no people-in-need figure yet)")

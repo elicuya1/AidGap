@@ -41,7 +41,7 @@
   crises.forEach(function (c, i) { byCode[c.location_code] = { kind: "ranked", c: c, i: i }; });
   D.unranked.forEach(function (u) { if (u.location_code) byCode[u.location_code] = { kind: "unranked", u: u }; });
   function nameOf(code) { var e = byCode[code]; return e ? (e.kind === "ranked" ? e.c.location_name : e.u.location_name) : code; }
-  var totals = crises.reduce(function (a, c) { a.pin += c.people_in_need; a.req += c.requirements_usd; a.fund += c.funding_usd; a.unmet += c.unmet_usd; return a; }, { pin: 0, req: 0, fund: 0, unmet: 0 });
+  var totals = crises.filter(function (c) { return c.year === D.year; }).reduce(function (a, c) { a.pin += c.people_in_need; a.req += c.requirements_usd; a.fund += c.funding_usd; a.unmet += c.unmet_usd; return a; }, { pin: 0, req: 0, fund: 0, unmet: 0 });
   var fundedPct = totals.fund / totals.req * 100;
   var medianPer = (function () {
     var v = crises.map(function (c) { return c.funding_per_person_usd; }).sort(function (a, b) { return a - b; });
@@ -76,7 +76,7 @@
   (function () {
     var d = new Date(D.generated + "T00:00:00"), nice = isNaN(d) ? D.generated : d.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
     $("dateline").textContent = "Data as of " + nice + " · " + crises.length + " crises · OCHA FTS · HDX HAPI · ReliefWeb · GDELT";
-    $("mast").textContent = "Field report " + D.year + " · v24";
+    $("mast").textContent = "Field report " + D.year + " · v25";
   })();
   function countUp() {
     if ("IntersectionObserver" in window && !countUp.go) { var io = new IntersectionObserver(function (es) { if (es[0].isIntersecting) { io.disconnect(); countUp.go = 1; countUp(); } }, { threshold: 0.4 }); io.observe($("s-intro")); return; }
@@ -433,7 +433,8 @@
       var li = el("li", "rv"); li.style.setProperty("--i", Math.min(i, 8));
       var b = el("button"), k = contrib(c);
       b.type = "button"; b.setAttribute("aria-label", "Rank " + c.rank + ", " + c.location_name + ", neglect score " + c.neglect_score.toFixed(1));
-      var badge = c.pin_source === "manual" ? '<span class="lowc" title="' + esc("Needs figure found by hand (" + c.pin_confidence + " confidence)") + '">hand-added figure</span>'
+      var badge = c.year < D.year ? '<span class="lowc" title="' + esc("This country has no " + D.year + " plan yet, so its " + c.year + " appeal and funding are used.") + '">' + c.year + ' data</span>'
+        : c.pin_source === "manual" ? '<span class="lowc" title="' + esc("Needs figure found by hand (" + c.pin_confidence + " confidence)") + '">hand-added figure</span>'
         : c.low_confidence ? '<span class="lowc" title="Needs figure from ' + (c.pin_year | 0) + ", funding from " + c.year + '">older needs data</span>' : "";
       b.innerHTML = '<span class="rk' + (c.rank <= 3 ? " top3" : "") + '">' + c.rank + '</span>' +
         '<span class="who"><span class="nm">' + esc(c.location_name) + badge + '</span>' +
@@ -940,6 +941,7 @@
     function drv(label, v, w, cls) { return '<div class="driver" style="--w:' + v.toFixed(0) + '%"><div class="lbl"><span>' + label + '</span><span>weight ' + w + '%</span></div><span class="stack"><i class="' + cls + '" style="width:' + v.toFixed(0) + '%"></i></span><div class="pts">' + Math.round(v) + '</div></div>'; }
     var notes = "";
     if (c.pin_source === "manual") notes += '<p class="notice"><b>Hand-added needs figure</b> (' + esc(c.pin_confidence) + ' confidence): ' + esc(c.pin_note) + ". " + ext(c.pin_url, "Source") + ". Please verify it before relying on this rank.</p>";
+    if (c.year < D.year) notes += '<p class="notice"><b>' + c.year + ' data.</b> This country has no ' + D.year + ' plan of its own yet, so its ' + c.year + ' appeal and funding are used, together with its ' + (c.pin_year | 0) + ' people-in-need figure. A full year of funding is compared with other crises that are still in progress, so treat the rank as indicative.</p>';
     if (c.pin_year < c.year) notes += '<p class="notice"><b>Older needs data.</b> The people-in-need figure is from ' + (c.pin_year | 0) + " but funding is from " + c.year + ", so dollars per person mixes two years. Treat this rank as indicative.</p>";
     h = '<div class="d-rank">Rank ' + c.rank + " of " + N + '</div><h3 class="nm2" id="dName">' + esc(c.location_name) + '</h3>' +
       '<div class="d-score"><b>' + c.neglect_score.toFixed(1) + '</b><span>neglect score<br>(100 = most neglected)</span></div>' + ctxHTML(mCode) + notes +
