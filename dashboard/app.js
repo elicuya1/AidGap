@@ -76,7 +76,7 @@
   (function () {
     var d = new Date(D.generated + "T00:00:00"), nice = isNaN(d) ? D.generated : d.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
     $("dateline").textContent = "Data as of " + nice + " · " + crises.length + " crises · OCHA FTS · HDX HAPI · ReliefWeb · GDELT";
-    $("mast").textContent = "Field report " + D.year + " · v23";
+    $("mast").textContent = "Field report " + D.year + " · v24";
   })();
   function countUp() {
     if ("IntersectionObserver" in window && !countUp.go) { var io = new IntersectionObserver(function (es) { if (es[0].isIntersecting) { io.disconnect(); countUp.go = 1; countUp(); } }, { threshold: 0.4 }); io.observe($("s-intro")); return; }
@@ -605,6 +605,7 @@
      THE CUTS (slide 6): donor funding by year, and where US money fell most
      ===================================================================== */
   function buildCuts() {
+    function bn(n) { return "$" + Math.round(n / 1e9).toLocaleString("en-US") + " billion"; }   // big military figures: $1,005 billion, never "$1005B"
     var body = $("cutsBody"); if (!body) return;
     if (!TREND || !TREND.donors) { body.innerHTML = '<div class="card empty rv" style="margin-top:30px">Funding-trend data has not been loaded yet. Run <b>src/fetch_donor_trend.py</b> and refresh this page.</div>'; return; }
     var yrs = TREND.years, last = String(TREND.partial_year), W = TREND.world_total, MIL = TREND.military || {};
@@ -634,11 +635,11 @@
     html += '<h3 class="cuts-h rv">2. What else these governments spent, in the same years</h3><p class="cuts-lead rv">Humanitarian aid next to <b>military spending</b>, 2024 to 2025. Both numbers are real. <b>' + nBoth + ' of these ' + comp.length + '</b> governments (shaded) gave less aid and spent more on their military. That is a comparison, not proof that one caused the other.</p>';
     html += '<div class="cmp rv"><div class="cmph"><span>Donor</span><span>Humanitarian aid</span><span>Military spending</span></div>';
     comp.forEach(function (r) {
-      html += '<div class="cmpr' + (r.both ? " both" : "") + '"><span class="cn3">' + esc(r.n) + '</span><span>' + fmtUSD(r.a0) + " → " + fmtUSD(r.a1) + ' <b class="' + (r.a1 < r.a0 ? "dn" : "up") + '">' + pc(chg(r.a0, r.a1)) + '</b></span><span>' + fmtUSD(r.m0) + " → " + fmtUSD(r.m1) + ' <b class="' + (r.m1 > r.m0 ? "mu" : "mc") + '">' + pc(chg(r.m0, r.m1)) + '</b></span></div>';
+      html += '<div class="cmpr' + (r.both ? " both" : "") + '"><span class="cn3">' + esc(r.n) + '</span><span>' + fmtUSD(r.a0) + " → " + fmtUSD(r.a1) + ' <b class="' + (r.a1 < r.a0 ? "dn" : "up") + '">' + pc(chg(r.a0, r.a1)) + '</b></span><span>' + bn(r.m0) + " → " + bn(r.m1) + ' <b class="' + (r.m1 > r.m0 ? "mu" : "mc") + '">' + pc(chg(r.m0, r.m1)) + '</b></span></div>';
     });
     html += '</div>';
     var usM = MIL["United States"];
-    if (usM && usM["2025"] && usCut > 0) html += '<p class="cuts-lead rv" style="margin-top:12px">For scale: the whole US aid cut of ' + fmtUSD(usCut) + ' is about <b>' + (usCut / usM["2025"] * 100).toFixed(1) + '%</b> of what the US spent on its military in 2025 (' + fmtUSD(usM["2025"]) + '). The US military figure itself did not rise in 2025; it changed by ' + pc(chg(usM["2024"], usM["2025"])) + '.</p>';
+    if (usM && usM["2025"] && usCut > 0) html += '<p class="cuts-lead rv" style="margin-top:12px">For scale: the whole US aid cut of ' + fmtUSD(usCut) + ' is about <b>' + (usCut / usM["2025"] * 100).toFixed(1) + '%</b> of what the US spent on its military in 2025 (' + bn(usM["2025"]) + '). The US military figure itself did not rise in 2025; it changed by ' + pc(chg(usM["2024"], usM["2025"])) + '.</p>';
     // 3. where the US cut landed
     rows.sort(function (p, q) { return (q.a - q.b) - (p.a - p.b); });
     var top = rows.slice(0, 10), mx2 = Math.max.apply(null, top.map(function (r) { return r.a; })) || 1;
