@@ -5,7 +5,7 @@
   "use strict";
   var D = window.AIDGAP, MAP = window.AIDGAP_MAP;
   var MEDIA = window.AIDGAP_MEDIA || null, MED = (MEDIA && MEDIA.byCode) || {};
-  var TREND = window.AIDGAP_TREND || null, DONORS = window.AIDGAP_DONORS || null, DON = (DONORS && DONORS.byCode) || {};
+  var HOSTS = window.AIDGAP_HOSTS || null, TREND = window.AIDGAP_TREND || null, DONORS = window.AIDGAP_DONORS || null, DON = (DONORS && DONORS.byCode) || {};
   var REPORTS = window.AIDGAP_REPORTS || null, REP = (REPORTS && REPORTS.byCode) || {};
   var lifePaint = null;
   var HAS_MEDIA = Object.keys(MED).length > 0;
@@ -76,7 +76,7 @@
   (function () {
     var d = new Date(D.generated + "T00:00:00"), nice = isNaN(d) ? D.generated : d.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
     $("dateline").textContent = "Data as of " + nice + " · " + crises.length + " crises · OCHA FTS · HDX HAPI · ReliefWeb · GDELT";
-    $("mast").textContent = "Field report " + D.year + " · v24";
+    $("mast").textContent = "Field report " + D.year + " · v25";
   })();
   function countUp() {
     if ("IntersectionObserver" in window && !countUp.go) { var io = new IntersectionObserver(function (es) { if (es[0].isIntersecting) { io.disconnect(); countUp.go = 1; countUp(); } }, { threshold: 0.4 }); io.observe($("s-intro")); return; }
@@ -602,6 +602,49 @@
   }
 
   /* =====================================================================
+     REFUGEE HOSTS (slide 5): countries with only a regional refugee plan
+     ===================================================================== */
+  function buildHosts() {
+    var body = $("hostBody"); if (!body) return;
+    if (!HOSTS || !HOSTS.hosts) { body.innerHTML = '<div class="card empty rv" style="margin-top:30px">Refugee-host data has not been loaded yet. Run <b>src/fetch_refugees.py</b> and refresh this page.</div>'; return; }
+    var rows = HOSTS.hosts.filter(function (r) { return r.hosted > 0; }).map(function (r) { r.pp = r.funding_usd / r.hosted; return r; });
+    var hosted = rows.reduce(function (s, r) { return s + r.hosted; }, 0), req = rows.reduce(function (s, r) { return s + r.requirements_usd; }, 0), fund = rows.reduce(function (s, r) { return s + r.funding_usd; }, 0);
+    var low = rows.slice().sort(function (a, b) { return a.pp - b.pp; });
+    var hotCodes = {}; low.slice(0, 5).forEach(function (r) { hotCodes[r.code] = 1; });
+    function ppTxt(v) { return v < 0.005 ? "$0" : v < 1 ? "$" + v.toFixed(2) : "$" + Math.round(v); }
+    var html = '<div class="tiles">' +
+      '<div class="card tile rv"><div class="big-n blue">' + (hosted / 1e6).toFixed(1) + 'M</div><p>refugees, asylum-seekers and others in need of protection live in these <b>' + rows.length + ' countries</b> (UNHCR, end of ' + HOSTS.unhcr_year + ').</p></div>' +
+      '<div class="card tile rv" style="--i:1"><div class="big-n red">' + Math.round(fund / req * 100) + '%</div><p>of the <b>' + fmtUSD(req) + '</b> these plans ask for has been paid so far in ' + HOSTS.year + ': ' + fmtUSD(fund) + '.</p></div>' +
+      '<div class="card tile rv" style="--i:2"><div class="big-n red">' + ppTxt(low[0].pp) + '</div><p>per person hosted in <b>' + esc(shortName(low[0].name)) + '</b>, the lowest. At the other end, <b>' + esc(shortName(low[low.length - 1].name)) + '</b> has ' + ppTxt(low[low.length - 1].pp) + '.</p></div></div>';
+    html += '<div class="barsort rv"><span class="bs-l">Order by</span><div class="seg" role="group" aria-label="Order the countries">' +
+      '<button type="button" data-sort="pp" aria-pressed="true">Least $ per person</button>' +
+      '<button type="button" data-sort="pct" aria-pressed="false">Lowest % paid</button>' +
+      '<button type="button" data-sort="n" aria-pressed="false">Most people hosted</button></div></div>';
+    html += '<div id="hostRows"></div>';
+    html += '<p class="note rv"><b>How to read this.</b> Appeal money: OCHA FTS, share of each country\'s part of a regional refugee plan in ' + HOSTS.year + '. People hosted: UNHCR (refugees + asylum-seekers + others in need of international protection, which is where most Venezuelans abroad are counted), end of ' + HOSTS.unhcr_year + '. The plan can target a different group than UNHCR counts, and may also cover host communities, so dollars per person is a rough guide. Iran\'s 2026 plan is a short flash plan (March to May). Money given outside these plans is not included. These countries are <b>not</b> part of the Neglect Score.</p>';
+    body.innerHTML = html;
+    function paint(sort) {
+      var list = rows.slice();
+      if (sort === "pct") list.sort(function (a, b) { return a.funding_pct - b.funding_pct; });
+      else if (sort === "n") list.sort(function (a, b) { return b.hosted - a.hosted; });
+      else list.sort(function (a, b) { return a.pp - b.pp; });
+      $("hostRows").innerHTML = list.map(function (r) {
+        var org = r.origins.map(function (o) { return shortName(o.name); }).join(", ");
+        return '<div class="hrow' + (hotCodes[r.code] ? " hot" : "") + '"><span class="hn"><b>' + esc(shortName(r.name).replace(" (Islamic Republic of)", "").replace(" (Plurinational State of)", "")) + '</b><small>' + (org ? "mainly from " + esc(org) : "") + '</small></span>' +
+          '<span class="htr"><i style="width:' + Math.max(0.6, Math.min(100, r.funding_pct)).toFixed(1) + '%"></i></span>' +
+          '<span class="hv"><b class="pp2">' + ppTxt(r.pp) + '</b> per person hosted<br>' + r.hosted.toLocaleString("en-US") + ' hosted · ' + r.funding_pct.toFixed(0) + '% of ' + fmtUSD(r.requirements_usd) + ' paid</span></div>';
+      }).join("");
+    }
+    paint("pp");
+    Array.prototype.forEach.call(body.querySelectorAll(".barsort button"), function (b) {
+      b.addEventListener("click", function () {
+        Array.prototype.forEach.call(body.querySelectorAll(".barsort button"), function (o) { o.setAttribute("aria-pressed", String(o === b)); });
+        paint(b.getAttribute("data-sort"));
+      });
+    });
+  }
+
+  /* =====================================================================
      THE CUTS (slide 6): donor funding by year, and where US money fell most
      ===================================================================== */
   function buildCuts() {
@@ -974,7 +1017,7 @@
 
   /* ---------- start ---------- */
   readColors();
-  buildDots(); buildMap(); paintMap(); buildRanking(); buildLife(); buildDonors(); buildCuts(); buildMedia(); buildNewsroom(); buildUnranked(); buildMethod();
+  buildDots(); buildMap(); paintMap(); buildRanking(); buildLife(); buildHosts(); buildDonors(); buildCuts(); buildMedia(); buildNewsroom(); buildUnranked(); buildMethod();
   sizeCanvas();
   dots.forEach(function (d, i) { var p = layouts.all.pos[i]; d.x = d.sx = d.tx = p.x; d.y = d.sy = d.ty = p.y; });
   updateCaption(); countUp(); observeReveals();
@@ -989,6 +1032,7 @@
     "s-scale": ["Every dot is 100,000 people", [["dot", "var(--funded)", "<b>Blue</b>: the share of this crisis's appeal that has been paid for."], ["dot", "var(--unmet)", "<b>Red</b>: not funded."], ["txt", "N", "More dots = more people in need. Use the switch to see everyone together or split by country."]]],
     "s-map": ["The map", [["ramp", "", "<b>Darker red</b> = higher Neglect Score (more neglected)."], ["hatch", "", "<b>Hatched</b>: an appeal exists but we have no people-in-need figure, so it is not scored."], ["txt", "N", "Dark grey: not in this analysis. <b>Click a country</b> to open its file."]]],
     "s-rank": ["The ranking", [["txt", "1", "<b>Rank 1</b> is the most neglected crisis of the " + "ones compared, so a lower number means more neglected."], ["txt", "0-100", "<b>Neglect Score</b>: 100 = worst off on every measure, 0 = best off. A comparison between these crises, not a measure of how bad a crisis is."], ["txt", "40%", "<b>Coverage</b>: how little of the appeal is funded."], ["txt", "40%", "<b>Money per person</b>: how few dollars reach each person in need."], ["txt", "20%", "<b>Scale</b>: how many people are in need."], ["txt", "bar", "The coloured bar shows how many points each of the three measures adds to the score."], ["txt", "*", "<b>Hand-added figure / older data</b>: the people-in-need number was found by hand or is from an earlier year, so treat that rank as indicative."]]],
+    "s-host": ["Refugee hosts", [["txt", "1", "These countries only have a share of a regional refugee plan, so there is no people-in-need figure and no Neglect Score."], ["txt", "2", "The bar is the share of the appeal that has been paid. The numbers beside it are dollars per person hosted and how many people are hosted."], ["txt", "!", "Refugee counts come from UNHCR and may differ from the group the plan is aimed at, so treat it as a rough comparison, not a ranking."]]],
     "s-donors": ["Who pays", [["txt", "L", "<b>Left</b>: donor countries. <b>Right</b>: crises."], ["txt", "line", "A thicker line = more dollars given to that crisis."], ["txt", "!", "Only money given to <b>one</b> country is counted. Money split across several countries is shown separately so nothing is counted twice. Totals include money outside the formal appeal."]]],
     "s-cuts": ["The cuts", [["txt", "1", "Red is the United States, grey is everyone else."], ["txt", "2", "Aid next to military spending for the same governments, 2024 to 2025."], ["txt", "3", "Grey = US money in 2024, blue = 2025, for each crisis."], ["txt", "!", "<b>2026 is not finished</b>, and late reports are still arriving for 2025, so the newest bars are lower than they will end up. This shows how much was given, not how well it was spent."]]],
     "s-media": ["Attention", [["dot", "var(--unmet)", "<b>Red bars</b>: the ten most neglected crises."], ["dot", "var(--media)", "<b>Other bars</b>: the remaining crises."], ["txt", "- -", "<b>Dashed line</b>: the median crisis."], ["txt", "!", "Bars count reports that <b>aid organisations</b> publish on ReliefWeb per week. This is <b>not</b> general news coverage, where a crisis like Gaza or Ukraine would dominate."]]],
@@ -998,7 +1042,7 @@
   };
   (function () {
     var box = $("keybox"), btn = $("keyBtn"), panel = $("keyPanel"), cur = "", open = false;
-    var order = ["s-what", "s-intro", "s-scale", "s-map", "s-rank", "s-donors", "s-cuts", "s-media", "s-news", "s-gaps", "s-method"];
+    var order = ["s-what", "s-intro", "s-scale", "s-map", "s-rank", "s-host", "s-donors", "s-cuts", "s-media", "s-news", "s-gaps", "s-method"];
     function render(id) {
       var k = KEYS[id]; if (!k) return;
       panel.innerHTML = "<h4>" + esc(k[0]) + "</h4><ul>" + k[1].map(function (r) {

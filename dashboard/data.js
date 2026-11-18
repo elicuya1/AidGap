@@ -1937,6 +1937,17 @@ window.AIDGAP = {
    "accessed": "2026-11-18",
    "status": "used",
    "notes": "Current US dollars. No figures for Qatar or the UAE. A comparison only; it does not show that one spending choice caused another."
+  },
+  {
+   "id": "unhcr_pop",
+   "name": "UNHCR Refugee Data Finder (population statistics API)",
+   "publisher": "UNHCR, the UN Refugee Agency",
+   "url": "https://api.unhcr.org/population/v1/population/",
+   "used_for": "Refugees, asylum-seekers and others in need of international protection hosted in each refugee-host country, end of 2025 (src/fetch_refugees.py)",
+   "terms": "Free public API, no key; credit UNHCR (see UNHCR data terms)",
+   "accessed": "2026-11-18",
+   "status": "used",
+   "notes": "UNHCR uses its own codes for Costa Rica (COS), Uruguay (URU), Paraguay (PAR) and Trinidad and Tobago (TRT). The count is of people, while a plan targets its own group, so dollars per person hosted is a rough guide."
   }
  ]
 };
