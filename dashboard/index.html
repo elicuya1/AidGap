@@ -117,6 +117,14 @@
 
   /* ---------- dot field ---------- */
   .field-bar { display: flex; flex-wrap: wrap; gap: 14px 24px; align-items: center; justify-content: space-between; margin: 26px 0 12px; }
+  .cuts-h { font-size: 22px; margin: 34px 0 4px; } .cuts-lead { font-size: 14px; color: var(--ink2); margin: 0 0 14px; max-width: 700px; }
+  .dtr, .ctr { display: grid; align-items: center; gap: 12px; width: 100%; padding: 6px 4px; background: none; border: 0; text-align: left; color: inherit; font: inherit; }
+  .dtr { grid-template-columns: 150px 120px minmax(0,1fr); } .ctr { grid-template-columns: 130px minmax(0,1fr) 190px; cursor: pointer; } .ctr:hover { background: var(--glass); }
+  .dtr .dn2, .ctr .cn2 { font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .dtr svg { width: 120px; height: 34px; display: block; } .dtr svg rect { fill: var(--line); } .dtr svg rect.l { fill: var(--funded); } .dtr svg rect.p { fill: var(--line); opacity: .6; }
+  .dtr .dv, .ctr .cv2 { font-family: var(--mono); font-size: 12px; color: var(--ink2); } .dv .dn, .cv2 .dn { color: var(--unmet-text); font-weight: 600; } .dv .up { color: var(--funded); font-weight: 600; }
+  .ctr .pair { display: grid; gap: 3px; } .ctr .pair i { display: block; height: 7px; background: var(--line); } .ctr .pair i.b { background: var(--funded); }
+  @media (max-width: 640px) { .dtr { grid-template-columns: 110px 100px minmax(0,1fr); } .ctr { grid-template-columns: 90px minmax(0,1fr); } .ctr .cv2 { grid-column: 1 / -1; } }
   .barsort { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin: 4px 0 16px; }
   .bs-l { font: 600 11px/1 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--ink2); }
   .seg { display: inline-flex; background: var(--surface); border: 1px solid var(--line); border-radius: 3px; padding: 2px; }
@@ -634,9 +642,18 @@
     </div>
   </section>
 
+  <section class="slide" id="s-cuts" data-label="The cuts">
+    <div class="wrap">
+      <div class="kicker rv"><b>06</b><span>The cuts</span></div>
+      <h2 class="big mask"><span>Is the money shrinking?</span></h2>
+      <p class="sub rv" style="--i:2">Humanitarian funding recorded worldwide has fallen since 2022, and the <b>United States</b> accounts for most of the fall. Here is what each big donor gave, year by year, and which of these crises lost the most US money.</p>
+      <div id="cutsBody"></div>
+    </div>
+  </section>
+
   <section class="slide" id="s-media" data-label="Attention">
     <div class="wrap">
-      <div class="kicker rv"><b>06</b><span>Attention</span></div>
+      <div class="kicker rv"><b>07</b><span>Attention</span></div>
       <h2 class="big mask"><span>Need is not the same as noise.</span></h2>
       <p class="sub rv" style="--i:2">Aid organisations publish their reports on <b>ReliefWeb</b>, the UN's humanitarian website. Counting what they publish about each crisis shows which ones get attention, and which are <b>quiet</b>.</p>
       <div id="mediaBody"></div>
@@ -645,7 +662,7 @@
 
   <section class="slide" id="s-news" data-label="Newsroom">
     <div class="wrap">
-      <div class="kicker rv"><b>07</b><span>The newsroom</span></div>
+      <div class="kicker rv"><b>08</b><span>The newsroom</span></div>
       <h2 class="big mask"><span>Read what is published.</span></h2>
       <p class="sub rv" style="--i:2">Pick a crisis. <b>Local</b> is what is published inside the country. <b>International</b> is everything from outside. Original language, with translation help.</p>
       <div class="news-grid rv" style="--i:3">
@@ -658,7 +675,7 @@
 
   <section class="slide" id="s-gaps" data-label="Not ranked">
     <div class="wrap">
-      <div class="kicker rv"><b>08</b><span id="gapsKicker">Not ranked</span></div>
+      <div class="kicker rv"><b>09</b><span id="gapsKicker">Not ranked</span></div>
       <h2 class="big mask"><span id="gapsTitle">Appeals we can't score yet.</span></h2>
       <p class="sub rv" style="--i:2" id="gapsSub"></p>
       <div class="cards" id="cards"></div>
@@ -667,7 +684,7 @@
 
   <section class="slide method" id="s-method" data-label="Method">
     <div class="wrap">
-      <div class="kicker rv"><b>09</b><span>Method, limits and sources</span></div>
+      <div class="kicker rv"><b>10</b><span>Method, limits and sources</span></div>
       <h2 class="big mask"><span>What this can and can't say.</span></h2>
       <ul class="rv" style="--i:2">
         <li><b>Funding and need:</b> funding per appeal from OCHA FTS; people in need from HDX HAPI (intersectoral, national level). Funding is for the current year.</li>
@@ -705,13 +722,14 @@
 </div>
 
 <!-- ?v=9 makes your browser fetch fresh copies after each update instead of reusing an old saved page -->
-<script src="data.js?v=21"></script>
-<script src="score.js?v=21"></script>
-<script src="map.js?v=21"></script>
-<script src="media.js?v=21" onerror="window.AIDGAP_MEDIA=null"></script>
-<script src="reports.js?v=21" onerror="window.AIDGAP_REPORTS=null"></script>
-<script src="donors.js?v=21" onerror="window.AIDGAP_DONORS=null"></script>
-<script src="vortex.js?v=21"></script>
-<script src="app.js?v=21"></script>
+<script src="data.js?v=22"></script>
+<script src="score.js?v=22"></script>
+<script src="map.js?v=22"></script>
+<script src="media.js?v=22" onerror="window.AIDGAP_MEDIA=null"></script>
+<script src="reports.js?v=22" onerror="window.AIDGAP_REPORTS=null"></script>
+<script src="donors.js?v=22" onerror="window.AIDGAP_DONORS=null"></script>
+<script src="donortrend.js?v=22" onerror="window.AIDGAP_TREND=null"></script>
+<script src="vortex.js?v=22"></script>
+<script src="app.js?v=22"></script>
 </body>
 </html>

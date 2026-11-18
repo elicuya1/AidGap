@@ -1,5 +1,5 @@
 window.AIDGAP = {
- "generated": "2026-11-17",
+ "generated": "2026-11-18",
  "year": 2026,
  "scenarios": [
   "baseline",
@@ -1763,6 +1763,72 @@ window.AIDGAP = {
    "notes": "About 20 of 58 outlets had a readable feed with relevant items. State-run outlets (SANA, Cameroon Tribune, WAFA, Cubadebate, Granma, The Rising Nepal, Ukrinform) are labelled state-linked."
   },
   {
+   "id": "photo_scale",
+   "name": "Background photograph: Food distribution at a refugee settlement, Uganda",
+   "publisher": "USAID, via Wikimedia Commons",
+   "url": "https://commons.wikimedia.org/wiki/File:Uganda_Refugee_Settlements_Emergency_Food_Distribution_(39910884580).jpg",
+   "used_for": "Black-and-white picture on the left, shown with the scale section",
+   "terms": "Marked Public domain on Wikimedia Commons (checked 2026-11-17); credited on the page",
+   "accessed": "2026-11-17",
+   "status": "used",
+   "notes": "Illustrates the topic of the section, not necessarily the country shown. Not an endorsement."
+  },
+  {
+   "id": "photo_map",
+   "name": "Background photograph: Za'atri refugee camp, Jordan, from the air",
+   "publisher": "US Dept of State, via Wikimedia Commons",
+   "url": "https://commons.wikimedia.org/wiki/File:Aerial_View_of_the_Za%27atri_Refugee_Camp.jpg",
+   "used_for": "Black-and-white picture on the left, shown with the map section",
+   "terms": "Marked Public domain on Wikimedia Commons (checked 2026-11-17); credited on the page",
+   "accessed": "2026-11-17",
+   "status": "used",
+   "notes": "Illustrates the topic of the section, not necessarily the country shown. Not an endorsement."
+  },
+  {
+   "id": "photo_rank",
+   "name": "Background photograph: Health screening at a UNHCR site",
+   "publisher": "USAID, via Wikimedia Commons",
+   "url": "https://commons.wikimedia.org/wiki/File:Uganda_Refugee_Settlements_Emergency_Food_Distribution_(40818914905).jpg",
+   "used_for": "Black-and-white picture on the left, shown with the rank section",
+   "terms": "Marked Public domain on Wikimedia Commons (checked 2026-11-17); credited on the page",
+   "accessed": "2026-11-17",
+   "status": "used",
+   "notes": "Illustrates the topic of the section, not necessarily the country shown. Not an endorsement."
+  },
+  {
+   "id": "photo_donors",
+   "name": "Background photograph: A US Air Force C-130 being loaded with cargo",
+   "publisher": "US Air Force, via Wikimedia Commons",
+   "url": "https://commons.wikimedia.org/wiki/File:C130-loading.jpg",
+   "used_for": "Black-and-white picture on the left, shown with the donors section",
+   "terms": "Marked Public domain on Wikimedia Commons (checked 2026-11-17); credited on the page",
+   "accessed": "2026-11-17",
+   "status": "used",
+   "notes": "Illustrates the topic of the section, not necessarily the country shown. Not an endorsement."
+  },
+  {
+   "id": "photo_media",
+   "name": "Background photograph: A journalist with camera and radio phone",
+   "publisher": "Donn Dughi, via Wikimedia Commons",
+   "url": "https://commons.wikimedia.org/wiki/File:Journalist_Lucy_Morgan_with_video_camera_and_phone_(7026619371).jpg",
+   "used_for": "Black-and-white picture on the left, shown with the media section",
+   "terms": "Marked Public domain on Wikimedia Commons (checked 2026-11-17); credited on the page",
+   "accessed": "2026-11-17",
+   "status": "used",
+   "notes": "Illustrates the topic of the section, not necessarily the country shown. Not an endorsement."
+  },
+  {
+   "id": "photo_gaps",
+   "name": "Background photograph: Mothers waiting at a child clinic, Lagos, Nigeria (historic photo)",
+   "publisher": "Vernon McKay, via Wikimedia Commons",
+   "url": "https://commons.wikimedia.org/wiki/File:Mothers_wait_in_line_at_Child_Clinic_Centre_in_Lagos,_Nigeria.png",
+   "used_for": "Black-and-white picture on the left, shown with the gaps section",
+   "terms": "Marked Public domain on Wikimedia Commons (checked 2026-11-17); credited on the page",
+   "accessed": "2026-11-17",
+   "status": "used",
+   "notes": "Illustrates the topic of the section, not necessarily the country shown. Not an endorsement."
+  },
+  {
    "id": "verification",
    "name": "Verification report",
    "publisher": "AidGap (src/verify_data.py)",
@@ -1849,6 +1915,17 @@ window.AIDGAP = {
    "accessed": "2026-11-17",
    "status": "planned",
    "notes": "Not used yet. Without it the page shows original headlines with an on-device translate button and a Google Translate link."
+  },
+  {
+   "id": "fts_trend",
+   "name": "OCHA FTS: funding by donor and year",
+   "publisher": "UN OCHA Financial Tracking Service",
+   "url": "https://fts.unocha.org/",
+   "used_for": "Worldwide humanitarian funding per year (2022 to 2026) by donor country, and US funding to each ranked crisis in 2024 vs 2025 (src/fetch_donor_trend.py)",
+   "terms": "Public API, no key; credit OCHA FTS",
+   "accessed": "2026-11-18",
+   "status": "used",
+   "notes": "Only what donors and agencies report; late reports mean the newest year is incomplete. Shows amounts given, not how well money was spent. Money given to several countries at once is not split by country."
   }
  ]
 };

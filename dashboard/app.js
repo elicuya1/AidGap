@@ -5,7 +5,7 @@
   "use strict";
   var D = window.AIDGAP, MAP = window.AIDGAP_MAP;
   var MEDIA = window.AIDGAP_MEDIA || null, MED = (MEDIA && MEDIA.byCode) || {};
-  var DONORS = window.AIDGAP_DONORS || null, DON = (DONORS && DONORS.byCode) || {};
+  var TREND = window.AIDGAP_TREND || null, DONORS = window.AIDGAP_DONORS || null, DON = (DONORS && DONORS.byCode) || {};
   var REPORTS = window.AIDGAP_REPORTS || null, REP = (REPORTS && REPORTS.byCode) || {};
   var lifePaint = null;
   var HAS_MEDIA = Object.keys(MED).length > 0;
@@ -76,7 +76,7 @@
   (function () {
     var d = new Date(D.generated + "T00:00:00"), nice = isNaN(d) ? D.generated : d.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
     $("dateline").textContent = "Data as of " + nice + " · " + crises.length + " crises · OCHA FTS · HDX HAPI · ReliefWeb · GDELT";
-    $("mast").textContent = "Field report " + D.year + " · v21";
+    $("mast").textContent = "Field report " + D.year + " · v22";
   })();
   function countUp() {
     if ("IntersectionObserver" in window && !countUp.go) { var io = new IntersectionObserver(function (es) { if (es[0].isIntersecting) { io.disconnect(); countUp.go = 1; countUp(); } }, { threshold: 0.4 }); io.observe($("s-intro")); return; }
@@ -602,7 +602,44 @@
   }
 
   /* =====================================================================
-     ATTENTION (slide 6) and THE NEWSROOM (slide 7)
+     THE CUTS (slide 6): donor funding by year, and where US money fell most
+     ===================================================================== */
+  function buildCuts() {
+    var body = $("cutsBody"); if (!body) return;
+    if (!TREND || !TREND.donors) { body.innerHTML = '<div class="card empty rv" style="margin-top:30px">Funding-trend data has not been loaded yet. Run <b>src/fetch_donor_trend.py</b> and refresh this page.</div>'; return; }
+    var yrs = TREND.years, last = String(TREND.partial_year), W = TREND.world_total;
+    function chg(a, b) { return a > 0 ? Math.round((b - a) / a * 100) : null; }
+    function pc(x) { return x == null ? "n/a" : (x > 0 ? "+" : x < 0 ? "−" : "") + Math.abs(x) + "%"; }
+    var us = TREND.donors.filter(function (d) { return d.name === "United States"; })[0];
+    var worldCh = chg(W["2024"], W["2025"]), usCh = us ? chg(us.by_year["2024"], us.by_year["2025"]) : null;
+    var fewer = TREND.donors.filter(function (d) { return d.by_year["2025"] < d.by_year["2024"]; }).length;
+    var html = '<div class="tiles">' +
+      '<div class="card tile rv"><div class="big-n red">' + pc(worldCh) + '</div><p>Humanitarian funding recorded worldwide, <b>2024 to 2025</b>: ' + fmtUSD(W["2024"]) + ' to ' + fmtUSD(W["2025"]) + '.</p></div>' +
+      (us ? '<div class="card tile rv" style="--i:1"><div class="big-n red">' + pc(usCh) + '</div><p>Recorded giving by the <b>United States</b>, 2024 to 2025: ' + fmtUSD(us.by_year["2024"]) + ' to ' + fmtUSD(us.by_year["2025"]) + '. It was ' + fmtUSD(us.by_year["2022"]) + ' in 2022.</p></div>' : "") +
+      '<div class="card tile rv" style="--i:2"><div class="big-n blue">' + fewer + ' of ' + TREND.donors.length + '</div><p>of the biggest donors gave <b>less</b> in 2025 than in 2024. A few gave more, so the fall is concentrated, not universal.</p></div></div>';
+    html += '<h3 class="cuts-h rv">Who gave what, year by year</h3><p class="cuts-lead rv">The twelve donors that gave the most from 2022 to 2025. Bars run 2022 to ' + last + '; each row has its own scale.</p>';
+    TREND.donors.forEach(function (d) {
+      var mx = Math.max.apply(null, yrs.map(function (y) { return d.by_year[y] || 0; })) || 1, svg = '<svg viewBox="0 0 120 34" role="img" aria-label="' + esc(d.name) + ' funding by year">';
+      yrs.forEach(function (y, i) { var v = d.by_year[y] || 0, h = Math.max(1, v / mx * 32); svg += '<rect class="' + (String(y) === "2025" ? "l" : String(y) === last ? "p" : "") + '" x="' + (i * 24 + 3) + '" y="' + (33 - h).toFixed(1) + '" width="18" height="' + h.toFixed(1) + '" rx="2"><title>' + y + ": " + fmtUSD(v) + "</title></rect>"; });
+      svg += "</svg>";
+      var c = chg(d.by_year["2024"], d.by_year["2025"]);
+      html += '<div class="dtr rv"><span class="dn2">' + esc(d.name) + '</span>' + svg + '<span class="dv">' + fmtUSD(d.by_year["2024"]) + " → " + fmtUSD(d.by_year["2025"]) + ' &nbsp;<span class="' + (c != null && c >= 0 ? "up" : "dn") + '">' + pc(c) + "</span></span></div>";
+    });
+    var rows = Object.keys(TREND.us_by_crisis || {}).map(function (iso) { var r = TREND.us_by_crisis[iso]; return { code: iso, a: r["2024"], b: r["2025"] }; }).filter(function (r) { return r.a > 0; });
+    rows.sort(function (p, q) { return (q.a - q.b) - (p.a - p.b); });
+    var top = rows.slice(0, 10), mx2 = Math.max.apply(null, top.map(function (r) { return r.a; })) || 1;
+    html += '<h3 class="cuts-h rv">Where US money to these crises fell most</h3><p class="cuts-lead rv">Money the United States gave to each crisis alone, 2024 compared with 2025. The biggest falls in dollars, from the crises on this page. Click one to open it.</p>';
+    top.forEach(function (r) {
+      var c = chg(r.a, r.b);
+      html += '<button type="button" class="ctr rv" data-c="' + esc(r.code) + '"><span class="cn2">' + esc(shortName(nameOf(r.code))) + '</span><span class="pair"><i style="width:' + (r.a / mx2 * 100).toFixed(1) + '%"></i><i class="b" style="width:' + Math.max(0.5, r.b / mx2 * 100).toFixed(1) + '%"></i></span><span class="cv2">' + fmtUSD(r.a) + " → " + fmtUSD(r.b) + ' <span class="dn">' + pc(c) + "</span></span></button>";
+    });
+    html += '<p class="note rv"><b>How to read this.</b> Source: OCHA Financial Tracking Service, flows recorded by calendar year and grouped by donor country. Grey bar = 2024, blue bar = 2025 (on the crisis rows). FTS only holds what donors and agencies report, and reports arrive late, so ' + last + ' is incomplete and 2025 may still rise a little. Money given to several countries at once is not split by country, so the per-crisis rows can understate the true total. This page shows <b>how much was given</b>. It cannot show whether money was spent well or wasted, and we do not claim either.</p>';
+    body.innerHTML = html;
+    body.querySelectorAll(".ctr").forEach(function (b) { b.addEventListener("click", function () { openCountry(b.getAttribute("data-c"), "donors"); }); });
+  }
+
+  /* =====================================================================
+     ATTENTION (slide 7) and THE NEWSROOM (slide 7)
      ===================================================================== */
   function srcText(m) { return m.sources.slice(0, 3).map(function (s, i) { return (i === 0 ? "<b>" + esc(s.country) + "</b> " : esc(s.country) + " ") + pctTxt(s.share); }).join(" · "); }
   function spearman(xs, ys) {
@@ -920,7 +957,7 @@
 
   /* ---------- start ---------- */
   readColors();
-  buildDots(); buildMap(); paintMap(); buildRanking(); buildLife(); buildDonors(); buildMedia(); buildNewsroom(); buildUnranked(); buildMethod();
+  buildDots(); buildMap(); paintMap(); buildRanking(); buildLife(); buildDonors(); buildCuts(); buildMedia(); buildNewsroom(); buildUnranked(); buildMethod();
   sizeCanvas();
   dots.forEach(function (d, i) { var p = layouts.all.pos[i]; d.x = d.sx = d.tx = p.x; d.y = d.sy = d.ty = p.y; });
   updateCaption(); countUp(); observeReveals();
@@ -936,6 +973,7 @@
     "s-map": ["The map", [["ramp", "", "<b>Darker red</b> = higher Neglect Score (more neglected)."], ["hatch", "", "<b>Hatched</b>: an appeal exists but we have no people-in-need figure, so it is not scored."], ["txt", "N", "Dark grey: not in this analysis. <b>Click a country</b> to open its file."]]],
     "s-rank": ["The ranking", [["txt", "1", "<b>Rank 1</b> is the most neglected crisis of the " + "ones compared, so a lower number means more neglected."], ["txt", "0-100", "<b>Neglect Score</b>: 100 = worst off on every measure, 0 = best off. A comparison between these crises, not a measure of how bad a crisis is."], ["txt", "40%", "<b>Coverage</b>: how little of the appeal is funded."], ["txt", "40%", "<b>Money per person</b>: how few dollars reach each person in need."], ["txt", "20%", "<b>Scale</b>: how many people are in need."], ["txt", "bar", "The coloured bar shows how many points each of the three measures adds to the score."], ["txt", "*", "<b>Hand-added figure / older data</b>: the people-in-need number was found by hand or is from an earlier year, so treat that rank as indicative."]]],
     "s-donors": ["Who pays", [["txt", "L", "<b>Left</b>: donor countries. <b>Right</b>: crises."], ["txt", "line", "A thicker line = more dollars given to that crisis."], ["txt", "!", "Only money given to <b>one</b> country is counted. Money split across several countries is shown separately so nothing is counted twice. Totals include money outside the formal appeal."]]],
+    "s-cuts": ["The cuts", [["txt", "$", "Each row is a donor country. The bars are 2022 to 2026, left to right; the blue bar is 2025."], ["txt", "%", "The percentage compares 2025 with 2024."], ["txt", "!", "<b>2026 is not finished</b>, and late reports are still arriving for 2025, so the newest bars are lower than they will end up. This shows how much was given, not how well it was spent."]]],
     "s-media": ["Attention", [["dot", "var(--unmet)", "<b>Red bars</b>: the ten most neglected crises."], ["dot", "var(--media)", "<b>Other bars</b>: the remaining crises."], ["txt", "- -", "<b>Dashed line</b>: the median crisis."], ["txt", "!", "Bars count reports that <b>aid organisations</b> publish on ReliefWeb per week. This is <b>not</b> general news coverage, where a crisis like Gaza or Ukraine would dominate."]]],
     "s-news": ["The newsroom", [["txt", "Local", "<b>Local</b>: published inside the country, plus reports from its own government, national Red Cross/Crescent, or organisations named for it."], ["txt", "Intl", "<b>International</b>: everything published from outside."], ["txt", "News", "<b>News</b> = a news outlet. <b>Aid report</b> = from an aid or UN organisation."], ["txt", "state", "<b>State-linked</b>: the outlet is owned or run by a government. This says who owns it, not whether it is accurate."], ["txt", "!", "Headlines link to the original. Translations are machine translations and can be wrong."]]],
     "s-gaps": ["By hand", [["txt", "hand", "Where the official data had no people-in-need figure, we found one in the original document. Each card shows the figure, the source and how sure we are."], ["txt", "high", "<b>High / medium / low</b>: how well the figure matches the funding plan it belongs to."]]],
@@ -943,7 +981,7 @@
   };
   (function () {
     var box = $("keybox"), btn = $("keyBtn"), panel = $("keyPanel"), cur = "", open = false;
-    var order = ["s-what", "s-intro", "s-scale", "s-map", "s-rank", "s-donors", "s-media", "s-news", "s-gaps", "s-method"];
+    var order = ["s-what", "s-intro", "s-scale", "s-map", "s-rank", "s-donors", "s-cuts", "s-media", "s-news", "s-gaps", "s-method"];
     function render(id) {
       var k = KEYS[id]; if (!k) return;
       panel.innerHTML = "<h4>" + esc(k[0]) + "</h4><ul>" + k[1].map(function (r) {
