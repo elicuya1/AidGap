@@ -136,12 +136,6 @@
   .cmpr.both { background: color-mix(in srgb, var(--unmet) 14%, transparent); } .cmpr b.dn, .cmpr b.mu { color: var(--unmet-text); } .cmpr b.up { color: var(--funded); } .cmpr b.mc { color: var(--muted); }
   .ctr .cv2 small { color: var(--muted); font-size: 11px; }
   @media (max-width: 640px) { .yr { grid-template-columns: 70px minmax(0,1fr); } .yr .yv { grid-column: 1 / -1; } .cmph, .cmpr { grid-template-columns: 90px 1fr; } .cmph span:last-child, .cmpr span:last-child { grid-column: 1 / -1; } }
-  .hrow { display: grid; grid-template-columns: 150px minmax(0,1fr) 270px; gap: 12px; align-items: center; padding: 7px 4px; border-bottom: 1px solid var(--line); }
-  .hrow .hn { font-size: 14px; } .hrow .hn small { display: block; font-family: var(--mono); font-size: 10.5px; color: var(--muted); margin-top: 2px; }
-  .hrow .htr { height: 11px; background: var(--line); position: relative; } .hrow .htr i { display: block; height: 100%; background: var(--funded); }
-  .hrow.hot .hn b { color: var(--unmet-text); } .hrow .hv { font-family: var(--mono); font-size: 12px; color: var(--ink2); line-height: 1.5; } .hrow .hv b { color: var(--ink); }
-  .hrow.hot .hv b.pp2 { color: var(--unmet-text); }
-  @media (max-width: 720px) { .hrow { grid-template-columns: 110px minmax(0,1fr); } .hrow .hv { grid-column: 1 / -1; } }
   .barsort { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin: 4px 0 16px; }
   .bs-l { font: 600 11px/1 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--ink2); }
   .seg { display: inline-flex; background: var(--surface); border: 1px solid var(--line); border-radius: 3px; padding: 2px; }
@@ -650,18 +644,9 @@
     </div>
   </section>
 
-  <section class="slide" id="s-host" data-label="Refugee hosts">
-    <div class="wrap">
-      <div class="kicker rv"><b>05</b><span>Refugee hosts</span></div>
-      <h2 class="big mask"><span>Countries that took people in.</span></h2>
-      <p class="sub rv" style="--i:2">Seventeen more countries only appear in <b>refugee response plans</b>, which count refugees, not people in need. So they are not mixed into the ranking above. Here they are on their own: how many people they host, and how much of their appeal has been paid.</p>
-      <div id="hostBody"></div>
-    </div>
-  </section>
-
   <section class="slide" id="s-donors" data-label="Who pays">
     <div class="wrap">
-      <div class="kicker rv"><b>06</b><span>Who pays</span></div>
+      <div class="kicker rv"><b>05</b><span>Who pays</span></div>
       <h2 class="big mask"><span>Who funds whom?</span></h2>
       <p class="sub rv" style="--i:2">Money flows from a handful of donor governments to these crises. <b>Hover a donor or a crisis</b> to follow the money.</p>
       <div id="donorBody"></div>
@@ -670,7 +655,7 @@
 
   <section class="slide" id="s-cuts" data-label="The cuts">
     <div class="wrap">
-      <div class="kicker rv"><b>07</b><span>The cuts</span></div>
+      <div class="kicker rv"><b>06</b><span>The cuts</span></div>
       <h2 class="big mask"><span>The money is being pulled back.</span></h2>
       <p class="sub rv" style="--i:2">Richer governments pay for most humanitarian aid. In 2025 the biggest of them, the <b>United States</b>, gave far less. Below: how much, where it landed, and what these governments spent on their militaries in the same years.</p>
       <div id="cutsBody"></div>
@@ -679,7 +664,7 @@
 
   <section class="slide" id="s-media" data-label="Attention">
     <div class="wrap">
-      <div class="kicker rv"><b>08</b><span>Attention</span></div>
+      <div class="kicker rv"><b>07</b><span>Attention</span></div>
       <h2 class="big mask"><span>Need is not the same as noise.</span></h2>
       <p class="sub rv" style="--i:2">Aid organisations publish their reports on <b>ReliefWeb</b>, the UN's humanitarian website. Counting what they publish about each crisis shows which ones get attention, and which are <b>quiet</b>.</p>
       <div id="mediaBody"></div>
@@ -688,7 +673,7 @@
 
   <section class="slide" id="s-news" data-label="Newsroom">
     <div class="wrap">
-      <div class="kicker rv"><b>09</b><span>The newsroom</span></div>
+      <div class="kicker rv"><b>08</b><span>The newsroom</span></div>
       <h2 class="big mask"><span>Read what is published.</span></h2>
       <p class="sub rv" style="--i:2">Pick a crisis. <b>Local</b> is what is published inside the country. <b>International</b> is everything from outside. Original language, with translation help.</p>
       <div class="news-grid rv" style="--i:3">
@@ -701,7 +686,7 @@
 
   <section class="slide" id="s-gaps" data-label="Not ranked">
     <div class="wrap">
-      <div class="kicker rv"><b>10</b><span id="gapsKicker">Not ranked</span></div>
+      <div class="kicker rv"><b>09</b><span id="gapsKicker">Not ranked</span></div>
       <h2 class="big mask"><span id="gapsTitle">Appeals we can't score yet.</span></h2>
       <p class="sub rv" style="--i:2" id="gapsSub"></p>
       <div class="cards" id="cards"></div>
@@ -710,7 +695,7 @@
 
   <section class="slide method" id="s-method" data-label="Method">
     <div class="wrap">
-      <div class="kicker rv"><b>11</b><span>Method, limits and sources</span></div>
+      <div class="kicker rv"><b>10</b><span>Method, limits and sources</span></div>
       <h2 class="big mask"><span>What this can and can't say.</span></h2>
       <ul class="rv" style="--i:2">
         <li><b>Funding and need:</b> funding per appeal from OCHA FTS; people in need from HDX HAPI (intersectoral, national level). Funding is for the current year.</li>
@@ -748,15 +733,14 @@
 </div>
 
 <!-- ?v=9 makes your browser fetch fresh copies after each update instead of reusing an old saved page -->
-<script src="data.js?v=25"></script>
-<script src="score.js?v=25"></script>
-<script src="map.js?v=25"></script>
-<script src="media.js?v=25" onerror="window.AIDGAP_MEDIA=null"></script>
-<script src="reports.js?v=25" onerror="window.AIDGAP_REPORTS=null"></script>
-<script src="donors.js?v=25" onerror="window.AIDGAP_DONORS=null"></script>
-<script src="refugees.js?v=25" onerror="window.AIDGAP_HOSTS=null"></script>
-<script src="donortrend.js?v=25" onerror="window.AIDGAP_TREND=null"></script>
-<script src="vortex.js?v=25"></script>
-<script src="app.js?v=25"></script>
+<script src="data.js?v=24"></script>
+<script src="score.js?v=24"></script>
+<script src="map.js?v=24"></script>
+<script src="media.js?v=24" onerror="window.AIDGAP_MEDIA=null"></script>
+<script src="reports.js?v=24" onerror="window.AIDGAP_REPORTS=null"></script>
+<script src="donors.js?v=24" onerror="window.AIDGAP_DONORS=null"></script>
+<script src="donortrend.js?v=24" onerror="window.AIDGAP_TREND=null"></script>
+<script src="vortex.js?v=24"></script>
+<script src="app.js?v=24"></script>
 </body>
 </html>

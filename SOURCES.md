@@ -45,8 +45,6 @@ _Generated from `data/reference/sources.csv` by `src/export_dashboard_data.py`. 
   Terms: Public API, no key; credit OCHA FTS. Accessed 2026-11-18. Only what donors and agencies report; late reports mean the newest year is incomplete. Shows amounts given, not how well money was spent. Money given to several countries at once is not split by country.
 - **[World Bank: military expenditure (SIPRI)](https://data.worldbank.org/indicator/MS.MIL.XPND.CD)** (World Bank; underlying data SIPRI Military Expenditure Database). Military spending 2024 and 2025 for the biggest aid donors, shown next to their humanitarian aid (src/fetch_donor_trend.py).  
   Terms: World Bank open data (CC BY 4.0); credit World Bank and SIPRI. Accessed 2026-11-18. Current US dollars. No figures for Qatar or the UAE. A comparison only; it does not show that one spending choice caused another.
-- **[UNHCR Refugee Data Finder (population statistics API)](https://api.unhcr.org/population/v1/population/)** (UNHCR, the UN Refugee Agency). Refugees, asylum-seekers and others in need of international protection hosted in each refugee-host country, end of 2025 (src/fetch_refugees.py).  
-  Terms: Free public API, no key; credit UNHCR (see UNHCR data terms). Accessed 2026-11-18. UNHCR uses its own codes for Costa Rica (COS), Uruguay (URU), Paraguay (PAR) and Trinidad and Tobago (TRT). The count is of people, while a plan targets its own group, so dollars per person hosted is a rough guide.
 
 ## Cited for context
 
