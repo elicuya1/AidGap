@@ -76,7 +76,7 @@
   (function () {
     var d = new Date(D.generated + "T00:00:00"), nice = isNaN(d) ? D.generated : d.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
     $("dateline").textContent = "Data as of " + nice + " · " + crises.length + " crises · OCHA FTS · HDX HAPI · ReliefWeb · GDELT";
-    $("mast").textContent = "Field report " + D.year + " · v20";
+    $("mast").textContent = "Field report " + D.year + " · v21";
   })();
   function countUp() {
     if ("IntersectionObserver" in window && !countUp.go) { var io = new IntersectionObserver(function (es) { if (es[0].isIntersecting) { io.disconnect(); countUp.go = 1; countUp(); } }, { threshold: 0.4 }); io.observe($("s-intro")); return; }
@@ -629,15 +629,37 @@
       '<div class="vs">vs</div>' +
       '<div class="duo"><div class="d-name">' + esc(shortName(loud.c.location_name)) + '<small>rank ' + loud.c.rank + ' of ' + N + '</small></div><div class="d-num">' + fmt(loud.r.per_week) + '</div><div class="d-unit">reports a week from aid organisations</div></div></div>' +
       '<p class="duel-note rv" style="--i:1">Need and attention do not line up. <b>' + quiet.length + ' of the 10 most neglected crises are among the quieter half</b> for aid reporting' + (quiet.length ? ": " + quiet.map(function (x) { return esc(shortName(x.c.location_name)); }).join(", ") : "") + '.</p>';
-    html += '<div class="bars"><h3 class="rv">Aid reports per week, in order of neglect</h3><p class="lead rv">The most neglected crises are at the top. If attention followed need, the bars would be longest there. <b>They are not.</b></p>' +
-      '<div class="keyline rv"><span><i style="background:var(--unmet)"></i>Ten most neglected</span><span><i style="background:var(--media)"></i>Others</span><span><i style="border-left:2px dashed var(--ink2);width:0;height:10px"></i>Median crisis</span></div>';
-    rows.forEach(function (x, i) {
-      html += '<button type="button" class="brow rv' + (x.c.rank <= 10 ? " hot" : "") + '" data-code="' + esc(x.c.location_code) + '" style="--i:' + Math.min(i, 8) + '"><span class="rn">' + x.c.rank + '</span><span class="bn">' + esc(shortName(x.c.location_name)) + '</span>' +
-        '<span class="tr2"><i style="--w:' + Math.max(1.5, x.r.per_week / maxRate * 100).toFixed(1) + '%"></i><u style="left:' + (med / maxRate * 100).toFixed(1) + '%"></u></span><span class="bv">' + fmt(x.r.per_week) + "</span></button>";
-    });
-    html += '</div><p class="fig rv"><b>Fig. 4.</b> Reports per week on ReliefWeb (UN OCHA) about each country, estimated from the time spanned by its 20 latest reports: a busy crisis fills 20 reports in days, a quiet one takes months. This counts what aid organisations publish, not general news. Neglect rank as in Fig. 3. Sources: ReliefWeb, HDX HAPI, OCHA FTS.</p>';
+    html += '<div class="bars"><h3 class="rv" id="barsTitle"></h3><p class="lead rv" id="barsLead"></p>' +
+      '<div class="barsort rv"><span class="bs-l">Order by</span><div class="seg" role="group" aria-label="Order the bars">' +
+      '<button type="button" data-sort="neglect" aria-pressed="true">Most neglected</button>' +
+      '<button type="button" data-sort="most" aria-pressed="false">Most media</button>' +
+      '<button type="button" data-sort="least" aria-pressed="false">Least media</button></div></div>' +
+      '<div class="keyline rv"><span><i style="background:var(--unmet)"></i>Ten most neglected</span><span><i style="background:var(--media)"></i>Others</span><span><i style="border-left:2px dashed var(--ink2);width:0;height:10px"></i>Median crisis</span></div>' +
+      '<div id="barRows"></div></div><p class="fig rv"><b>Fig. 4.</b> Reports per week on ReliefWeb (UN OCHA) about each country, estimated from the time spanned by its 20 latest reports: a busy crisis fills 20 reports in days, a quiet one takes months. This counts what aid organisations publish, not general news. Neglect rank as in Fig. 3. Sources: ReliefWeb, HDX HAPI, OCHA FTS.</p>';
     body.innerHTML = html;
-    Array.prototype.forEach.call(body.querySelectorAll(".brow"), function (b) { b.addEventListener("click", function () { openCountry(b.dataset.code); }); });
+    var SORTS = {
+      neglect: ["Aid reports per week, in order of neglect", "The most neglected crises are at the top. If attention followed need, the bars would be longest there. <b>They are not.</b>"],
+      most: ["Aid reports per week, most media first", "The crises that get the most attention from aid organisations are at the top. Look at where the red bars (the most neglected) fall."],
+      least: ["Aid reports per week, least media first", "The quietest crises are at the top. Red bars here are crises that are both neglected and barely written about."]
+    };
+    function renderBars(sort) {
+      var list = rows.slice();
+      if (sort === "most") list.sort(function (p, q) { return q.r.per_week - p.r.per_week; });
+      else if (sort === "least") list.sort(function (p, q) { return p.r.per_week - q.r.per_week; });
+      $("barsTitle").textContent = SORTS[sort][0]; $("barsLead").innerHTML = SORTS[sort][1];
+      $("barRows").innerHTML = list.map(function (x) {
+        return '<button type="button" class="brow in' + (x.c.rank <= 10 ? " hot" : "") + '" data-code="' + esc(x.c.location_code) + '"><span class="rn">' + x.c.rank + '</span><span class="bn">' + esc(shortName(x.c.location_name)) + '</span>' +
+          '<span class="tr2"><i style="--w:' + Math.max(1.5, x.r.per_week / maxRate * 100).toFixed(1) + '%"></i><u style="left:' + (med / maxRate * 100).toFixed(1) + '%"></u></span><span class="bv">' + fmt(x.r.per_week) + "</span></button>";
+      }).join("");
+      Array.prototype.forEach.call($("barRows").querySelectorAll(".brow"), function (b) { b.addEventListener("click", function () { openCountry(b.dataset.code); }); });
+    }
+    Array.prototype.forEach.call(body.querySelectorAll(".barsort button"), function (b) {
+      b.addEventListener("click", function () {
+        Array.prototype.forEach.call(body.querySelectorAll(".barsort button"), function (o) { o.setAttribute("aria-pressed", String(o === b)); });
+        renderBars(b.dataset.sort);
+      });
+    });
+    renderBars("neglect");
   }
 
   function buildNewsroom() {
