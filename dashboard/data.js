@@ -1926,6 +1926,17 @@ window.AIDGAP = {
    "accessed": "2026-11-18",
    "status": "used",
    "notes": "Only what donors and agencies report; late reports mean the newest year is incomplete. Shows amounts given, not how well money was spent. Money given to several countries at once is not split by country."
+  },
+  {
+   "id": "worldbank_mil",
+   "name": "World Bank: military expenditure (SIPRI)",
+   "publisher": "World Bank; underlying data SIPRI Military Expenditure Database",
+   "url": "https://data.worldbank.org/indicator/MS.MIL.XPND.CD",
+   "used_for": "Military spending 2024 and 2025 for the biggest aid donors, shown next to their humanitarian aid (src/fetch_donor_trend.py)",
+   "terms": "World Bank open data (CC BY 4.0); credit World Bank and SIPRI",
+   "accessed": "2026-11-18",
+   "status": "used",
+   "notes": "Current US dollars. No figures for Qatar or the UAE. A comparison only; it does not show that one spending choice caused another."
   }
  ]
 };

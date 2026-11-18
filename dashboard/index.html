@@ -125,6 +125,17 @@
   .dtr .dv, .ctr .cv2 { font-family: var(--mono); font-size: 12px; color: var(--ink2); } .dv .dn, .cv2 .dn { color: var(--unmet-text); font-weight: 600; } .dv .up { color: var(--funded); font-weight: 600; }
   .ctr .pair { display: grid; gap: 3px; } .ctr .pair i { display: block; height: 7px; background: var(--line); } .ctr .pair i.b { background: var(--funded); }
   @media (max-width: 640px) { .dtr { grid-template-columns: 110px 100px minmax(0,1fr); } .ctr { grid-template-columns: 90px minmax(0,1fr); } .ctr .cv2 { grid-column: 1 / -1; } }
+  .rd { color: var(--unmet-text); } .kg { color: var(--ink2); } .kb { color: var(--funded); }
+  .yr { display: grid; grid-template-columns: 90px minmax(0,1fr) 190px; gap: 12px; align-items: center; padding: 5px 4px; }
+  .yr .yl { font-family: var(--mono); font-size: 12px; color: var(--ink2); } .yr .yb { display: flex; height: 18px; } .yr .yb.part { opacity: .6; }
+  .yr .yb i { display: block; height: 100%; } .yr .yb i.us { background: var(--unmet); } .yr .yb i.ot { background: var(--line); }
+  .yr .yv { font-family: var(--mono); font-size: 12px; color: var(--ink); } .yr .yv small { color: var(--muted); font-size: 11px; }
+  .cmp { margin-top: 6px; max-width: 900px; } .cmph, .cmpr { display: grid; grid-template-columns: 140px 1fr 1fr; gap: 12px; padding: 7px 8px; align-items: center; }
+  .cmph { font-family: var(--mono); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); border-bottom: 1px solid var(--line); }
+  .cmpr { font-family: var(--mono); font-size: 12px; color: var(--ink2); border-bottom: 1px solid var(--line); } .cmpr .cn3 { font-size: 14px; color: var(--ink); }
+  .cmpr.both { background: color-mix(in srgb, var(--unmet) 14%, transparent); } .cmpr b.dn, .cmpr b.mu { color: var(--unmet-text); } .cmpr b.up { color: var(--funded); } .cmpr b.mc { color: var(--muted); }
+  .ctr .cv2 small { color: var(--muted); font-size: 11px; }
+  @media (max-width: 640px) { .yr { grid-template-columns: 70px minmax(0,1fr); } .yr .yv { grid-column: 1 / -1; } .cmph, .cmpr { grid-template-columns: 90px 1fr; } .cmph span:last-child, .cmpr span:last-child { grid-column: 1 / -1; } }
   .barsort { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin: 4px 0 16px; }
   .bs-l { font: 600 11px/1 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--ink2); }
   .seg { display: inline-flex; background: var(--surface); border: 1px solid var(--line); border-radius: 3px; padding: 2px; }
@@ -645,8 +656,8 @@
   <section class="slide" id="s-cuts" data-label="The cuts">
     <div class="wrap">
       <div class="kicker rv"><b>06</b><span>The cuts</span></div>
-      <h2 class="big mask"><span>Is the money shrinking?</span></h2>
-      <p class="sub rv" style="--i:2">Humanitarian funding recorded worldwide has fallen since 2022, and the <b>United States</b> accounts for most of the fall. Here is what each big donor gave, year by year, and which of these crises lost the most US money.</p>
+      <h2 class="big mask"><span>The money is being pulled back.</span></h2>
+      <p class="sub rv" style="--i:2">Richer governments pay for most humanitarian aid. In 2025 the biggest of them, the <b>United States</b>, gave far less. Below: how much, where it landed, and what these governments spent on their militaries in the same years.</p>
       <div id="cutsBody"></div>
     </div>
   </section>
@@ -722,14 +733,14 @@
 </div>
 
 <!-- ?v=9 makes your browser fetch fresh copies after each update instead of reusing an old saved page -->
-<script src="data.js?v=22"></script>
-<script src="score.js?v=22"></script>
-<script src="map.js?v=22"></script>
-<script src="media.js?v=22" onerror="window.AIDGAP_MEDIA=null"></script>
-<script src="reports.js?v=22" onerror="window.AIDGAP_REPORTS=null"></script>
-<script src="donors.js?v=22" onerror="window.AIDGAP_DONORS=null"></script>
-<script src="donortrend.js?v=22" onerror="window.AIDGAP_TREND=null"></script>
-<script src="vortex.js?v=22"></script>
-<script src="app.js?v=22"></script>
+<script src="data.js?v=23"></script>
+<script src="score.js?v=23"></script>
+<script src="map.js?v=23"></script>
+<script src="media.js?v=23" onerror="window.AIDGAP_MEDIA=null"></script>
+<script src="reports.js?v=23" onerror="window.AIDGAP_REPORTS=null"></script>
+<script src="donors.js?v=23" onerror="window.AIDGAP_DONORS=null"></script>
+<script src="donortrend.js?v=23" onerror="window.AIDGAP_TREND=null"></script>
+<script src="vortex.js?v=23"></script>
+<script src="app.js?v=23"></script>
 </body>
 </html>

@@ -38,7 +38,7 @@ def get(url: str, cache: Path):
         try:
             with urllib.request.urlopen(urllib.request.Request(url, headers=UA), timeout=90) as r:
                 d = json.loads(r.read().decode("utf-8"))
-            if d.get("status") == "ok":
+            if isinstance(d, list) or d.get("status") == "ok":
                 cache.write_text(json.dumps(d), encoding="utf-8")
                 return d
         except Exception as e:  # network hiccup: wait and retry
@@ -89,12 +89,32 @@ def main() -> None:
             us[iso] = row
         print(f"[{i}/{len(names)}] {iso}: {row}", flush=True)
 
+    # US money to each crisis in 2026 so far: the same cached files fetch_donors.py reads (so the page's popup and these rows agree)
+    for iso in list(us):
+        f = ROOT / "data" / "raw" / "donors" / f"{iso}.json"
+        if f.exists():
+            us[iso]["2026"] = round(singles(json.loads(f.read_text(encoding="utf-8"))).get("United States", 0))
+
+    # Military spending of the same donors (World Bank indicator MS.MIL.XPND.CD, which is SIPRI data), current US dollars.
+    wb = {"United States": "USA", "Germany": "DEU", "Saudi Arabia": "SAU", "United Kingdom": "GBR", "Japan": "JPN",
+          "United Arab Emirates": "ARE", "Sweden": "SWE", "Qatar": "QAT", "Norway": "NOR", "Switzerland": "CHE",
+          "Canada": "CAN", "France": "FRA"}
+    mil = {}
+    url = "https://api.worldbank.org/v2/country/" + ";".join(wb.values()) + "/indicator/MS.MIL.XPND.CD?date=2022:2025&format=json&per_page=200"
+    m = get(url, RAW / "military.json")
+    if m:
+        by = {v: k for k, v in wb.items()}
+        for r in m[1] if isinstance(m, list) else []:
+            if r.get("value"):
+                mil.setdefault(by[r["countryiso3code"]], {})[r["date"]] = round(r["value"])
+
     payload = {
         "generated": date.today().isoformat(), "years": YEARS, "partial_year": YEARS[-1],
         "source": "OCHA Financial Tracking Service (FTS) public API, flows grouped by donor country",
         "world_total": {str(y): round(sum(w.values())) for y, w in world.items()},
         "not_specified": {str(y): round(w.get("Not specified", 0)) for y, w in world.items()},
-        "donors": donors, "us_by_crisis": us,
+        "donors": donors, "us_by_crisis": us, "military": mil,
+        "military_source": "World Bank indicator MS.MIL.XPND.CD (SIPRI Military Expenditure Database), current US$",
     }
     OUT.write_text("window.AIDGAP_TREND = " + json.dumps(payload, ensure_ascii=False) + ";\n", encoding="utf-8")
     print("Wrote", OUT.relative_to(ROOT))

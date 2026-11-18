@@ -122,3 +122,4 @@ Percentile ranks among national-plan countries, weighted: coverage (% funded) 40
 - v21 (2026-11-18): the Attention bars have an "Order by" control: Most neglected (default) / Most media / Least media (renderBars in buildMedia, app.js).
 
 - v22: new slide "The cuts" (s-cuts). Worldwide FTS funding by donor and year (2022-2026) plus US funding to each ranked crisis 2024 vs 2025, from src/fetch_donor_trend.py -> dashboard/donortrend.js. Real numbers only; it does not claim waste, because FTS cannot show that. Later kickers renumbered 07-10.
+- v23: "The cuts" rebuilt: 3 tiles, US-vs-rest by year, aid next to military spending (World Bank/SIPRI), and where the US cut landed. Fixed the mismatch with the popup: bars were 2025 US money but the popup showed 2026; both now show 2024, 2025 and 2026 so far. Wording stays factual: no claim of waste or motive.
