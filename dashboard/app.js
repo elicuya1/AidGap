@@ -76,7 +76,7 @@
   (function () {
     var d = new Date(D.generated + "T00:00:00"), nice = isNaN(d) ? D.generated : d.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
     $("dateline").textContent = "Data as of " + nice + " · " + crises.length + " crises · OCHA FTS · HDX HAPI · ReliefWeb · GDELT";
-    $("mast").textContent = "Field report " + D.year + " · v32";
+    $("mast").textContent = "Field report " + D.year + " · v33";
   })();
   function countUp() {
     if ("IntersectionObserver" in window && !countUp.go) { var io = new IntersectionObserver(function (es) { if (es[0].isIntersecting) { io.disconnect(); countUp.go = 1; countUp(); } }, { threshold: 0.4 }); io.observe($("s-intro")); return; }
@@ -456,7 +456,7 @@
     });
     var h = "<thead><tr><th>Rank</th><th>Crisis</th><th>Score</th><th>People in need</th><th>Funded</th><th>INFORM severity</th><th>Requested</th><th>Received</th><th>$ per person</th></tr></thead><tbody>";
     crises.forEach(function (c) {
-      h += "<tr><td>" + c.rank + "</td><td>" + esc(c.location_name) + (c.low_confidence ? " *" : "") + "</td><td>" + c.neglect_score.toFixed(1) + "</td><td>" + Math.round(c.people_in_need).toLocaleString() +
+      h += "<tr><td>" + c.rank + "</td><td>" + esc(c.location_name) + (c.low_confidence ? " *" : "") + "</td><td>" + c.neglect_score.toFixed(1) + "</td><td>" + Math.round(c.people_in_need).toLocaleString("en-US") +
         "</td><td>" + c.funding_pct.toFixed(1) + "%</td><td>" + c.inform_severity.toFixed(1) + "</td><td>" + fmtUSD(c.requirements_usd) + "</td><td>" + fmtUSD(c.funding_usd) + "</td><td>$" + c.funding_per_person_usd.toFixed(2) + "</td></tr>";
     });
     $("tbl").innerHTML = h + "</tbody>";
@@ -781,7 +781,7 @@
   function buildMethod() {
     var hand = crises.filter(function (c) { return c.pin_source === "manual"; });
     $("hand").innerHTML = hand.length ? '<p class="note" style="max-width:none;margin:0 0 10px">These figures fill gaps in the main data source. Each was checked against an official or plan-tracking document, and against the funding total it should match. Confidence is lower where sources disagree. The full record, including a figure we found but did not use (Honduras), is in <b>data/reference/manual_pin.csv</b>, and the checks are in <b>verification_report.csv</b>.</p><div class="tbl-scroll"><table><thead><tr><th>Country</th><th>People in need</th><th>Confidence</th><th>How it was checked</th><th>Source</th></tr></thead><tbody>' +
-      hand.map(function (c) { return "<tr><td>" + esc(c.location_name) + "</td><td>" + Math.round(c.people_in_need).toLocaleString() + "</td><td>" + esc(c.pin_confidence) + '</td><td style="text-align:left;white-space:normal;min-width:260px">' + esc(c.pin_verified || c.pin_note) + "</td><td>" + ext(c.pin_url, "link") + "</td></tr>"; }).join("") + "</tbody></table></div>" : '<p class="note">No hand-added figures.</p>';
+      hand.map(function (c) { return "<tr><td>" + esc(c.location_name) + "</td><td>" + Math.round(c.people_in_need).toLocaleString("en-US") + "</td><td>" + esc(c.pin_confidence) + '</td><td style="text-align:left;white-space:normal;min-width:260px">' + esc(c.pin_verified || c.pin_note) + "</td><td>" + ext(c.pin_url, "link") + "</td></tr>"; }).join("") + "</tbody></table></div>" : '<p class="note">No hand-added figures.</p>';
     $("srcs").innerHTML = (D.sources || []).map(function (s) {
       return "<li>" + ext(s.url, esc(s.name)) + '<span class="st">' + esc(String(s.status).replace("_", " ")) + "</span><br>" + esc(s.publisher) + ". " + esc(s.used_for) + ". " + esc(s.notes || "") + "</li>";
     }).join("");
@@ -832,11 +832,11 @@
     focusCountry(code);
     if (selectedPath) selectedPath.classList.remove("sel");
     selectedPath = pathByCode[code] || null; if (selectedPath) selectedPath.classList.add("sel");
-    modal.classList.add("on"); backdrop.classList.add("on"); modal.setAttribute("aria-hidden", "false");
+    modal.classList.add("on"); backdrop.classList.add("on"); modal.setAttribute("aria-hidden", "false"); document.documentElement.style.overflow = "hidden";
     $("mLeft").scrollTop = 0; $("dClose").focus();
   }
   function closeModal() {
-    modal.classList.remove("on"); backdrop.classList.remove("on"); modal.setAttribute("aria-hidden", "true"); mCode = null;
+    modal.classList.remove("on"); backdrop.classList.remove("on"); modal.setAttribute("aria-hidden", "true"); mCode = null; document.documentElement.style.overflow = "";
     resetMap(); if (lastFocus && lastFocus.focus) lastFocus.focus();
   }
   function renderTabs(tabs, active) {

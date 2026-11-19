@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0d0c0b">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <title>AidGap live tracker</title>
 <meta name="description" content="What is happening now: ongoing disasters, alerts and outbreaks from ReliefWeb, GDACS, USGS and WHO.">
@@ -14,6 +15,9 @@
   :root[data-theme="light"] { color-scheme: light; --bg: #f3efe6; --surface: #faf7f0; --raise: #ffffff; --ink: #1b1815; --ink2: #4d4841; --muted: #8a8378; --line: #ddd6c8; --base: #c4bcab;
     --unmet: #9a1b24; --unmet-text: #9a1b24; --warn: #a97d28; --media: #5b4fb3; }
   * { box-sizing: border-box; }
+  :focus-visible { outline: 2px solid #4a86b8; outline-offset: 3px; border-radius: 3px; }
+  .skip { position: absolute; left: 12px; top: -60px; background: var(--ink); color: var(--bg); padding: 8px 14px; font-family: var(--mono); font-size: 12px; text-decoration: none; border-radius: 3px; z-index: 10; }
+  .skip:focus { top: 12px; }
   body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--serif); line-height: 1.5; }
   a { color: inherit; }
   .wrap { width: min(1080px, calc(100% - 32px)); margin: 0 auto; }
@@ -33,6 +37,11 @@
   .bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 0 0 14px; }
   .bar .lab { font-family: var(--mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-right: 4px; }
   .chip { font-family: var(--mono); font-size: 12px; background: none; color: var(--ink2); border: 1px solid var(--line); border-radius: 999px; padding: 5px 12px; cursor: pointer; }
+  .chip:hover, nav a:hover, nav button:hover { color: var(--ink); border-color: var(--ink2); }
+  .chip { min-height: 32px; touch-action: manipulation; }
+  .tile:hover, .card:hover { border-color: var(--base); }
+  .tile b { font-variant-numeric: tabular-nums; }
+  h1, .sub { text-wrap: balance; }
   .chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
   input[type=search] { font: 14px var(--mono); background: var(--surface); color: var(--ink); border: 1px solid var(--line); border-radius: 3px; padding: 8px 12px; width: min(340px, 100%); }
   .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 10px; }
@@ -51,12 +60,14 @@
 </style>
 </head>
 <body>
+<a class="skip" href="#main">Skip to the events</a>
 <div class="wrap">
   <header>
-    <a class="brand" href="index.html">Aid<span>Gap</span></a>
+    <a class="brand" href="index.html" translate="no">Aid<span>Gap</span></a>
     <nav><a href="index.html">Funding gaps</a><a href="live.html" aria-current="page">Live tracker</a><button id="theme" type="button">Theme</button></nav>
   </header>
 
+  <main id="main" tabindex="-1">
   <h1>What is happening now.</h1>
   <p class="sub">Ongoing disasters, alerts and outbreaks, pulled from four public sources and listed as they publish them. This page does not score or rank them: the Neglect Score on the main page is a separate analysis.</p>
   <p class="stamp" id="stamp"></p>
@@ -64,13 +75,15 @@
   <div class="tiles" id="tiles"></div>
   <div class="bar" id="kinds"></div>
   <div class="bar" id="sources"></div>
-  <div class="bar"><input id="q" type="search" placeholder="Search a country or event" aria-label="Search"></div>
-  <p class="stamp" id="count"></p>
+  <div class="bar"><input id="q" name="q" type="search" placeholder="Search a country or event…" aria-label="Search events" autocomplete="off" spellcheck="false"></div>
+  <p class="stamp" id="count" aria-live="polite"></p>
+  <h2 style="position:absolute;left:-9999px">Events</h2>
   <div class="grid" id="list"></div>
+  </main>
 
   <p class="note"><b>Sources.</b> ReliefWeb (UN OCHA) disasters marked ongoing or alert; GDACS (EU and UN) Orange and Red alerts from the last 30 days; USGS significant earthquakes of the past week; WHO Disease Outbreak News (latest 15). Each card links to the original. Severity words are the source's own; a missing item means the source did not list it, not that nothing happened. Data is refreshed when <code>python src/fetch_live.py</code> is run; a daily automatic refresh is planned. Conflict events and hunger (ACLED, IPC) are not included yet.</p>
 </div>
-<script src="live.js?v=1"></script>
+<script src="live.js?v=2"></script>
 <script>
 (function () {
   var D = window.AIDGAP_LIVE, $ = function (i) { return document.getElementById(i); };
@@ -83,6 +96,9 @@
   });
   if (!D) { $("list").innerHTML = '<p class="none">The tracker data has not been loaded yet. Run <code>python src/fetch_live.py</code>.</p>'; return; }
   var items = D.items, kind = "All", src = "All", q = "";
+  var P = new URLSearchParams(location.search); kind = P.get("type") || kind; src = P.get("source") || src; q = (P.get("q") || "").toLowerCase(); $("q").value = P.get("q") || "";
+  function fmt(d) { var t = new Date(d + "T00:00:00Z"); return isNaN(t) ? d : new Intl.DateTimeFormat(undefined, { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" }).format(t); }
+  function sync() { var u = new URLSearchParams(); if (kind !== "All") u.set("type", kind); if (src !== "All") u.set("source", src); if (q) u.set("q", q); try { history.replaceState(null, "", location.pathname + (u.toString() ? "?" + u : "")); } catch (e) {} }
   function norm(k) { return k === "Tropical Cyclone" ? "Tropical cyclone" : k === "Flash Flood" ? "Flood" : k; }
   items.forEach(function (i) { i.kind = norm(i.kind); });
   var failed = Object.keys(D.status).filter(function (k) { return !D.status[k].ok; });
@@ -102,12 +118,13 @@
     var list = items.filter(function (i) {
       return (kind === "All" || i.kind === kind) && (src === "All" || i.source === src) && (!q || (i.title + " " + i.countries.join(" ")).toLowerCase().indexOf(q) >= 0);
     });
+    sync();
     $("count").textContent = list.length + " of " + items.length + " events";
     $("list").innerHTML = list.length ? list.map(function (i) {
       var cls = /red/i.test(i.level) ? "red" : /orange|alert/i.test(i.level) ? "orange" : "";
       return '<article class="card"><span class="lvl ' + cls + '">' + esc(i.level) + "</span><h3><a href=\"" + esc(safe(i.url)) + '" target="_blank" rel="noopener noreferrer">' + esc(i.title) + "</a></h3>" +
         (i.countries.length ? '<div class="where">' + esc(i.countries.slice(0, 4).join(", ") + (i.countries.length > 4 ? " and " + (i.countries.length - 4) + " more" : "")) + "</div>" : "") +
-        '<div class="meta"><span>' + esc(i.kind) + "</span><span>" + esc(i.source) + "</span><span>" + esc(i.date) + "</span></div></article>";
+        '<div class="meta"><span>' + esc(i.kind) + "</span><span>" + esc(i.source) + "</span><span>" + esc(fmt(i.date)) + "</span></div></article>";
     }).join("") : '<p class="none">Nothing matches that filter.</p>';
   }
   $("q").addEventListener("input", function () { q = this.value.trim().toLowerCase(); render(); });
