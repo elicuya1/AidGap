@@ -80,7 +80,7 @@ def main() -> None:
     sens2 = pd.read_csv(PROCESSED / "sensitivity_v2.csv")
     rated = v2[v2["severity_rated"]]
     v2cols = rated[["location_code", "score_v2", "rank_v2", "gap_pts", "trend_pts", "severity_pts", "scale_pts", "displ_pts",
-                    "attention_gap_pts", "inform_severity", "reports_per_week", "funding_change", "displaced_total",
+                    "attention_gap_pts", "inform_severity", "reports_per_week", "funding_change", "funding_2024", "funding_2025", "displaced_total",
                     "displaced_share", "rank_v1", "score_v1"]]
     base = scores[[
         "location_code", "location_name", "requirements_usd", "funding_usd",
