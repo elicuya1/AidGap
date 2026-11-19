@@ -86,9 +86,9 @@
   .sub b { color: var(--ink); font-weight: 600; }
 
   .js .mask { display: block; overflow: hidden; padding-bottom: .1em; }
-  .js .mask > span { display: block; transform: translateY(112%); transition: transform 1s cubic-bezier(.2,.8,.2,1); transition-delay: calc(var(--i, 0) * 90ms); }
+  .js .mask > span { display: block; transform: translateY(112%); transition: transform .6s cubic-bezier(.23, 1, .32, 1); transition-delay: calc(var(--i, 0) * 50ms); }
   .js .mask.in > span { transform: none; }
-  .js .rv { opacity: 0; transform: translateY(22px); transition: opacity .9s ease, transform .9s cubic-bezier(.2,.8,.2,1); transition-delay: calc(var(--i, 0) * 80ms); }
+  .js .rv { opacity: 0; transform: translateY(12px); transition: opacity .45s cubic-bezier(.23, 1, .32, 1), transform .45s cubic-bezier(.23, 1, .32, 1); transition-delay: calc(var(--i, 0) * 40ms); }
   .js .rv.in { opacity: 1; transform: none; }
 
   /* ---------- hero ---------- */
@@ -147,7 +147,7 @@
   .legend { display: flex; flex-wrap: wrap; gap: 6px 20px; font-size: 13.5px; color: var(--ink2); align-items: center; }
   .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 7px; vertical-align: -1px; }
   .field-card { padding: 14px 14px 10px; position: relative; }
-  .field-wrap { position: relative; overflow: hidden; transition: height .7s cubic-bezier(.65,0,.35,1); }
+  .field-wrap { position: relative; overflow: hidden; transition: height .4s cubic-bezier(.23, 1, .32, 1); }
   #field { display: block; }
   #field.pointer { cursor: pointer; }
   .tip { position: absolute; pointer-events: none; z-index: 5; min-width: 170px; max-width: 260px; background: var(--ink); color: var(--bg); border-radius: 3px; padding: 8px 11px; font-size: 13px; opacity: 0; transform: translateY(4px); transition: opacity .12s, transform .12s; box-shadow: var(--shadow); }
@@ -199,8 +199,8 @@
   .how .fixed b { color: var(--ink); }
   .rank-list { list-style: none; margin: 0; padding: 0; }
   .rank-list li { border-bottom: 1px solid var(--line); }
-  .rank-list button { width: 100%; display: grid; grid-template-columns: 44px minmax(0,1fr) 200px; gap: 14px; align-items: center; text-align: left; background: transparent; border: 0; padding: 14px 8px; cursor: pointer; transition: background .2s, padding-left .25s; }
-  .rank-list button:hover { background: var(--surface); padding-left: 16px; }
+  .rank-list button { width: 100%; display: grid; grid-template-columns: 44px minmax(0,1fr) 200px; gap: 14px; align-items: center; text-align: left; background: transparent; border: 0; padding: 14px 8px; cursor: pointer; transition: background-color .15s cubic-bezier(.23, 1, .32, 1); }
+  .rank-list button:hover { background: var(--surface); }
   .rk { font-family: var(--serif); font-size: 24px; font-weight: 600; color: var(--muted); letter-spacing: -.03em; }
   .rk.top3 { color: var(--ink); }
   .who { display: block; min-width: 0; }
@@ -210,7 +210,7 @@
   .sc { display: grid; gap: 6px; justify-items: end; }
   .sc b { font-family: var(--serif); font-size: 21px; letter-spacing: -.02em; }
   .stack { display: flex; gap: 2px; width: 100%; height: 7px; background: var(--line); overflow: hidden; }
-  .stack i { display: block; height: 100%; width: 0; transition: width 1.2s cubic-bezier(.2,.8,.2,1); transition-delay: calc(var(--i, 0) * 40ms + .25s); }
+  .stack i { display: block; height: 100%; width: 0; transition: width .7s cubic-bezier(.23, 1, .32, 1); transition-delay: calc(var(--i, 0) * 30ms + .15s); }
   .in .stack i, .stack.in i { width: var(--w); }
   @media (max-width: 560px) { .rank-list button { grid-template-columns: 30px minmax(0,1fr) 96px; gap: 8px; padding: 12px 2px; } .hide-s { display: none; } }
   details.table-view { margin-top: 24px; }
@@ -243,7 +243,7 @@
   .life-hist .sum b { color: var(--ink); }
   .hbars { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; align-items: end; height: 110px; }
   .hb { position: relative; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; }
-  .hb .fill { background: var(--unmet); transition: height .35s ease; min-height: 0; }
+  .hb .fill { background: var(--unmet); transition: height .2s cubic-bezier(.23, 1, .32, 1); min-height: 0; }
   .hb .truth { position: absolute; left: -2px; right: -2px; border-top: 2px dashed var(--ink2); }
   .hlab { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; font-family: var(--mono); font-size: 10.5px; color: var(--muted); margin-top: 6px; text-align: center; }
 
@@ -279,7 +279,7 @@
   .brow .rn { font-family: var(--mono); font-size: 11.5px; color: var(--muted); }
   .brow .bn { font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .brow .tr2 { position: relative; height: 11px; background: var(--line); }
-  .brow .tr2 i { display: block; height: 100%; width: 0; background: var(--media); transition: width 1.1s cubic-bezier(.2,.8,.2,1); }
+  .brow .tr2 i { display: block; height: 100%; width: 0; background: var(--media); transition: width .7s cubic-bezier(.23, 1, .32, 1); }
   .brow.hot .tr2 i { background: var(--unmet); }
   .brow .tr2 u { position: absolute; top: -4px; bottom: -4px; border-left: 1.5px dashed var(--ink2); opacity: .75; text-decoration: none; }
   .in .brow .tr2 i, .brow.in .tr2 i { width: var(--w); }
@@ -311,7 +311,7 @@
   .mrow .num { font-size: 13px; color: var(--ink2); text-align: right; font-variant-numeric: tabular-nums; }
   .abar { display: grid; grid-template-columns: 1fr 52px; gap: 10px; align-items: center; font-size: 13px; text-align: right; }
   .bar-t { width: 100%; height: 6px; background: var(--line); overflow: hidden; }
-  .bar-t i { display: block; height: 100%; width: 0; background: var(--media); transition: width 1.1s cubic-bezier(.2,.8,.2,1); }
+  .bar-t i { display: block; height: 100%; width: 0; background: var(--media); transition: width .7s cubic-bezier(.23, 1, .32, 1); }
   .bar-t.in i, .in .bar-t i { width: var(--w); }
   @media (max-width: 860px) { .mhead { display: none; } .mrow { grid-template-columns: 26px minmax(0,1fr) 120px; } .mrow .num { display: none; } }
   .two { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 30px; }
@@ -777,14 +777,14 @@
 </div>
 
 <!-- ?v=9 makes your browser fetch fresh copies after each update instead of reusing an old saved page -->
-<script src="data.js?v=38"></script>
-<script src="score.js?v=38"></script>
-<script src="map.js?v=38"></script>
-<script src="media.js?v=38" onerror="window.AIDGAP_MEDIA=null"></script>
-<script src="reports.js?v=38" onerror="window.AIDGAP_REPORTS=null"></script>
-<script src="donors.js?v=38" onerror="window.AIDGAP_DONORS=null"></script>
-<script src="donortrend.js?v=38" onerror="window.AIDGAP_TREND=null"></script>
-<script src="vortex.js?v=38"></script>
-<script src="app.js?v=38"></script>
+<script src="data.js?v=40"></script>
+<script src="score.js?v=40"></script>
+<script src="map.js?v=40"></script>
+<script src="media.js?v=40" onerror="window.AIDGAP_MEDIA=null"></script>
+<script src="reports.js?v=40" onerror="window.AIDGAP_REPORTS=null"></script>
+<script src="donors.js?v=40" onerror="window.AIDGAP_DONORS=null"></script>
+<script src="donortrend.js?v=40" onerror="window.AIDGAP_TREND=null"></script>
+<script src="vortex.js?v=40"></script>
+<script src="app.js?v=40"></script>
 </body>
 </html>
