@@ -1,0 +1,7 @@
+iso3,country,people_in_need,requirement_usd,fts_requirement_usd,matches_fts,counts,source,status
+BRA,Brazil,659400,84210000,84211220,yes,"Venezuelan refugees+migrants, returnees, host communities (R4V platform total)",R4V Regional Refugee and Migrant Response Plan 2026 p.9 key figures by platform (RMRP_2026_ENG.pdf),read in document; not yet in the score
+CHL,Chile,613000,45690000,45685835,yes,same,R4V RMRP 2026 p.9,read in document; not yet in the score
+ECU,Ecuador,657100,141240000,141239770,yes,same,R4V RMRP 2026 p.9,read in document; not yet in the score
+PER,Peru,2180000,153460000,153457657,yes,same,R4V RMRP 2026 p.9,read in document; not yet in the score
+IRN,Iran,1650000,80000000,80000000,yes,"refugees and others in need of international protection; host community 1,000,000 and Afghans of other status 150,000 are listed separately",UNHCR Iran Flash Refugee Response Plan March-May 2026 (data.unhcr.org document 121697),read in document; plan covers only March-May 2026; not yet in the score
+UGA,Uganda,2200000,850000000,828700000,close but not equal,"2.2M refugees plus 2.7M host community members",UNHCR Uganda UCRRP 2026 Prioritization (data.unhcr.org document 120312),read in document; plan says USD 850M but FTS shows 828.7M; not yet in the score
