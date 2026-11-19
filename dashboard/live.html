@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<title>AidGap live tracker</title>
+<meta name="description" content="What is happening now: ongoing disasters, alerts and outbreaks from ReliefWeb, GDACS, USGS and WHO.">
+<style>
+  :root { color-scheme: dark; --serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+    --mono: ui-monospace, "Cascadia Mono", "SF Mono", Consolas, "Liberation Mono", monospace;
+    --bg: #0d0c0b; --surface: #141312; --raise: #1b1a18; --ink: #ece7de; --ink2: #bdb7ab; --muted: #8c867b; --line: #2b2926; --base: #3b3834;
+    --unmet: #a3202a; --unmet-text: #e0757a; --warn: #c9a04a; --media: #9a91cf; }
+  :root[data-theme="light"] { color-scheme: light; --bg: #f3efe6; --surface: #faf7f0; --raise: #ffffff; --ink: #1b1815; --ink2: #4d4841; --muted: #8a8378; --line: #ddd6c8; --base: #c4bcab;
+    --unmet: #9a1b24; --unmet-text: #9a1b24; --warn: #a97d28; --media: #5b4fb3; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--serif); line-height: 1.5; }
+  a { color: inherit; }
+  .wrap { width: min(1080px, calc(100% - 32px)); margin: 0 auto; }
+  header { padding: 22px 0; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+  .brand { text-decoration: none; font-size: 24px; font-weight: 700; }
+  .brand span { color: var(--unmet-text); }
+  nav { display: flex; gap: 10px; font-family: var(--mono); font-size: 12px; letter-spacing: .06em; text-transform: uppercase; }
+  nav a, nav button { color: var(--ink2); text-decoration: none; background: none; border: 1px solid var(--line); padding: 7px 12px; border-radius: 3px; cursor: pointer; font: inherit; }
+  nav a[aria-current="page"] { color: var(--ink); border-color: var(--ink2); }
+  h1 { font-size: clamp(32px, 6vw, 56px); line-height: 1.05; margin: 40px 0 10px; letter-spacing: -.01em; }
+  .sub { color: var(--ink2); max-width: 720px; font-size: 18px; margin: 0 0 8px; }
+  .stamp { font-family: var(--mono); font-size: 12px; color: var(--muted); margin: 0 0 26px; }
+  .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 22px; }
+  .tile { border: 1px solid var(--line); background: var(--surface); padding: 14px 16px; border-radius: 4px; }
+  .tile b { display: block; font-size: 34px; line-height: 1; }
+  .tile span { font-family: var(--mono); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+  .bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 0 0 14px; }
+  .bar .lab { font-family: var(--mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-right: 4px; }
+  .chip { font-family: var(--mono); font-size: 12px; background: none; color: var(--ink2); border: 1px solid var(--line); border-radius: 999px; padding: 5px 12px; cursor: pointer; }
+  .chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+  input[type=search] { font: 14px var(--mono); background: var(--surface); color: var(--ink); border: 1px solid var(--line); border-radius: 3px; padding: 8px 12px; width: min(340px, 100%); }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 10px; }
+  .card { border: 1px solid var(--line); background: var(--surface); border-radius: 4px; padding: 14px 16px; display: flex; flex-direction: column; gap: 6px; }
+  .card h3 { margin: 0; font-size: 17px; line-height: 1.3; }
+  .card h3 a { text-decoration: none; }
+  .card h3 a:hover { text-decoration: underline; }
+  .meta { font-family: var(--mono); font-size: 11px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 4px 10px; }
+  .lvl { font-family: var(--mono); font-size: 10.5px; letter-spacing: .05em; text-transform: uppercase; border: 1px solid var(--base); padding: 1px 7px; color: var(--ink2); width: fit-content; }
+  .lvl.red { border-color: var(--unmet); color: var(--unmet-text); }
+  .lvl.orange, .lvl.alert { border-color: var(--warn); color: var(--warn); }
+  .where { font-size: 14px; color: var(--ink2); }
+  .none { border: 1px dashed var(--base); padding: 16px; color: var(--ink2); }
+  .note { font-family: var(--mono); font-size: 11.5px; color: var(--muted); line-height: 1.7; margin: 30px 0 60px; border-top: 1px solid var(--line); padding-top: 16px; }
+  .note b { color: var(--ink2); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <a class="brand" href="index.html">Aid<span>Gap</span></a>
+    <nav><a href="index.html">Funding gaps</a><a href="live.html" aria-current="page">Live tracker</a><button id="theme" type="button">Theme</button></nav>
+  </header>
+
+  <h1>What is happening now.</h1>
+  <p class="sub">Ongoing disasters, alerts and outbreaks, pulled from four public sources and listed as they publish them. This page does not score or rank them: the Neglect Score on the main page is a separate analysis.</p>
+  <p class="stamp" id="stamp"></p>
+
+  <div class="tiles" id="tiles"></div>
+  <div class="bar" id="kinds"></div>
+  <div class="bar" id="sources"></div>
+  <div class="bar"><input id="q" type="search" placeholder="Search a country or event" aria-label="Search"></div>
+  <p class="stamp" id="count"></p>
+  <div class="grid" id="list"></div>
+
+  <p class="note"><b>Sources.</b> ReliefWeb (UN OCHA) disasters marked ongoing or alert; GDACS (EU and UN) Orange and Red alerts from the last 30 days; USGS significant earthquakes of the past week; WHO Disease Outbreak News (latest 15). Each card links to the original. Severity words are the source's own; a missing item means the source did not list it, not that nothing happened. Data is refreshed when <code>python src/fetch_live.py</code> is run; a daily automatic refresh is planned. Conflict events and hunger (ACLED, IPC) are not included yet.</p>
+</div>
+<script src="live.js?v=1"></script>
+<script>
+(function () {
+  var D = window.AIDGAP_LIVE, $ = function (i) { return document.getElementById(i); };
+  function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+  function safe(u) { return /^https?:\/\//i.test(u || "") ? u : "#"; }
+  try { var t = localStorage.getItem("aidgapTheme"); if (t === "light") document.documentElement.setAttribute("data-theme", "light"); } catch (e) {}
+  $("theme").addEventListener("click", function () {
+    var l = document.documentElement.getAttribute("data-theme") === "light"; if (l) document.documentElement.removeAttribute("data-theme"); else document.documentElement.setAttribute("data-theme", "light");
+    try { localStorage.setItem("aidgapTheme", l ? "dark" : "light"); } catch (e) {}
+  });
+  if (!D) { $("list").innerHTML = '<p class="none">The tracker data has not been loaded yet. Run <code>python src/fetch_live.py</code>.</p>'; return; }
+  var items = D.items, kind = "All", src = "All", q = "";
+  function norm(k) { return k === "Tropical Cyclone" ? "Tropical cyclone" : k === "Flash Flood" ? "Flood" : k; }
+  items.forEach(function (i) { i.kind = norm(i.kind); });
+  var failed = Object.keys(D.status).filter(function (k) { return !D.status[k].ok; });
+  $("stamp").textContent = "Last updated " + D.generated + (failed.length ? " · could not reach: " + failed.join(", ") : "");
+  function count(f) { return items.filter(f).length; }
+  $("tiles").innerHTML = [["Active events", items.length], ["Alerts", count(function (i) { return /alert/i.test(i.level); })], ["Outbreaks", count(function (i) { return i.kind === "Epidemic" || i.kind === "Disease outbreak"; })], ["Floods and storms", count(function (i) { return i.kind === "Flood" || i.kind === "Tropical cyclone"; })]]
+    .map(function (t) { return '<div class="tile"><b>' + t[1] + "</b><span>" + t[0] + "</span></div>"; }).join("");
+  function chips(box, label, values, cur, set) {
+    $(box).innerHTML = '<span class="lab">' + label + "</span>" + values.map(function (v) { return '<button type="button" class="chip" aria-pressed="' + (v === cur) + '">' + esc(v) + "</button>"; }).join("");
+    Array.prototype.forEach.call($(box).querySelectorAll(".chip"), function (b, n) { b.addEventListener("click", function () { set(values[n]); render(); }); });
+  }
+  function uniq(a) { return a.filter(function (v, i) { return a.indexOf(v) === i; }); }
+  function render() {
+    var kinds = ["All"].concat(uniq(items.map(function (i) { return i.kind; })).sort()), srcs = ["All"].concat(uniq(items.map(function (i) { return i.source; })));
+    chips("kinds", "Type", kinds, kind, function (v) { kind = v; });
+    chips("sources", "Source", srcs, src, function (v) { src = v; });
+    var list = items.filter(function (i) {
+      return (kind === "All" || i.kind === kind) && (src === "All" || i.source === src) && (!q || (i.title + " " + i.countries.join(" ")).toLowerCase().indexOf(q) >= 0);
+    });
+    $("count").textContent = list.length + " of " + items.length + " events";
+    $("list").innerHTML = list.length ? list.map(function (i) {
+      var cls = /red/i.test(i.level) ? "red" : /orange|alert/i.test(i.level) ? "orange" : "";
+      return '<article class="card"><span class="lvl ' + cls + '">' + esc(i.level) + "</span><h3><a href=\"" + esc(safe(i.url)) + '" target="_blank" rel="noopener noreferrer">' + esc(i.title) + "</a></h3>" +
+        (i.countries.length ? '<div class="where">' + esc(i.countries.slice(0, 4).join(", ") + (i.countries.length > 4 ? " and " + (i.countries.length - 4) + " more" : "")) + "</div>" : "") +
+        '<div class="meta"><span>' + esc(i.kind) + "</span><span>" + esc(i.source) + "</span><span>" + esc(i.date) + "</span></div></article>";
+    }).join("") : '<p class="none">Nothing matches that filter.</p>';
+  }
+  $("q").addEventListener("input", function () { q = this.value.trim().toLowerCase(); render(); });
+  render();
+})();
+</script>
+</body>
+</html>
