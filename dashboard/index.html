@@ -392,12 +392,12 @@
   .modal { position: fixed; left: 50%; top: 50%; width: min(1080px, 94vw); height: min(780px, 90vh); z-index: 61; background: var(--surface); border: 1px solid var(--line); border-radius: 4px; box-shadow: var(--shadow); opacity: 0; pointer-events: none; transform: translate(-50%, -46%) scale(.97); transition: opacity .3s, transform .45s cubic-bezier(.2,.8,.2,1); overflow: hidden; }
   .modal.on { opacity: 1; pointer-events: auto; transform: translate(-50%, -50%) scale(1); }
   .modal .close { position: absolute; top: 14px; right: 14px; z-index: 3; }
-  .m-grid { display: grid; grid-template-columns: 340px minmax(0,1fr); height: 100%; }
+  .m-grid { display: grid; grid-template-columns: 340px minmax(0,1fr); grid-template-rows: minmax(0,1fr); height: 100%; }
   .m-left { padding: 26px 24px 30px; overflow-y: auto; border-right: 1px solid var(--line); background: var(--raise); }
   .m-right { display: flex; flex-direction: column; min-width: 0; height: 100%; }
   .m-right .tabs { padding: 16px 120px 0 14px; }
   .m-right .tab { padding: 11px 9px; font-size: 11px; letter-spacing: .04em; }
-  .tabpanel { padding: 20px 26px 34px; overflow-y: auto; flex: 1 1 auto; }
+  .tabpanel { padding: 20px 26px 34px; overflow-y: auto; flex: 1 1 0; min-height: 0; overscroll-behavior: contain; }
   @media (max-width: 800px) {
     .modal { width: 100vw; height: 100vh; border-radius: 0; left: 0; top: 0; transform: translateY(20px); }
     .modal.on { transform: none; }
@@ -735,14 +735,14 @@
 </div>
 
 <!-- ?v=9 makes your browser fetch fresh copies after each update instead of reusing an old saved page -->
-<script src="data.js?v=28"></script>
-<script src="score.js?v=28"></script>
-<script src="map.js?v=28"></script>
-<script src="media.js?v=28" onerror="window.AIDGAP_MEDIA=null"></script>
-<script src="reports.js?v=28" onerror="window.AIDGAP_REPORTS=null"></script>
-<script src="donors.js?v=28" onerror="window.AIDGAP_DONORS=null"></script>
-<script src="donortrend.js?v=28" onerror="window.AIDGAP_TREND=null"></script>
-<script src="vortex.js?v=28"></script>
-<script src="app.js?v=28"></script>
+<script src="data.js?v=29"></script>
+<script src="score.js?v=29"></script>
+<script src="map.js?v=29"></script>
+<script src="media.js?v=29" onerror="window.AIDGAP_MEDIA=null"></script>
+<script src="reports.js?v=29" onerror="window.AIDGAP_REPORTS=null"></script>
+<script src="donors.js?v=29" onerror="window.AIDGAP_DONORS=null"></script>
+<script src="donortrend.js?v=29" onerror="window.AIDGAP_TREND=null"></script>
+<script src="vortex.js?v=29"></script>
+<script src="app.js?v=29"></script>
 </body>
 </html>
