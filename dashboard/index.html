@@ -680,7 +680,7 @@
         <ol class="news-list" id="newsList" aria-label="Crises"></ol>
         <div class="card news-pane" id="newsPane"></div>
       </div>
-      <p class="fig rv"><b>Fig. 5.</b> Local = news from outlets inside the country, plus reports from its own government, national Red Cross or Red Crescent, or organisations named for it (a rule of thumb). International = everything else. Reports: ReliefWeb (UN OCHA), latest 20 per country. News: GDELT (last-week sample) plus headlines from local outlets' own public news feeds (RSS). Items belong to their publishers and link to the originals.</p>
+      <p class="fig rv"><b>Fig. 5.</b> Local = news from outlets inside the country, plus reports from its own government, national Red Cross or Red Crescent, or organisations named for it (a rule of thumb). International = everything else. Reports: ReliefWeb (UN OCHA), the 60 latest per country from the last 90 days. News: GDELT (last-week sample) plus headlines from local outlets' own public news feeds (RSS). Items belong to their publishers and link to the originals.</p>
     </div>
   </section>
 
@@ -704,7 +704,7 @@
         <li><b>Regional response plans</b> (refugee-hosting countries) are excluded because per-country funding is unreliable there. Where a country has its own plan plus a slice of a regional one, only its own plan is used.</li>
         <li><b>Older or hand-found needs figures</b> are flagged: dollars per person mixes two years or two sources, so the rank is indicative.</li>
         <li><b>Donor totals</b> count money given to one country alone and all flows FTS tracks, including outside the formal appeal, so they are larger than the appeal funding. Money split across several countries is left out to avoid double counting, and a country's own government is not counted as a donor.</li>
-        <li><b>Attention is measured two ways, both partial.</b> Reports: the latest 20 per country from ReliefWeb's public feed, so the <em>time they span</em> gives a rate (reports per week). That counts what aid organisations publish, which is not the same as general news. News: a sample from GDELT, English plus each country's main language, from roughly the last week. Local news also comes from the public RSS feeds of about 58 outlets based in these countries (some refused automated access and were skipped), filtered for humanitarian keywords in their own language; state-run outlets are labelled.</li>
+        <li><b>Attention is measured two ways, both partial.</b> Reports: every report in the last 90 days that lists the country, from the ReliefWeb API, counted into a rate (reports per week). That counts what aid organisations publish, which is not the same as general news. News: a sample from GDELT, English plus each country's main language, from roughly the last week. Local news also comes from the public RSS feeds of about 58 outlets based in these countries (some refused automated access and were skipped), filtered for humanitarian keywords in their own language; state-run outlets are labelled.</li>
         <li><b>"State-linked"</b> means an outlet owned, funded or controlled by a government. That describes ownership, not accuracy, and the list is short, so the shares are a floor.</li>
         <li><b>Propaganda</b> cannot be measured from a headline count. Whether a specific article misleads needs reading it, so this page shows who is speaking and leaves that judgement to case studies.</li>
         <li><b>Correlation is not cause:</b> research on disaster relief finds that media attention can shape who gets help, but this page does not claim that attention causes a country's funding level.</li>
@@ -733,14 +733,14 @@
 </div>
 
 <!-- ?v=9 makes your browser fetch fresh copies after each update instead of reusing an old saved page -->
-<script src="data.js?v=24"></script>
-<script src="score.js?v=24"></script>
-<script src="map.js?v=24"></script>
-<script src="media.js?v=24" onerror="window.AIDGAP_MEDIA=null"></script>
-<script src="reports.js?v=24" onerror="window.AIDGAP_REPORTS=null"></script>
-<script src="donors.js?v=24" onerror="window.AIDGAP_DONORS=null"></script>
-<script src="donortrend.js?v=24" onerror="window.AIDGAP_TREND=null"></script>
-<script src="vortex.js?v=24"></script>
-<script src="app.js?v=24"></script>
+<script src="data.js?v=25"></script>
+<script src="score.js?v=25"></script>
+<script src="map.js?v=25"></script>
+<script src="media.js?v=25" onerror="window.AIDGAP_MEDIA=null"></script>
+<script src="reports.js?v=25" onerror="window.AIDGAP_REPORTS=null"></script>
+<script src="donors.js?v=25" onerror="window.AIDGAP_DONORS=null"></script>
+<script src="donortrend.js?v=25" onerror="window.AIDGAP_TREND=null"></script>
+<script src="vortex.js?v=25"></script>
+<script src="app.js?v=25"></script>
 </body>
 </html>

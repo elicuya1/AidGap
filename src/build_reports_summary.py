@@ -81,7 +81,11 @@ def guess_language(title: str) -> str:
     return best if scores[best] > 0 else "English"
 
 
-def summarise(code: str, items: list[dict], today: date) -> dict | None:
+LANG_NAMES = {"en": "English", "fr": "French", "es": "Spanish", "ar": "Arabic", "pt": "Portuguese", "ru": "Russian/Ukrainian",
+              "uk": "Russian/Ukrainian", "my": "Burmese", "ne": "Nepali", "zh": "Chinese"}
+
+
+def summarise(code: str, items: list[dict], today: date, fixed_window: int | None = None) -> dict | None:
     if not items:
         return None
     rows = []
@@ -90,14 +94,15 @@ def summarise(code: str, items: list[dict], today: date) -> dict | None:
             d = date.fromisoformat(it["date"])
         except (ValueError, KeyError):
             continue
-        rows.append({**it, "d": d, "lang": guess_language(it["title"]),
+        rows.append({**it, "d": d, "lang": LANG_NAMES.get(it.get("lang", ""), "") or guess_language(it["title"]),
                      "local": is_local_publisher(code, it.get("publisher", ""))})
     if not rows:
         return None
     rows.sort(key=lambda r: r["d"], reverse=True)
     # The free feed holds only the latest ~20 reports, so the TIME THEY SPAN is the signal:
     # 20 reports in 9 days is a busy crisis, 20 reports over 4 months is a quiet one.
-    window = max(1, (today - rows[-1]["d"]).days)
+    # With the API we hold EVERY report of a fixed window (e.g. 90 days), so the rate is a true count.
+    window = fixed_window or max(1, (today - rows[-1]["d"]).days)
     return {
         "n": len(rows), "per_week": round(len(rows) / window * 7, 2), "window_days": window,
         "oldest": rows[-1]["d"].isoformat(),
@@ -112,13 +117,19 @@ def summarise(code: str, items: list[dict], today: date) -> dict | None:
 def main() -> None:
     today = date.today()
     by_code = {}
+    meta_f = RAW / "_meta.json"
+    meta = json.loads(meta_f.read_text(encoding="utf-8")) if meta_f.exists() else {}
+    fixed = meta.get("window_days") if meta.get("mode") == "api" else None
     for f in sorted(RAW.glob("*.json")):
-        s = summarise(f.stem, json.loads(f.read_text(encoding="utf-8")), today)
+        if f.stem.startswith("_"):
+            continue
+        s = summarise(f.stem, json.loads(f.read_text(encoding="utf-8")), today, fixed)
         if s:
             by_code[f.stem] = s
     payload = {
         "generated": today.isoformat(),
-        "source": "ReliefWeb (UN OCHA) public RSS feed",
+        "source": "ReliefWeb API (UN OCHA)" if fixed else "ReliefWeb (UN OCHA) public RSS feed",
+        "window_days": fixed,
         "note": "Reports belong to their publishers. Language is guessed from the headline.",
         "byCode": by_code,
     }

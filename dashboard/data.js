@@ -1,5 +1,5 @@
 window.AIDGAP = {
- "generated": "2026-11-18",
+ "generated": "2026-11-19",
  "year": 2026,
  "scenarios": [
   "baseline",
@@ -61,7 +61,7 @@ window.AIDGAP = {
    "pin_verified": "",
    "data_note": "LOW CONFIDENCE: needs from 2025, funding from 2026",
    "best_rank": 1,
-   "worst_rank": 16,
+   "worst_rank": 14,
    "times_in_top": 5
   },
   {
@@ -88,8 +88,8 @@ window.AIDGAP = {
    "pin_verified": "",
    "data_note": "",
    "best_rank": 2,
-   "worst_rank": 4,
-   "times_in_top": 6
+   "worst_rank": 6,
+   "times_in_top": 5
   },
   {
    "location_code": "VNM",
@@ -116,7 +116,7 @@ window.AIDGAP = {
    "data_note": "",
    "best_rank": 2,
    "worst_rank": 21,
-   "times_in_top": 4
+   "times_in_top": 5
   },
   {
    "location_code": "MLI",
@@ -141,9 +141,9 @@ window.AIDGAP = {
    "pin_url": "",
    "pin_verified": "",
    "data_note": "",
-   "best_rank": 4,
-   "worst_rank": 7,
-   "times_in_top": 5
+   "best_rank": 5,
+   "worst_rank": 8,
+   "times_in_top": 1
   },
   {
    "location_code": "BFA",
@@ -168,9 +168,9 @@ window.AIDGAP = {
    "pin_url": "",
    "pin_verified": "",
    "data_note": "",
-   "best_rank": 5,
+   "best_rank": 6,
    "worst_rank": 11,
-   "times_in_top": 1
+   "times_in_top": 0
   },
   {
    "location_code": "SYR",
@@ -196,8 +196,8 @@ window.AIDGAP = {
    "pin_verified": "",
    "data_note": "",
    "best_rank": 4,
-   "worst_rank": 11,
-   "times_in_top": 2
+   "worst_rank": 13,
+   "times_in_top": 1
   },
   {
    "location_code": "NER",
@@ -223,7 +223,7 @@ window.AIDGAP = {
    "pin_verified": "",
    "data_note": "",
    "best_rank": 7,
-   "worst_rank": 19,
+   "worst_rank": 18,
    "times_in_top": 0
   },
   {
@@ -277,7 +277,7 @@ window.AIDGAP = {
    "pin_verified": "",
    "data_note": "",
    "best_rank": 3,
-   "worst_rank": 15,
+   "worst_rank": 17,
    "times_in_top": 1
   },
   {
@@ -304,7 +304,7 @@ window.AIDGAP = {
    "pin_verified": "",
    "data_note": "",
    "best_rank": 5,
-   "worst_rank": 15,
+   "worst_rank": 17,
    "times_in_top": 1
   },
   {
@@ -331,7 +331,7 @@ window.AIDGAP = {
    "pin_verified": "Read on humanitarianaction.info on 2026-11-17: '2026 Other 4.2M 2.0M $81.8M $41.7M 51%'",
    "data_note": "",
    "best_rank": 6,
-   "worst_rank": 18,
+   "worst_rank": 20,
    "times_in_top": 0
   },
   {
@@ -358,7 +358,7 @@ window.AIDGAP = {
    "pin_verified": "",
    "data_note": "",
    "best_rank": 6,
-   "worst_rank": 15,
+   "worst_rank": 17,
    "times_in_top": 0
   },
   {
@@ -384,8 +384,8 @@ window.AIDGAP = {
    "pin_url": "",
    "pin_verified": "",
    "data_note": "",
-   "best_rank": 9,
-   "worst_rank": 18,
+   "best_rank": 12,
+   "worst_rank": 20,
    "times_in_top": 0
   },
   {
@@ -412,7 +412,7 @@ window.AIDGAP = {
    "pin_verified": "",
    "data_note": "",
    "best_rank": 8,
-   "worst_rank": 15,
+   "worst_rank": 17,
    "times_in_top": 0
   },
   {
@@ -438,8 +438,8 @@ window.AIDGAP = {
    "pin_url": "",
    "pin_verified": "",
    "data_note": "",
-   "best_rank": 10,
-   "worst_rank": 17,
+   "best_rank": 12,
+   "worst_rank": 19,
    "times_in_top": 0
   },
   {
@@ -466,7 +466,7 @@ window.AIDGAP = {
    "pin_verified": "",
    "data_note": "",
    "best_rank": 9,
-   "worst_rank": 17,
+   "worst_rank": 19,
    "times_in_top": 0
   },
   {
@@ -492,8 +492,8 @@ window.AIDGAP = {
    "pin_url": "",
    "pin_verified": "",
    "data_note": "",
-   "best_rank": 18,
-   "worst_rank": 22,
+   "best_rank": 20,
+   "worst_rank": 23,
    "times_in_top": 0
   },
   {
@@ -520,7 +520,7 @@ window.AIDGAP = {
    "pin_verified": "",
    "data_note": "",
    "best_rank": 10,
-   "worst_rank": 22,
+   "worst_rank": 24,
    "times_in_top": 0
   },
   {
@@ -546,8 +546,8 @@ window.AIDGAP = {
    "pin_url": "https://www.ochaopt.org/sites/default/files/OPT_Flash_Appeal_2026_At_a_Glance_EN.pdf",
    "pin_verified": "Read in the official OCHA PDF on 2026-11-17: 3.62 million people in need (Gaza 2.10M + West Bank 1.52M)",
    "data_note": "",
-   "best_rank": 16,
-   "worst_rank": 25,
+   "best_rank": 18,
+   "worst_rank": 27,
    "times_in_top": 0
   },
   {
@@ -573,8 +573,8 @@ window.AIDGAP = {
    "pin_url": "",
    "pin_verified": "",
    "data_note": "",
-   "best_rank": 18,
-   "worst_rank": 24,
+   "best_rank": 20,
+   "worst_rank": 26,
    "times_in_top": 0
   },
   {
@@ -600,8 +600,8 @@ window.AIDGAP = {
    "pin_url": "",
    "pin_verified": "",
    "data_note": "",
-   "best_rank": 15,
-   "worst_rank": 22,
+   "best_rank": 16,
+   "worst_rank": 24,
    "times_in_top": 0
   },
   {
@@ -627,8 +627,8 @@ window.AIDGAP = {
    "pin_url": "",
    "pin_verified": "",
    "data_note": "",
-   "best_rank": 20,
-   "worst_rank": 23,
+   "best_rank": 22,
+   "worst_rank": 25,
    "times_in_top": 0
   },
   {
@@ -654,8 +654,8 @@ window.AIDGAP = {
    "pin_url": "",
    "pin_verified": "",
    "data_note": "",
-   "best_rank": 23,
-   "worst_rank": 25,
+   "best_rank": 25,
+   "worst_rank": 27,
    "times_in_top": 0
   },
   {
@@ -682,7 +682,7 @@ window.AIDGAP = {
    "pin_verified": "",
    "data_note": "",
    "best_rank": 14,
-   "worst_rank": 28,
+   "worst_rank": 29,
    "times_in_top": 0
   },
   {
@@ -708,8 +708,8 @@ window.AIDGAP = {
    "pin_url": "https://unsco.unmissions.org/sites/default/files/2026-06/LebanonFA2026extension_EN_new.pdf",
    "pin_verified": "Read in the official revised Flash Appeal PDF on 2026-11-17: 'PEOPLE IN NEED 1.4M ... TOTAL REQUIREMENTS $639.9M'",
    "data_note": "",
-   "best_rank": 25,
-   "worst_rank": 26,
+   "best_rank": 27,
+   "worst_rank": 28,
    "times_in_top": 0
   },
   {
@@ -735,8 +735,8 @@ window.AIDGAP = {
    "pin_url": "https://www.unicef.org/media/184011/file/Nepal-Humanitarian-Situation-Report-No.%202-4%20September-2026.pdf",
    "pin_verified": "Read in the UNICEF report on 2026-11-17: '84,270 people need humanitarian assistance'. Not read in the OCHA appeal itself.",
    "data_note": "LOW CONFIDENCE: hand-added needs figure, sources disagree",
-   "best_rank": 26,
-   "worst_rank": 28,
+   "best_rank": 28,
+   "worst_rank": 30,
    "times_in_top": 0
   },
   {
@@ -762,8 +762,8 @@ window.AIDGAP = {
    "pin_url": "https://reliefweb.int/report/madagascar/madagascar-tc-fytia-and-gezani-emergency-response-dg-echo-reliefweb-bngrc-echo-daily-flash-26-february-2026",
    "pin_verified": "Read on ReliefWeb on 2026-11-17: 'USD 67.8 million ... 486 000 targeted beneficiaries out of 581 000 people in need'. This is ECHO's summary of the appeal, not the OCHA appeal document itself.",
    "data_note": "",
-   "best_rank": 27,
-   "worst_rank": 28,
+   "best_rank": 29,
+   "worst_rank": 30,
    "times_in_top": 0
   }
  ],
@@ -1895,15 +1895,15 @@ window.AIDGAP = {
    "notes": "No key needed. The feed ignores page numbers, so only the latest 20 reports per country are available; their time span gives the rate. Language is guessed from the headline."
   },
   {
-   "id": "rejected_reliefweb",
+   "id": "reliefweb_api",
    "name": "ReliefWeb API v2",
-   "publisher": "UN OCHA",
+   "publisher": "UN OCHA (ReliefWeb)",
    "url": "https://apidoc.reliefweb.int/",
-   "used_for": "Would give up to 1000 reports per call with full history, languages and themes",
-   "terms": "Needs a pre-approved app name (free to request); requests returned HTTP 403 without one",
-   "accessed": "2026-11-17",
-   "status": "not_yet",
-   "notes": "Best way to fill the page with many more reports: request an app name, then add it to src/config_local.py and extend fetch_reliefweb.py."
+   "used_for": "Every report in the last 90 days that lists each crisis country (title, date, source, language, themes, link); attention rate in reports per week",
+   "terms": "Approved app name (free); content belongs to its publishers; every item links to the original",
+   "accessed": "2026-11-19",
+   "status": "used",
+   "notes": "Replaced the public RSS feed (latest 20 only). A report counts for a country when the country is listed among its countries, so regional reports that name it are included. Run src/fetch_reliefweb_api.py."
   },
   {
    "id": "anthropic_api",

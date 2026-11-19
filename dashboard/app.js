@@ -76,7 +76,7 @@
   (function () {
     var d = new Date(D.generated + "T00:00:00"), nice = isNaN(d) ? D.generated : d.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
     $("dateline").textContent = "Data as of " + nice + " · " + crises.length + " crises · OCHA FTS · HDX HAPI · ReliefWeb · GDELT";
-    $("mast").textContent = "Field report " + D.year + " · v24";
+    $("mast").textContent = "Field report " + D.year + " · v25";
   })();
   function countUp() {
     if ("IntersectionObserver" in window && !countUp.go) { var io = new IntersectionObserver(function (es) { if (es[0].isIntersecting) { io.disconnect(); countUp.go = 1; countUp(); } }, { threshold: 0.4 }); io.observe($("s-intro")); return; }
@@ -687,7 +687,7 @@
       '<button type="button" data-sort="most" aria-pressed="false">Most media</button>' +
       '<button type="button" data-sort="least" aria-pressed="false">Least media</button></div></div>' +
       '<div class="keyline rv"><span><i style="background:var(--unmet)"></i>Ten most neglected</span><span><i style="background:var(--media)"></i>Others</span><span><i style="border-left:2px dashed var(--ink2);width:0;height:10px"></i>Median crisis</span></div>' +
-      '<div id="barRows"></div></div><p class="fig rv"><b>Fig. 4.</b> Reports per week on ReliefWeb (UN OCHA) about each country, estimated from the time spanned by its 20 latest reports: a busy crisis fills 20 reports in days, a quiet one takes months. This counts what aid organisations publish, not general news. Neglect rank as in Fig. 3. Sources: ReliefWeb, HDX HAPI, OCHA FTS.</p>';
+      '<div id="barRows"></div></div><p class="fig rv"><b>Fig. 4.</b> Reports per week on ReliefWeb (UN OCHA) about each country, counted over the last 90 days (every report that lists the country, including regional ones) and divided into weeks. This counts what aid organisations publish, not general news. Neglect rank as in Fig. 3. Sources: ReliefWeb, HDX HAPI, OCHA FTS.</p>';
     body.innerHTML = html;
     var SORTS = {
       neglect: ["Aid reports per week, in order of neglect", "The most neglected crises are at the top. If attention followed need, the bars would be longest there. <b>They are not.</b>"],

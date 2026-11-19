@@ -41,6 +41,8 @@ _Generated from `data/reference/sources.csv` by `src/export_dashboard_data.py`. 
   Terms: Links only. Not an endorsement or rating. Accessed 2026-11-17. Each address was checked to load on the date shown. 'Loads' does not mean 'recommended'.
 - **[ReliefWeb public RSS feeds](https://reliefweb.int/updates/rss.xml?legacy-river=country/yem)** (UN OCHA (ReliefWeb)). Latest 20 humanitarian reports per country (title, link, date, publisher); attention rate in reports per week.  
   Terms: Public feed; content belongs to its publishers; every item links to the original. Accessed 2026-11-17. No key needed. The feed ignores page numbers, so only the latest 20 reports per country are available; their time span gives the rate. Language is guessed from the headline.
+- **[ReliefWeb API v2](https://apidoc.reliefweb.int/)** (UN OCHA (ReliefWeb)). Every report in the last 90 days that lists each crisis country (title, date, source, language, themes, link); attention rate in reports per week.  
+  Terms: Approved app name (free); content belongs to its publishers; every item links to the original. Accessed 2026-11-19. Replaced the public RSS feed (latest 20 only). A report counts for a country when the country is listed among its countries, so regional reports that name it are included. Run src/fetch_reliefweb_api.py.
 - **[OCHA FTS: funding by donor and year](https://fts.unocha.org/)** (UN OCHA Financial Tracking Service). Worldwide humanitarian funding per year (2022 to 2026) by donor country, and US funding to each ranked crisis in 2024 vs 2025 (src/fetch_donor_trend.py).  
   Terms: Public API, no key; credit OCHA FTS. Accessed 2026-11-18. Only what donors and agencies report; late reports mean the newest year is incomplete. Shows amounts given, not how well money was spent. Money given to several countries at once is not split by country.
 - **[World Bank: military expenditure (SIPRI)](https://data.worldbank.org/indicator/MS.MIL.XPND.CD)** (World Bank; underlying data SIPRI Military Expenditure Database). Military spending 2024 and 2025 for the biggest aid donors, shown next to their humanitarian aid (src/fetch_donor_trend.py).  
@@ -57,11 +59,6 @@ _Generated from `data/reference/sources.csv` by `src/export_dashboard_data.py`. 
   Terms: Cited for context only. Accessed 2026-11-17. Not yet matched to our ranking.
 - **[Anthropic (Claude) API](https://console.anthropic.com/)** (Anthropic). Optional: stored English translations of non-English headlines (src/translate_titles.py).  
   Terms: Paid per use; needs a key. Accessed 2026-11-17. Not used yet. Without it the page shows original headlines with an on-device translate button and a Google Translate link.
-
-## Possible future sources
-
-- **[ReliefWeb API v2](https://apidoc.reliefweb.int/)** (UN OCHA). Would give up to 1000 reports per call with full history, languages and themes.  
-  Terms: Needs a pre-approved app name (free to request); requests returned HTTP 403 without one. Accessed 2026-11-17. Best way to fill the page with many more reports: request an app name, then add it to src/config_local.py and extend fetch_reliefweb.py.
 
 ## Considered and rejected
 
