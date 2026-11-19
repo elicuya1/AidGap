@@ -10,7 +10,7 @@
   var lifePaint = null;
   var HAS_MEDIA = Object.keys(MED).length > 0;
   var PER_DOT = 100000;
-  var WEIGHTS = { gap: 20, trend: 10, sev: 30, scl: 10, dis: 15, att: 15 };               // fixed on purpose
+  var WEIGHTS = { gap: 14, trend: 6, chr: 15, sev: 25, scl: 8, dis: 12, own: 5, don: 5, att: 10 };               // fixed on purpose
   var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   var $ = function (id) { return document.getElementById(id); };
 
@@ -76,7 +76,7 @@
   (function () {
     var d = new Date(D.generated + "T00:00:00"), nice = isNaN(d) ? D.generated : d.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
     $("dateline").textContent = "Data as of " + nice + " · " + crises.length + " crises · OCHA FTS · HDX HAPI · ReliefWeb · GDELT";
-    $("mast").textContent = "Field report " + D.year + " · v27";
+    $("mast").textContent = "Field report " + D.year + " · v28";
   })();
   function countUp() {
     if ("IntersectionObserver" in window && !countUp.go) { var io = new IntersectionObserver(function (es) { if (es[0].isIntersecting) { io.disconnect(); countUp.go = 1; countUp(); } }, { threshold: 0.4 }); io.observe($("s-intro")); return; }
@@ -429,14 +429,19 @@
      ===================================================================== */
   // The six measures. A measure a country does not have (displacement for Palestine) is left out and the rest are rescaled, as in the Python score.
   function terms(c) {
-    var T = [["Low share of appeal funded", "gap_pts", "gap", "s1"], ["Funding fell since 2024", "trend_pts", "trend", "s1"], ["High severity (INFORM " + c.inform_severity.toFixed(1) + " of 10)", "severity_pts", "sev", "s2"],
-      ["Many people in need", "scale_pts", "scl", "s3"], ["Large share of population displaced", "displ_pts", "dis", "s3"], ["Little aid reporting (" + c.reports_per_week.toFixed(1) + " a week)", "attention_gap_pts", "att", "s4"]];
+    var T = [["Low share of appeal funded", "gap_pts", "gap", "s1"], ["Funding fell since 2024", "trend_pts", "trend", "s1"],
+      ["Underfunded for years (avg " + (c.avg_funded_2021_25 == null ? "n/a" : Math.round(c.avg_funded_2021_25) + "% funded 2021–25") + ")", "chronic_pts", "chr", "s2"],
+      ["High severity (INFORM " + c.inform_severity.toFixed(1) + " of 10)", "severity_pts", "sev", "s3"],
+      ["Many people in need", "scale_pts", "scl", "s4"], ["Large share of population displaced", "displ_pts", "dis", "s4"],
+      ["Few own resources (GDP per person $" + (c.gdp_per_capita == null ? "n/a" : Math.round(c.gdp_per_capita).toLocaleString()) + ")", "own_pts", "own", "s5"],
+      ["Leans on one donor (" + (c.top_donor_share == null ? "n/a" : Math.round(c.top_donor_share * 100) + "% of named funding") + ")", "donor_pts", "don", "s6"],
+      ["Little aid reporting (" + c.reports_per_week.toFixed(1) + " a week)", "attention_gap_pts", "att", "s7"]];
     var den = 0; T.forEach(function (t) { if (c[t[1]] != null) den += WEIGHTS[t[2]]; });
     return T.map(function (t) { var has = c[t[1]] != null; return { label: t[0], pts: has ? c[t[1]] : null, w: WEIGHTS[t[2]], cls: t[3], k: has ? WEIGHTS[t[2]] / den * c[t[1]] : null }; });
   }
-  function contrib(c) {            // the four colour groups: funding, severity, people, attention
-    var g = { s1: 0, s2: 0, s3: 0, s4: 0 }; terms(c).forEach(function (t) { if (t.k != null) g[t.cls] += t.k; });
-    return [g.s1, g.s2, g.s3, g.s4];
+  function contrib(c) {            // the seven colour groups
+    var g = { s1: 0, s2: 0, s3: 0, s4: 0, s5: 0, s6: 0, s7: 0 }; terms(c).forEach(function (t) { if (t.k != null) g[t.cls] += t.k; });
+    return [g.s1, g.s2, g.s3, g.s4, g.s5, g.s6, g.s7];
   }
   function buildRanking() {
     var list = $("rankList");
@@ -449,8 +454,8 @@
       b.innerHTML = '<span class="rk' + (c.rank <= 3 ? " top3" : "") + '">' + c.rank + '</span>' +
         '<span class="who"><span class="nm">' + esc(c.location_name) + badge + '</span>' +
         '<span class="meta">' + c.funding_pct.toFixed(0) + '% funded · severity ' + c.inform_severity.toFixed(1) + '<span class="hide-s"> · ' + fmtPeople(c.people_in_need) + ' in need</span></span></span>' +
-        '<span class="sc"><b>' + c.neglect_score.toFixed(1) + '</b><span class="stack" title="' + esc("Funding " + k[0].toFixed(1) + " + severity " + k[1].toFixed(1) + " + people " + k[2].toFixed(1) + " + little aid reporting " + k[3].toFixed(1)) + '">' +
-        '<i class="s1" style="--w:' + k[0].toFixed(1) + '%"></i><i class="s2" style="--w:' + k[1].toFixed(1) + '%"></i><i class="s3" style="--w:' + k[2].toFixed(1) + '%"></i><i class="s4" style="--w:' + k[3].toFixed(1) + '%"></i></span></span>';
+        '<span class="sc"><b>' + c.neglect_score.toFixed(1) + '</b><span class="stack" title="' + esc("Funding " + k[0].toFixed(1) + " + lasting underfunding " + k[1].toFixed(1) + " + severity " + k[2].toFixed(1) + " + people " + k[3].toFixed(1) + " + own resources " + k[4].toFixed(1) + " + donor dependence " + k[5].toFixed(1) + " + little aid reporting " + k[6].toFixed(1)) + '">' +
+        '<i class="s1" style="--w:' + k[0].toFixed(1) + '%"></i><i class="s2" style="--w:' + k[1].toFixed(1) + '%"></i><i class="s3" style="--w:' + k[2].toFixed(1) + '%"></i><i class="s4" style="--w:' + k[3].toFixed(1) + '%"></i><i class="s5" style="--w:' + k[4].toFixed(1) + '%"></i><i class="s6" style="--w:' + k[5].toFixed(1) + '%"></i><i class="s7" style="--w:' + k[6].toFixed(1) + '%"></i></span></span>';
       b.addEventListener("click", function () { openCountry(c.location_code); });
       li.appendChild(b); list.appendChild(li);
     });
@@ -461,7 +466,7 @@
     });
     $("tbl").innerHTML = h + "</tbody>";
     var sure = crises.filter(function (c) { return c.times_in_top === D.scenarios.length; }).map(function (c) { return c.location_name; });
-    $("stable").innerHTML = sure.length ? "<b>" + sure.join(" and ") + "</b> stay in the top 5 even when the weights are changed a lot." : "";
+    $("stable").innerHTML = sure.length ? "<b>" + sure.join(" and ") + "</b> stay in the top 10 even when the weights are changed a lot." : "";
     var c0 = crises[0], T0 = terms(c0);
     $("example").innerHTML = "<b>Worked example: " + esc(c0.location_name) + " (rank 1)</b><div class=\"eq\">" +
       T0.map(function (t) { return "<span>" + esc(t.label.replace(/ \(.*$/, "")) + ": " + Math.round(t.pts) + " points × " + t.w + "%</span><span>" + t.k.toFixed(1) + "</span>"; }).join("") + "</div>" +
@@ -998,7 +1003,7 @@
     "s-intro": ["Start here", [["dot", "var(--funded)", "<b>Blue dots</b>: the share of need that has been paid for."], ["dot", "var(--unmet)", "<b>Red dots</b>: need nobody has funded yet."], ["txt", "100", "<b>The square of 100 dots</b>: of every $100 the appeals asked for, about $43 arrived. One square = $1."], ["txt", "N", "The big number is every person in need across the crises we could compare."]]],
     "s-scale": ["Every dot is 100,000 people", [["dot", "var(--funded)", "<b>Blue</b>: the share of this crisis's appeal that has been paid for."], ["dot", "var(--unmet)", "<b>Red</b>: not funded."], ["txt", "N", "More dots = more people in need. Use the switch to see everyone together or split by country."]]],
     "s-map": ["The map", [["ramp", "", "<b>Darker red</b> = higher Neglect Score (more neglected)."], ["hatch", "", "<b>Hatched</b>: an appeal exists but the crisis is not scored (no INFORM severity rating or no people-in-need figure)."], ["txt", "N", "Dark grey: not in this analysis. <b>Click a country</b> to open its file."]]],
-    "s-rank": ["The ranking", [["txt", "1", "<b>Rank 1</b> is the most neglected crisis of the " + "ones compared, so a lower number means more neglected."], ["txt", "0-100", "<b>Neglect Score</b>: 100 = worst off on every measure, 0 = best off. A comparison between these crises, not a measure of how bad a crisis is."], ["txt", "30%", "<b>Funding</b>: how little of the appeal is paid, and whether funding fell since 2024."], ["txt", "30%", "<b>Severity</b>: how severe the crisis is, from INFORM (EU and ACAPS), 1 to 10."], ["txt", "25%", "<b>People</b>: how many are in need, and what share of the country is displaced (UNHCR)."], ["txt", "15%", "<b>Little aid reporting</b>: how few reports aid organisations publish about it."], ["txt", "bar", "The coloured bar shows how many points each of the four groups adds to the score."], ["txt", "*", "<b>Hand-added figure / older data</b>: the people-in-need number was found by hand or is from an earlier year, so treat that rank as indicative."]]],
+    "s-rank": ["The ranking", [["txt", "1", "<b>Rank 1</b> is the most neglected crisis of the " + "ones compared, so a lower number means more neglected."], ["txt", "0-100", "<b>Neglect Score</b>: 100 = worst off on every measure, 0 = best off. A comparison between these crises, not a measure of how bad a crisis is."], ["txt", "20%", "<b>Funding</b>: how little of the appeal is paid, and whether funding fell since 2024."], ["txt", "15%", "<b>Lasting underfunding</b>: how underfunded it has been on average over five years."], ["txt", "25%", "<b>Severity</b>: how severe the crisis is, from INFORM (EU and ACAPS), 1 to 10."], ["txt", "20%", "<b>People</b>: how many are in need, and what share of the country is displaced (UNHCR)."], ["txt", "5%", "<b>Own resources</b>: how poor the country is (GDP per person)."], ["txt", "5%", "<b>Donor dependence</b>: how much of its money comes from one donor."], ["txt", "10%", "<b>Little aid reporting</b>: how few reports aid organisations publish about it."], ["txt", "bar", "The coloured bar shows how many points each of the seven groups adds to the score."], ["txt", "*", "<b>Hand-added figure / older data</b>: the people-in-need number was found by hand or is from an earlier year, so treat that rank as indicative."]]],
     "s-donors": ["Who pays", [["txt", "L", "<b>Left</b>: donor countries. <b>Right</b>: crises."], ["txt", "line", "A thicker line = more dollars given to that crisis."], ["txt", "!", "Only money given to <b>one</b> country is counted. Money split across several countries is shown separately so nothing is counted twice. Totals include money outside the formal appeal."]]],
     "s-cuts": ["The cuts", [["txt", "1", "Red is the United States, grey is everyone else."], ["txt", "2", "Aid next to military spending for the same governments, 2024 to 2025."], ["txt", "3", "Grey = US money in 2024, blue = 2025, for each crisis."], ["txt", "!", "<b>2026 is not finished</b>, and late reports are still arriving for 2025, so the newest bars are lower than they will end up. This shows how much was given, not how well it was spent."]]],
     "s-media": ["Attention", [["dot", "var(--unmet)", "<b>Red bars</b>: the ten most neglected crises."], ["dot", "var(--media)", "<b>Other bars</b>: the remaining crises."], ["txt", "- -", "<b>Dashed line</b>: the median crisis."], ["txt", "!", "Bars count reports that <b>aid organisations</b> publish on ReliefWeb per week. This is <b>not</b> general news coverage, where a crisis like Gaza or Ukraine would dominate."]]],

@@ -102,16 +102,19 @@ def check_scores() -> None:
     v2 = pd.read_csv(PROC / "neglect_scores_v2.csv")
     v2 = v2[v2["severity_rated"]]
     lg = lambda x: x.map(math.log10)
-    parts = {
-        0.20: (100 - v2["funding_pct"]).clip(0, 100),
-        0.10: (-v2["funding_change"] / 0.5 * 100).clip(0, 100),
-        0.30: ((v2["inform_severity"] - 1) / 9 * 100).clip(0, 100),
-        0.101: ((lg(v2["people_in_need"]) - 5) / (math.log10(5e7) - 5) * 100).clip(0, 100),
-        0.15: (v2["displaced_share"] / 0.30 * 100).clip(0, 100),
-        0.151: 100 - (lg(v2["reports_per_week"].clip(lower=1)) / math.log10(60) * 100).clip(0, 100),
-    }
-    num = sum(round(w, 2) * p.fillna(0) for w, p in parts.items())
-    den = sum(round(w, 2) * p.notna() for w, p in parts.items())
+    parts = [
+        (0.14, (100 - v2["funding_pct"]).clip(0, 100)),
+        (0.06, (-v2["funding_change"] / 0.5 * 100).clip(0, 100)),
+        (0.15, (100 - v2["avg_funded_2021_25"]).clip(0, 100)),
+        (0.25, ((v2["inform_severity"] - 1) / 9 * 100).clip(0, 100)),
+        (0.08, ((lg(v2["people_in_need"]) - 5) / (math.log10(5e7) - 5) * 100).clip(0, 100)),
+        (0.12, (v2["displaced_share"] / 0.30 * 100).clip(0, 100)),
+        (0.05, ((math.log10(10000) - lg(v2["gdp_per_capita"])) / (math.log10(10000) - math.log10(500)) * 100).clip(0, 100)),
+        (0.05, ((v2["top_donor_share"] - 0.10) / 0.60 * 100).clip(0, 100)),
+        (0.10, 100 - (lg(v2["reports_per_week"].clip(lower=1)) / math.log10(60) * 100).clip(0, 100)),
+    ]
+    num = sum(w * p.fillna(0) for w, p in parts)
+    den = sum(w * p.notna() for w, p in parts)
     mine2 = (num / den).round(1)
     d2 = (mine2 - v2["score_v2"]).abs().max()
     log("B scores", f"v2 score recomputed independently ({len(v2)} rated crises)", "PASS" if d2 < 0.06 else "FAIL", f"max difference {d2:.2f}")

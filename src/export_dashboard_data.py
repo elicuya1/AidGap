@@ -79,9 +79,9 @@ def main() -> None:
     v2 = pd.read_csv(PROCESSED / "neglect_scores_v2.csv")
     sens2 = pd.read_csv(PROCESSED / "sensitivity_v2.csv")
     rated = v2[v2["severity_rated"]]
-    v2cols = rated[["location_code", "score_v2", "rank_v2", "gap_pts", "trend_pts", "severity_pts", "scale_pts", "displ_pts",
+    v2cols = rated[["location_code", "score_v2", "rank_v2", "gap_pts", "trend_pts", "chronic_pts", "severity_pts", "scale_pts", "displ_pts", "own_pts", "donor_pts",
                     "attention_gap_pts", "inform_severity", "reports_per_week", "funding_change", "displaced_total",
-                    "displaced_share", "rank_v1", "score_v1"]]
+                    "displaced_share", "avg_funded_2021_25", "gdp_per_capita", "top_donor_share", "rank_v1", "score_v1"]]
     base = scores[[
         "location_code", "location_name", "requirements_usd", "funding_usd",
         "unmet_usd", "people_in_need", "pin_year", "year", "funding_pct",
@@ -90,9 +90,9 @@ def main() -> None:
     ]]
     crises = base.merge(v2cols, on="location_code", how="inner")
     crises = crises.rename(columns={"score_v2": "neglect_score", "rank_v2": "rank"})
-    crises = crises.merge(sens2.rename(columns={"location_name": "location_name", "times_in_top5": "times_in_top"}),
+    crises = crises.merge(sens2.rename(columns={"times_in_top10": "times_in_top"}),
                           on="location_name", how="left")
-    for c in ("gap_pts", "trend_pts", "severity_pts", "scale_pts", "displ_pts", "attention_gap_pts", "reports_per_week", "score_v1"):
+    for c in ("gap_pts", "trend_pts", "chronic_pts", "severity_pts", "scale_pts", "displ_pts", "own_pts", "donor_pts", "attention_gap_pts", "reports_per_week", "score_v1"):
         crises[c] = crises[c].round(1)
     crises = crises.sort_values("rank")
     crises = crises.fillna({"pin_note": "", "pin_url": "", "pin_verified": "", "data_note": ""})
@@ -115,7 +115,7 @@ def main() -> None:
         "generated": date.today().isoformat(),
         "year": int(scores["year"].max()),
         "scenarios": SCENARIOS,
-        "weights": {"gap": 20, "trend": 10, "sev": 30, "scl": 10, "dis": 15, "att": 15},
+        "weights": {"gap": 14, "trend": 6, "chr": 15, "sev": 25, "scl": 8, "dis": 12, "own": 5, "don": 5, "att": 10},
         "inform_release": inform_release,
         "crises": clean(crises),
         "unranked": clean(unranked_all),
