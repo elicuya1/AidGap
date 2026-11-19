@@ -96,15 +96,23 @@ def check_scores() -> None:
     diff = (merged["mine"] - merged["neglect_score"]).abs().max()
     log("B scores", f"independent recomputation matches neglect_scores.csv ({len(merged)} crises)",
         "PASS" if diff < 0.06 else "FAIL", f"max difference {diff:.2f}")
-    # v2: independent recomputation from the stated formula and fixed ranges
+    # v2: independent recomputation from the stated formula and fixed ranges (a missing measure is left out and the rest rescaled)
     import math
+    import numpy as np
     v2 = pd.read_csv(PROC / "neglect_scores_v2.csv")
     v2 = v2[v2["severity_rated"]]
-    gp = (100 - v2["funding_pct"]).clip(0, 100)
-    sv = ((v2["inform_severity"] - 1) / 9 * 100).clip(0, 100)
-    sc_ = ((v2["people_in_need"].map(math.log10) - 5) / (math.log10(5e7) - 5) * 100).clip(0, 100)
-    at = 100 - ((v2["reports_per_week"].clip(lower=1).map(math.log10)) / math.log10(60) * 100).clip(0, 100)
-    mine2 = (0.35 * gp + 0.35 * sv + 0.15 * sc_ + 0.15 * at).round(1)
+    lg = lambda x: x.map(math.log10)
+    parts = {
+        0.20: (100 - v2["funding_pct"]).clip(0, 100),
+        0.10: (-v2["funding_change"] / 0.5 * 100).clip(0, 100),
+        0.30: ((v2["inform_severity"] - 1) / 9 * 100).clip(0, 100),
+        0.101: ((lg(v2["people_in_need"]) - 5) / (math.log10(5e7) - 5) * 100).clip(0, 100),
+        0.15: (v2["displaced_share"] / 0.30 * 100).clip(0, 100),
+        0.151: 100 - (lg(v2["reports_per_week"].clip(lower=1)) / math.log10(60) * 100).clip(0, 100),
+    }
+    num = sum(round(w, 2) * p.fillna(0) for w, p in parts.items())
+    den = sum(round(w, 2) * p.notna() for w, p in parts.items())
+    mine2 = (num / den).round(1)
     d2 = (mine2 - v2["score_v2"]).abs().max()
     log("B scores", f"v2 score recomputed independently ({len(v2)} rated crises)", "PASS" if d2 < 0.06 else "FAIL", f"max difference {d2:.2f}")
     log("B scores", "no missing values in ranked rows",

@@ -49,6 +49,8 @@ _Generated from `data/reference/sources.csv` by `src/export_dashboard_data.py`. 
   Terms: World Bank open data (CC BY 4.0); credit World Bank and SIPRI. Accessed 2026-11-18. Current US dollars. No figures for Qatar or the UAE. A comparison only; it does not show that one spending choice caused another.
 - **[INFORM Severity Index](https://data.humdata.org/dataset/823ab728-bccf-4ae1-adee-a0038c24b7dd)** (EU Joint Research Centre (method), ACAPS (data and analysis), coordinated by OCHA). How severe each crisis is, 1 to 10, for 68 countries (October 2026 release); input to Neglect Score v2 (src/fetch_inform.py, src/gap_score_v2.py).  
   Terms: CC BY 4.0: credit INFORM; meant for comparing crises globally, not for deciding a specific response. Accessed 2026-11-19. Analyst judgement built from public sources, not a measurement. Does not rate Viet Nam, Mozambique, Nepal or Madagascar. Methodology report not yet read: the exact weights between its three groups of indicators are not described here.
+- **[UNHCR Refugee Data Finder + World Bank population](https://api.unhcr.org/population/v1/population/)** (UNHCR; World Bank (indicator SP.POP.TOTL)). People displaced from each crisis country, abroad and inside it, end of 2025, as a share of its population (src/fetch_displacement.py); input to Neglect Score v2.  
+  Terms: Free public APIs, no key; credit UNHCR and the World Bank (CC BY 4.0). Accessed 2026-11-19. UNHCR does not count Palestinians registered with UNRWA, so Palestine has no displacement figure and that measure is left out for it. Some IDP counts are old. UNHCR uses its own country codes (mapped from its /countries list).
 
 ## Cited for context
 

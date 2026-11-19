@@ -616,8 +616,8 @@
         <div class="how rv" style="--i:2">
           <h3>What the score means</h3>
           <p>The <b>Neglect Score</b> runs from 0 to 100. <b>The higher it is, the more neglected the crisis: little of its appeal is paid, it is severe, many people are affected and few reports are written about it.</b> It compares these crises with each other; it is not a measure of suffering and not a verdict on any country.</p>
-          <p>Each crisis is scored on four measures, on fixed 0 to 100 scales (so a score means the same thing next year). The worse off, the more points:</p>
-          <div class="key"><span><i class="s1"></i>How little of the appeal is funded (counts 35%)</span><span><i class="s2"></i>How severe the crisis is, INFORM Severity by the EU and ACAPS (35%)</span><span><i class="s3"></i>How many people are in need (15%)</span><span><i class="s4"></i>How few reports aid organisations publish about it (15%)</span></div>
+          <p>Each crisis is scored on six measures in four groups, on fixed 0 to 100 scales (so a score means the same thing next year). The worse off, the more points:</p>
+          <div class="key"><span><i class="s1"></i>Funding: how little of the appeal is paid, and whether funding fell since 2024 (30%)</span><span><i class="s2"></i>Severity: how bad the crisis is, INFORM Severity by the EU and ACAPS (30%)</span><span><i class="s3"></i>People: how many are in need and how large a share of the country is displaced (25%)</span><span><i class="s4"></i>Attention: how few reports aid organisations publish about it (15%)</span></div>
           <div class="example" id="example"></div>
           <p class="fixed"><b>The weights are fixed</b> so every crisis is judged the same way. <span id="stable"></span></p>
         </div>
@@ -699,8 +699,8 @@
       <h2 class="big mask"><span>What this can and can't say.</span></h2>
       <ul class="rv" style="--i:2">
         <li><b>Funding and need:</b> funding per appeal from OCHA FTS; people in need from HDX HAPI (intersectoral, national level). Funding is for the current year.</li>
-        <li><b>The score:</b> 0.35 x funding gap (100 minus the percent funded) + 0.35 x severity + 0.15 x scale + 0.15 x little aid reporting. Each part is turned into 0 to 100 on a <em>fixed</em> scale: severity is INFORM's 1 to 10, scale is the log of people in need from 100,000 (0) to 50 million (100), and reporting is the log of reports a week from 1 (0 attention) to 60 (100). The weights are a choice, so a robustness check re-ran the ranking under six other weightings. An earlier funding-only score (which ranked crises against each other and ignored severity) is still shown on each country's file.</li>
-        <li><b>Severity comes from INFORM</b> (EU Joint Research Centre and ACAPS, released monthly, CC BY 4.0). It is an analysts' judgement built from public sources, meant for comparing crises worldwide, not for deciding a specific response. INFORM does not rate Viet Nam, Mozambique, Nepal or Madagascar, so those four have no score and are listed separately; scoring them without severity would push them up unfairly. Severity partly uses people-in-need counts, so size is given a lower weight.</li>
+        <li><b>The score:</b> six measures in four groups, each turned into 0 to 100 on a <em>fixed</em> scale. <b>Funding (30%):</b> 20% the share of the appeal not funded, 10% whether funding fell from 2024 to 2025 (a fall of 50% or worse counts fully). <b>Severity (30%):</b> INFORM's 1 to 10. <b>People (25%):</b> 10% the log of people in need (100,000 counts 0, 50 million counts 100), 15% people displaced from the country, abroad and inside, as a share of its population (0% counts 0, 30% counts 100). <b>Attention (15%):</b> the log of aid reports a week, from 1 (no attention) to 60 (full attention). Attention has the lowest weight because it is the weakest measure. <b>These weights are a judgement, not a measurement:</b> no weights can be proven right, so the ranking is re-run under six other weightings and the page says which results survive. If a country lacks a measure (Palestine has no comparable displacement figure), it is left out and the rest are scaled up. An earlier funding-only score is still shown on each country's file.</li>
+        <li><b>Severity comes from INFORM</b> (EU Joint Research Centre and ACAPS, released monthly, CC BY 4.0). It is an analysts' judgement built from public sources, meant for comparing crises worldwide, not for deciding a specific response. INFORM does not rate Viet Nam, Mozambique, Nepal or Madagascar, so those four have no score and are listed separately; scoring them without severity would push them up unfairly. Severity partly uses people-in-need counts, so size has a low weight. Displacement figures come from UNHCR (refugees, asylum-seekers, others in need of protection, and people displaced inside the country) and the World Bank (population); UNHCR does not count Palestinians registered with UNRWA, and some displacement counts are old. The funding-change measure compares money recorded in 2025 with 2024; recent years fill in late, so it can overstate falls.</li>
         <li><b>Aid reporting favours big crises.</b> Large crises publish more reports, so the reporting measure has a low weight (15%) and counts only what aid organisations publish, not general news. Dollars per person is no longer part of the score, because it mostly reflects how big an appeal was asked to be; it is still shown for information.</li>
         <li><b>Regional response plans</b> (refugee-hosting countries) are excluded because per-country funding is unreliable there. Where a country has its own plan plus a slice of a regional one, only its own plan is used.</li>
         <li><b>Older or hand-found needs figures</b> are flagged: the people-in-need figure (used for the size part) is from an earlier year or a hand-found source, so the rank is indicative.</li>
@@ -734,14 +734,14 @@
 </div>
 
 <!-- ?v=9 makes your browser fetch fresh copies after each update instead of reusing an old saved page -->
-<script src="data.js?v=26"></script>
-<script src="score.js?v=26"></script>
-<script src="map.js?v=26"></script>
-<script src="media.js?v=26" onerror="window.AIDGAP_MEDIA=null"></script>
-<script src="reports.js?v=26" onerror="window.AIDGAP_REPORTS=null"></script>
-<script src="donors.js?v=26" onerror="window.AIDGAP_DONORS=null"></script>
-<script src="donortrend.js?v=26" onerror="window.AIDGAP_TREND=null"></script>
-<script src="vortex.js?v=26"></script>
-<script src="app.js?v=26"></script>
+<script src="data.js?v=27"></script>
+<script src="score.js?v=27"></script>
+<script src="map.js?v=27"></script>
+<script src="media.js?v=27" onerror="window.AIDGAP_MEDIA=null"></script>
+<script src="reports.js?v=27" onerror="window.AIDGAP_REPORTS=null"></script>
+<script src="donors.js?v=27" onerror="window.AIDGAP_DONORS=null"></script>
+<script src="donortrend.js?v=27" onerror="window.AIDGAP_TREND=null"></script>
+<script src="vortex.js?v=27"></script>
+<script src="app.js?v=27"></script>
 </body>
 </html>
