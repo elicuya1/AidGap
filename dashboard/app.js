@@ -76,7 +76,7 @@
   (function () {
     var d = new Date(D.generated + "T00:00:00"), nice = isNaN(d) ? D.generated : d.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
     $("dateline").textContent = "Data as of " + nice + " · " + crises.length + " crises · OCHA FTS · HDX HAPI · ReliefWeb · GDELT";
-    $("mast").textContent = "Field report " + D.year + " · v41";
+    $("mast").textContent = "Field report " + D.year + " · v40";
   })();
   function countUp() {
     if ("IntersectionObserver" in window && !countUp.go) { var io = new IntersectionObserver(function (es) { if (es[0].isIntersecting) { io.disconnect(); countUp.go = 1; countUp(); } }, { threshold: 0.4 }); io.observe($("s-intro")); return; }
@@ -325,16 +325,7 @@
     for (var i = 0; i < clusters.length; i++) { var r = clusters[i]; if (x >= r.x && x <= r.x + r.w && y >= r.y && y <= r.y + r.h) return r; }
     return null;
   }
-  /* Tooltips: the first waits 220 ms so a passing pointer does not trigger it; once one has shown, the next ones appear at once. */
-  var tipLast = 0;
-  function tipOn(el) {
-    if (el.classList.contains("on")) return;
-    clearTimeout(el._t);
-    if (performance.now() - tipLast < 400) { el.classList.add("instant", "on"); return; }
-    el.classList.remove("instant"); el._t = setTimeout(function () { el.classList.add("on"); }, 220);
-  }
-  function tipOff(el) { clearTimeout(el._t); if (el.classList.contains("on")) tipLast = performance.now(); el.classList.remove("on"); }
-  function hideTip() { tipOff(tip); }
+  function hideTip() { tip.classList.remove("on"); }
   canvas.addEventListener("mousemove", function (ev) {
     if (mode !== "country") return;
     var r = hitCluster(ev), ci = r ? r.ci : -1; canvas.classList.toggle("pointer", !!r);
@@ -343,7 +334,7 @@
     var c = crises[ci];
     tip.innerHTML = "<b>" + esc(c.location_name) + "</b>#" + c.rank + " · " + fmtPeople(c.people_in_need) + " in need · " + c.funding_pct.toFixed(0) + "% funded";
     var b = canvas.getBoundingClientRect(), tx = ev.clientX - b.left + 14, ty = ev.clientY - b.top + 14; if (tx + 200 > W) tx = ev.clientX - b.left - 210;
-    tip.style.left = tx + "px"; tip.style.top = ty + "px"; tipOn(tip);
+    tip.style.left = tx + "px"; tip.style.top = ty + "px"; tip.classList.add("on");
   });
   canvas.addEventListener("mouseleave", function () { hover = -1; hideTip(); tick(); });
   canvas.addEventListener("click", function (ev) { if (mode !== "country") return; var r = hitCluster(ev); if (r) openCountry(crises[r.ci].location_code); });
@@ -404,15 +395,15 @@
   function codeAt(ev) { var t = ev.target.closest && ev.target.closest("path[data-code]"); return t ? t.getAttribute("data-code") : null; }
   svg.addEventListener("mousemove", function (ev) {
     var code = codeAt(ev), ent = code && byCode[code];
-    if (!ent) { tipOff(mapTip); return; }
+    if (!ent) { mapTip.classList.remove("on"); return; }
     var b = svg.getBoundingClientRect();
     mapTip.innerHTML = ent.kind === "ranked"
       ? "<b>" + esc(ent.c.location_name) + "</b>#" + ent.c.rank + " · score " + ent.c.neglect_score.toFixed(1) + " · " + ent.c.funding_pct.toFixed(0) + "% funded"
       : "<b>" + esc(ent.u.location_name) + "</b>Appeal " + ent.u.funding_pct.toFixed(0) + "% funded · not scored";
     var tx = ev.clientX - b.left + 14, ty = ev.clientY - b.top + 14; if (tx + 220 > b.width) tx = ev.clientX - b.left - 230;
-    mapTip.style.left = tx + "px"; mapTip.style.top = ty + "px"; tipOn(mapTip);
+    mapTip.style.left = tx + "px"; mapTip.style.top = ty + "px"; mapTip.classList.add("on");
   });
-  svg.addEventListener("mouseleave", function () { tipOff(mapTip); });
+  svg.addEventListener("mouseleave", function () { mapTip.classList.remove("on"); });
   svg.addEventListener("click", function (ev) { if (dragged) return; var code = codeAt(ev); if (code) openCountry(code); });
   svg.addEventListener("keydown", function (ev) { if (ev.key === "Enter" || ev.key === " ") { var code = codeAt(ev); if (code) { ev.preventDefault(); openCountry(code); } } });
   (function enableDrag() {
@@ -669,57 +660,6 @@
     html += '<p class="note rv"><b>How to read this.</b> Aid: OCHA Financial Tracking Service, by calendar year and donor country. Military spending: World Bank indicator MS.MIL.XPND.CD (SIPRI), current US dollars; Qatar and the UAE have no figures there, so they are left out of part 2. FTS only holds what donors and agencies report and reports arrive late, so ' + last + ' is incomplete and 2025 may still rise a little. Money given to several countries at once is not split by country. This page shows <b>how much was given and spent</b>. It cannot show whether money was spent well, and it does not say what governments should have done.</p>';
     body.innerHTML = html;
     body.querySelectorAll(".ctr").forEach(function (b) { b.addEventListener("click", function () { openCountry(b.getAttribute("data-c"), "donors"); }); });
-    buildChange(body);
-  }
-
-  /* ---- 4. Every crisis, 2024 to 2025: an interactive diverging bar chart (motion rules: Emil Kowalski) ----
-     Bars grow out from the zero line in a short stagger when the chart scrolls into view; changing the sort slides the
-     rows to their new places (transform transitions, so a second click mid-slide simply retargets); one tooltip with the dollars. */
-  function buildChange(body) {
-    var rows = crises.filter(function (c) { return c.funding_change != null && c.funding_2024 > 0; }).map(function (c) {
-      return { c: c, code: c.location_code, name: shortName(c.location_name), pct: Math.round(c.funding_change * 100), a: c.funding_2024, b: c.funding_2025, rank: c.rank };
-    });
-    if (!rows.length) return;
-    var fell = rows.filter(function (r) { return r.pct < 0; }).length, rose = rows.filter(function (r) { return r.pct > 0; }).length, ROW = 36;
-    var wrap = el("div", "chg-wrap");
-    wrap.innerHTML = '<h3 class="cuts-h rv">4. Crisis by crisis: what changed from 2024 to 2025</h3>' +
-      '<p class="cuts-lead rv"><b>' + fell + ' of ' + rows.length + '</b> of these crises had less money recorded in 2025 than in 2024; <b>' + rose + '</b> had more. Red bars go left (less money), blue go right (more). Click a row for its file.</p>' +
-      '<div class="seg chg-seg" role="group" aria-label="Sort the crises"><button type="button" data-s="rank" aria-pressed="true">Most neglected first</button><button type="button" data-s="fall" aria-pressed="false">Biggest fall first</button><button type="button" data-s="rise" aria-pressed="false">Biggest rise first</button></div>' +
-      '<div class="chg" id="chg" style="height:' + rows.length * ROW + 'px"></div>' +
-      '<div class="chg-ax" aria-hidden="true"><span>−100% (almost no money)</span><span>0</span><span>+100% or more</span></div>' +
-      '<div class="tip chg-tip" id="chgTip" role="status"></div>' +
-      '<p class="note rv"><b>How to read this.</b> Money recorded for each country in each calendar year, from every donor and every plan (OCHA FTS), so it can differ from the appeal figures above. Recent years fill in late, so 2025 can look lower than it will end up, and small or regional plans swing a lot. Bars stop at ±100%. Countries with no 2024 funding recorded are left out.</p>';
-    body.appendChild(wrap);
-    var box = wrap.querySelector("#chg"), tipEl = wrap.querySelector("#chgTip"), mode = "rank";
-    var nodes = rows.map(function (r, i) {
-      var up = r.pct >= 0, w = Math.min(Math.abs(r.pct), 100) / 2;
-      var b = el("button", "chg-r", '<span class="cn">' + esc(r.name) + '</span><span class="tr"><i class="ax"></i><i class="bx ' + (up ? "up" : "dn") + '" style="width:' + w + '%;' + (up ? "left:50%" : "right:50%") + '"></i></span><span class="pc ' + (up ? "up" : "dn") + '">' + (r.pct > 0 ? "+" : r.pct < 0 ? "−" : "") + Math.abs(r.pct) + "%</span>");
-      b.type = "button"; b.style.setProperty("--i", String(Math.min(i, 24)));
-      b.setAttribute("aria-label", r.name + ": funding " + (r.pct < 0 ? "fell " : r.pct > 0 ? "rose " : "unchanged ") + Math.abs(r.pct) + " percent, from " + fmtUSD(r.a) + " in 2024 to " + fmtUSD(r.b) + " in 2025");
-      b.addEventListener("click", function () { openCountry(r.code, "donors"); });
-      function show() { tipEl.innerHTML = "<b>" + esc(r.name) + "</b>" + fmtUSD(r.a) + " in 2024 → " + fmtUSD(r.b) + " in 2025"; var bx = box.getBoundingClientRect(), rr = b.getBoundingClientRect(); tipEl.style.left = Math.max(8, Math.min(bx.width - 250, bx.width * 0.5 - 100)) + "px"; tipEl.style.top = (rr.top - bx.top + ROW + 4) + "px"; tipOn(tipEl); }
-      b.addEventListener("mouseenter", show); b.addEventListener("focus", show);
-      b.addEventListener("mouseleave", function () { tipOff(tipEl); }); b.addEventListener("blur", function () { tipOff(tipEl); });
-      box.appendChild(b); r.node = b; return b;
-    });
-    function order() {
-      var sorted = rows.slice().sort(function (p, q) { return mode === "fall" ? p.pct - q.pct : mode === "rise" ? q.pct - p.pct : p.rank - q.rank; });
-      sorted.forEach(function (r, i) { r.node.style.transform = "translateY(" + i * ROW + "px)"; });
-      clearTimeout(order._t);
-      order._t = setTimeout(function () { sorted.forEach(function (r) { box.appendChild(r.node); }); }, 380);    // keep the keyboard order equal to the visual order
-    }
-    order();
-    Array.prototype.forEach.call(wrap.querySelectorAll(".chg-seg button"), function (bt) {
-      bt.addEventListener("click", function () {
-        mode = bt.getAttribute("data-s");
-        Array.prototype.forEach.call(wrap.querySelectorAll(".chg-seg button"), function (x) { x.setAttribute("aria-pressed", String(x === bt)); });
-        tipOff(tipEl); order();
-      });
-    });
-    if ("IntersectionObserver" in window) {
-      var io = new IntersectionObserver(function (es) { if (es[0].isIntersecting) { io.disconnect(); box.classList.add("go"); } }, { threshold: 0.15 });
-      io.observe(box);
-    } else box.classList.add("go");
   }
 
   /* =====================================================================

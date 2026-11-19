@@ -566,28 +566,6 @@
     .wrap { padding-left: 16px; padding-right: 16px; }
     .rank-list button { grid-template-columns: 34px minmax(0,1fr) 84px; gap: 10px; }
   }
-
-  /* ---------- "4. Crisis by crisis": interactive diverging bars (v41) ---------- */
-  .tip.instant { transition-duration: 0s; }
-  .chg-wrap { position: relative; margin-top: 34px; }
-  .chg-seg { display: inline-flex; margin: 6px 0 14px; max-width: 100%; overflow-x: auto; }
-  .chg { position: relative; margin-top: 4px; }
-  .chg-r { position: absolute; left: 0; right: 0; top: 0; height: 36px; display: grid; grid-template-columns: 150px minmax(0, 1fr) 56px; gap: 12px; align-items: center; text-align: left; background: none; border: 0; padding: 0 4px; cursor: pointer; transition: transform .32s var(--ease-out), background-color .15s var(--ease-out); border-radius: 8px; }
-  .chg-r .cn { font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .chg-r .tr { position: relative; height: 14px; }
-  .chg-r .ax { position: absolute; left: 50%; top: -9px; bottom: -9px; width: 1px; background: var(--base); }
-  .chg-r .bx { position: absolute; top: 0; height: 100%; border-radius: 3px; transform: scaleX(0); transition: transform .5s var(--ease-out); transition-delay: calc(var(--i, 0) * 28ms); }
-  .chg-r .bx.dn { background: var(--unmet); transform-origin: right center; }
-  .chg-r .bx.up { background: var(--funded); transform-origin: left center; }
-  .chg.go .bx { transform: scaleX(1); }
-  .chg-r .pc { font-size: 13px; text-align: right; font-variant-numeric: tabular-nums; color: var(--ink2); }
-  .chg-r .pc.dn { color: var(--unmet-text); } .chg-r .pc.up { color: var(--funded); }
-  @media (hover: hover) and (pointer: fine) { .chg-r:hover { background: var(--raise); } }
-  .chg-r:active { transform-origin: center; }
-  .chg-ax { display: flex; justify-content: space-between; padding-left: 162px; padding-right: 68px; font-size: 12px; color: var(--muted); margin-top: 8px; }
-  .chg-tip { max-width: 250px; }
-  @media (max-width: 640px) { .chg-r { grid-template-columns: 96px minmax(0, 1fr) 46px; gap: 8px; } .chg-r .cn { font-size: 13px; } .chg-ax { padding-left: 104px; padding-right: 54px; font-size: 11px; } .chg-ax span:nth-child(2) { display: none; } }
-  @media (prefers-reduced-motion: reduce) { .chg-r .bx { transform: scaleX(1); } }
 </style>
 </head>
 <body>
@@ -799,14 +777,14 @@
 </div>
 
 <!-- ?v=9 makes your browser fetch fresh copies after each update instead of reusing an old saved page -->
-<script src="data.js?v=41"></script>
-<script src="score.js?v=41"></script>
-<script src="map.js?v=41"></script>
-<script src="media.js?v=41" onerror="window.AIDGAP_MEDIA=null"></script>
-<script src="reports.js?v=41" onerror="window.AIDGAP_REPORTS=null"></script>
-<script src="donors.js?v=41" onerror="window.AIDGAP_DONORS=null"></script>
-<script src="donortrend.js?v=41" onerror="window.AIDGAP_TREND=null"></script>
-<script src="vortex.js?v=41"></script>
-<script src="app.js?v=41"></script>
+<script src="data.js?v=40"></script>
+<script src="score.js?v=40"></script>
+<script src="map.js?v=40"></script>
+<script src="media.js?v=40" onerror="window.AIDGAP_MEDIA=null"></script>
+<script src="reports.js?v=40" onerror="window.AIDGAP_REPORTS=null"></script>
+<script src="donors.js?v=40" onerror="window.AIDGAP_DONORS=null"></script>
+<script src="donortrend.js?v=40" onerror="window.AIDGAP_TREND=null"></script>
+<script src="vortex.js?v=40"></script>
+<script src="app.js?v=40"></script>
 </body>
 </html>
