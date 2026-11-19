@@ -76,7 +76,7 @@
   (function () {
     var d = new Date(D.generated + "T00:00:00"), nice = isNaN(d) ? D.generated : d.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
     $("dateline").textContent = "Data as of " + nice + " · " + crises.length + " crises · OCHA FTS · HDX HAPI · ReliefWeb · GDELT";
-    $("mast").textContent = "Field report " + D.year + " · v42";
+    $("mast").textContent = "Field report " + D.year + " · v43";
   })();
   function countUp() {
     if ("IntersectionObserver" in window && !countUp.go) { var io = new IntersectionObserver(function (es) { if (es[0].isIntersecting) { io.disconnect(); countUp.go = 1; countUp(); } }, { threshold: 0.4 }); io.observe($("s-intro")); return; }
@@ -1039,6 +1039,60 @@
       setTimeout(function () { if (cur === "s-what" || window.innerWidth < 700) return; set(true); try { localStorage.setItem("aidgapKeySeen", "1"); } catch (e) {} }, 1800);
     }
   })();
+
+  /* ---------- Smooth glide scrolling (a small, dependency-free version of what scroll libraries do) ----------
+     The wheel moves a target position and the page eases toward it. Left alone: touch screens, reduced motion, an open popup,
+     and anything inside a box that scrolls on its own (feeds, lists, the popup). Keyboard, scrollbar and links still work. */
+  (function glide() {
+    if (reduceMotion || window.matchMedia("(pointer: coarse)").matches) return;
+    var root = document.documentElement, target = window.scrollY, cur = target, raf = 0;
+    root.classList.add("glide");
+    function inner(el, dy) {
+      while (el && el !== document.body && el !== root) {
+        var cs = getComputedStyle(el);
+        if (/(auto|scroll)/.test(cs.overflowY) && el.scrollHeight > el.clientHeight + 1 && ((dy < 0 && el.scrollTop > 0) || (dy > 0 && el.scrollTop + el.clientHeight < el.scrollHeight - 1))) return true;
+        el = el.parentElement;
+      }
+      return false;
+    }
+    function step() {
+      cur += (target - cur) * 0.14;
+      if (Math.abs(target - cur) < 0.5) { cur = target; window.scrollTo(0, cur); raf = 0; return; }
+      window.scrollTo(0, cur); raf = requestAnimationFrame(step);
+    }
+    window.addEventListener("wheel", function (e) {
+      if (e.ctrlKey || e.defaultPrevented || root.style.overflow === "hidden" || inner(e.target, e.deltaY)) return;
+      e.preventDefault();
+      if (!raf) { target = window.scrollY; cur = target; }
+      var max = root.scrollHeight - window.innerHeight;
+      target = Math.max(0, Math.min(max, target + e.deltaY * (e.deltaMode === 1 ? 32 : 1)));
+      if (!raf) raf = requestAnimationFrame(step);
+    }, { passive: false });
+    window.addEventListener("scroll", function () { if (!raf) { target = window.scrollY; cur = target; } }, { passive: true });
+  })();
+
+  /* ---------- The one authored entrance: the first screen's sentences arrive word by word ---------- */
+  (function words() {
+    var nodes = document.querySelectorAll(".what-a, .what-b"); if (!nodes.length) return;
+    var k = 0;
+    nodes.forEach(function (n) {
+      (function walk(parent) {
+        Array.prototype.slice.call(parent.childNodes).forEach(function (c) {
+          if (c.nodeType === 3) {
+            var frag = document.createDocumentFragment();
+            c.textContent.split(/(\s+)/).forEach(function (part) {
+              if (!part) return;
+              if (/^\s+$/.test(part)) { frag.appendChild(document.createTextNode(part)); return; }
+              var w = document.createElement("span"); w.className = "w"; w.style.setProperty("--k", String(Math.min(k++, 40))); w.textContent = part; frag.appendChild(w);
+            });
+            parent.replaceChild(frag, c);
+          } else if (c.nodeType === 1) walk(c);
+        });
+      })(n);
+    });
+    setTimeout(function () { document.documentElement.classList.add("words-go"); }, 250);
+  })();
+
   var rzT;
   window.addEventListener("resize", function () { clearTimeout(rzT); rzT = setTimeout(function () { sizeCanvas(); retarget(false); bgResize(); if (mCode) drawMini(); }, 120); });
 })();
