@@ -76,7 +76,7 @@
   (function () {
     var d = new Date(D.generated + "T00:00:00"), nice = isNaN(d) ? D.generated : d.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
     $("dateline").textContent = "Data as of " + nice + " · " + crises.length + " crises · OCHA FTS · HDX HAPI · ReliefWeb · GDELT";
-    $("mast").textContent = "Field report " + D.year + " · v27";
+    $("mast").textContent = "Field report " + D.year + " · v28";
   })();
   function countUp() {
     if ("IntersectionObserver" in window && !countUp.go) { var io = new IntersectionObserver(function (es) { if (es[0].isIntersecting) { io.disconnect(); countUp.go = 1; countUp(); } }, { threshold: 0.4 }); io.observe($("s-intro")); return; }
@@ -741,7 +741,7 @@
         '<div class="tabs" role="tablist" id="npTabs" aria-label="Sources about ' + esc(name) + '"></div><div class="feed" id="npFeed" role="tabpanel" tabindex="0"></div>';
       $("npOpen").addEventListener("click", function () { openCountry(code); });
       var feed = $("npFeed");
-      function setTab(id) { mountTabs($("npTabs"), tabs, id, setTab); feedCode = code; artFilter = "all"; feed.innerHTML = feedHTML(id); wireFeed(feed, id); }
+      function setTab(id) { mountTabs($("npTabs"), tabs, id, setTab); feedCode = code; artFilter = "all"; feed.innerHTML = feedHTML(id); feed.scrollTop = 0; wireFeed(feed, id); }
       setTab(pick);
     }
     select(items[0].code);
@@ -896,7 +896,7 @@
     return feedList(intro, all, none, "Headlines belong to their publishers and link to the originals. Language is partly guessed. Machine translation can be wrong, so read the original when it matters. Listing an item is not an endorsement.");
   }
   function wireFeed(container, which) {
-    container.querySelectorAll(".lchip").forEach(function (b) { b.addEventListener("click", function () { artFilter = b.dataset.f; container.innerHTML = feedHTML(which); wireFeed(container, which); }); });
+    container.querySelectorAll(".lchip").forEach(function (b) { b.addEventListener("click", function () { artFilter = b.dataset.f; container.innerHTML = feedHTML(which); container.scrollTop = 0; wireFeed(container, which); }); });
     container.querySelectorAll("button[data-tr]").forEach(function (b) {
       b.addEventListener("click", function () {
         var x = panelList[+b.dataset.tr], out = container.querySelector('[data-out="' + b.dataset.tr + '"]');
