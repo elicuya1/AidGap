@@ -51,6 +51,14 @@ _Generated from `data/reference/sources.csv` by `src/export_dashboard_data.py`. 
   Terms: CC BY 4.0: credit INFORM; meant for comparing crises globally, not for deciding a specific response. Accessed 2026-11-19. Analyst judgement built from public sources, not a measurement. Does not rate Viet Nam, Mozambique, Nepal or Madagascar. Methodology report not yet read: the exact weights between its three groups of indicators are not described here.
 - **[UNHCR Refugee Data Finder + World Bank population](https://api.unhcr.org/population/v1/population/)** (UNHCR; World Bank (indicator SP.POP.TOTL)). People displaced from each crisis country, abroad and inside it, end of 2025, as a share of its population (src/fetch_displacement.py); input to Neglect Score v2.  
   Terms: Free public APIs, no key; credit UNHCR and the World Bank (CC BY 4.0). Accessed 2026-11-19. UNHCR does not count Palestinians registered with UNRWA, so Palestine has no displacement figure and that measure is left out for it. Some IDP counts are old. UNHCR uses its own country codes (mapped from its /countries list).
+- **[R4V Regional Refugee and Migrant Response Plan 2026](https://nexusmigracion.cancilleria.gov.co/sites/default/files/documentos/2026-03/RMRP_2026_ENG.pdf)** (R4V (UNHCR and IOM)). People-in-need figures and requirements for Brazil, Chile, Ecuador, Peru, Mexico, Costa Rica, Panama, Dominican Republic, Trinidad and Tobago (data/reference/manual_pin.csv).  
+  Terms: Public plan document; cite R4V. Accessed 2026-11-19. Read in the PDF (text extracted locally). Country requirements match FTS. Counts refugees, migrants, returnees and affected host communities.
+- **[UNHCR Iran Flash Refugee Response Plan March-May 2026](https://data.unhcr.org/en/documents/details/121697)** (UNHCR). Iran people in need 1.65M and requirement $80M (manual_pin.csv).  
+  Terms: Public plan document; cite UNHCR. Accessed 2026-11-19. Covers only three months; matches FTS $80M. Confidence low.
+- **[UNHCR Uganda Country Refugee Response Plan 2026 Prioritization](https://data.unhcr.org/en/documents/details/120312)** (UNHCR). Uganda people in need 2.2M refugees (2.7M host community listed separately).  
+  Terms: Public plan document; cite UNHCR. Accessed 2026-11-19. Document says $850M; FTS shows $828.7M, about 2.5% apart.
+- **[Rohingya Joint Response Plan 2026 update](https://rohingyaresponse.org/wp-content/uploads/2026/05/Joint-Response-Plan-2026.pdf)** (Rohingya response coordination (UN agencies and NGOs)). Bangladesh people in need: highest sector figure 1,860,109 (Health).  
+  Terms: Public plan document; cite the JRP. Accessed 2026-11-19. Plan gives people in need per sector, not one overall number; maximum across sectors used. Requirement $710.5M matches FTS.
 
 ## Cited for context
 
