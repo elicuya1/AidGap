@@ -450,7 +450,7 @@
   h1.what-l { display: inline; }
   .what-l { font: 600 11px/1 var(--mono); letter-spacing: .22em; text-transform: uppercase; color: var(--ink2); margin-bottom: 34px; }
   .what-a { margin: 0; font: clamp(28px, 4.6vw, 52px)/1.2 var(--serif); letter-spacing: -.01em; color: var(--ink); }
-  .what-a b { color: var(--unmet); font-weight: 700; }
+  .what-a b { color: inherit; font-weight: 600; }
   .what-rule { display: block; width: 56px; height: 2px; background: var(--unmet); margin: 38px 0 34px; }
   .what-b { margin: 0; max-width: 40ch; font: clamp(17px, 1.9vw, 22px)/1.55 var(--serif); color: var(--ink2); }
   .what-down { margin-top: 56px; font: 600 11px/1 var(--mono); letter-spacing: .2em; text-transform: uppercase; color: var(--ink2); text-decoration: none; }
@@ -531,23 +531,29 @@
     .js .mask > span, .js .rv { transform: none; opacity: 1; }
   }
 
-  /* ---------- v34 polish layer: hover and press feedback, reading comfort, phone tap sizes ---------- */
+  /* ---------- polish layer (v36): hover and press feedback, reading comfort, phone tap sizes ----------
+     Motion rules (Emil Kowalski): ease-out curve, under 300 ms, press scales to .97, no transition on "all",
+     hover effects only on devices that can hover. */
+  :root { --ease-out: cubic-bezier(.23, 1, .32, 1); }
   html { scroll-padding-top: 12px; }
   h1, h2.big { text-wrap: balance; }
   p, li { text-wrap: pretty; }
-  .btn, .pill, .chip, .lchip, .seg button, .tab, .zoom button { transition: background .18s, color .18s, border-color .18s, transform .12s, box-shadow .18s; touch-action: manipulation; }
-  .btn:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(0,0,0,.35); }
-  .btn:active, .pill:active, .chip:active, .lchip:active, .seg button:active, .zoom button:active { transform: translateY(1px) scale(.98); box-shadow: none; }
-  .pill:hover, .chip:hover, .lchip:hover { border-color: var(--ink2); color: var(--ink); }
-  .gcard:hover, .give a:hover { transform: translateY(-2px); border-color: var(--ink2); }
-  .gcard:active, .give a:active { transform: translateY(0); }
-  .rank-list button:hover { background: var(--raise); }
-  .rank-list button:hover .nm { text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px; }
+  .btn, .pill, .chip, .lchip, .seg button, .tab, .zoom button { transition: background-color .18s var(--ease-out), color .18s var(--ease-out), border-color .18s var(--ease-out), transform .16s var(--ease-out), box-shadow .18s var(--ease-out); touch-action: manipulation; }
+  .btn:active, .pill:active, .chip:active, .lchip:active, .seg button:active, .zoom button:active { transform: scale(.97); box-shadow: none; }
+  .gcard:active, .give a:active { transform: scale(.985); }
+  @media (hover: hover) and (pointer: fine) {
+    .btn:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(0,0,0,.35); }
+    .pill:hover, .chip:hover, .lchip:hover { border-color: var(--ink2); color: var(--ink); }
+    .gcard:hover, .give a:hover { transform: translateY(-2px); border-color: var(--ink2); }
+    .rank-list button:hover { background: var(--raise); }
+    .rank-list button:hover .nm { text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px; }
+  }
   .rank-list li:nth-child(-n+3) button { box-shadow: inset 3px 0 0 var(--unmet); padding-left: 16px; }
   .rank-list .sc, .rank-list .score { font-variant-numeric: tabular-nums; }
   /* links in running text: the underline draws in from the left */
-  .fig a, .note a, .info a, .sub a, .method a, .what-b a { text-decoration: none; background: linear-gradient(currentColor, currentColor) 0 100% / 100% 1px no-repeat; transition: background-size .25s; }
-  .fig a:hover, .note a:hover, .info a:hover, .sub a:hover, .method a:hover { background-size: 0 1px; background-position: 100% 100%; }
+  .fig a, .note a, .info a, .sub a, .method a, .what-b a { text-decoration: none; background: linear-gradient(currentColor, currentColor) 0 100% / 100% 1px no-repeat; transition: background-size .25s var(--ease-out); }
+  @media (hover: hover) and (pointer: fine) { .fig a:hover, .note a:hover, .info a:hover, .sub a:hover, .method a:hover { background-size: 0 1px; background-position: 100% 100%; } }
+  .tip { transition: opacity .125s var(--ease-out), transform .125s var(--ease-out); }
   @media (pointer: coarse) {
     .pill, .chip, .lchip, .tab, .seg button, .zoom button, .btn, .keybtn { min-height: 44px; }
     .rank-list button, .mrow { min-height: 56px; }
@@ -767,14 +773,14 @@
 </div>
 
 <!-- ?v=9 makes your browser fetch fresh copies after each update instead of reusing an old saved page -->
-<script src="data.js?v=35"></script>
-<script src="score.js?v=35"></script>
-<script src="map.js?v=35"></script>
-<script src="media.js?v=35" onerror="window.AIDGAP_MEDIA=null"></script>
-<script src="reports.js?v=35" onerror="window.AIDGAP_REPORTS=null"></script>
-<script src="donors.js?v=35" onerror="window.AIDGAP_DONORS=null"></script>
-<script src="donortrend.js?v=35" onerror="window.AIDGAP_TREND=null"></script>
-<script src="vortex.js?v=35"></script>
-<script src="app.js?v=35"></script>
+<script src="data.js?v=36"></script>
+<script src="score.js?v=36"></script>
+<script src="map.js?v=36"></script>
+<script src="media.js?v=36" onerror="window.AIDGAP_MEDIA=null"></script>
+<script src="reports.js?v=36" onerror="window.AIDGAP_REPORTS=null"></script>
+<script src="donors.js?v=36" onerror="window.AIDGAP_DONORS=null"></script>
+<script src="donortrend.js?v=36" onerror="window.AIDGAP_TREND=null"></script>
+<script src="vortex.js?v=36"></script>
+<script src="app.js?v=36"></script>
 </body>
 </html>

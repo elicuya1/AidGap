@@ -76,7 +76,7 @@
   (function () {
     var d = new Date(D.generated + "T00:00:00"), nice = isNaN(d) ? D.generated : d.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
     $("dateline").textContent = "Data as of " + nice + " · " + crises.length + " crises · OCHA FTS · HDX HAPI · ReliefWeb · GDELT";
-    $("mast").textContent = "Field report " + D.year + " · v35";
+    $("mast").textContent = "Field report " + D.year + " · v36";
   })();
   function countUp() {
     if ("IntersectionObserver" in window && !countUp.go) { var io = new IntersectionObserver(function (es) { if (es[0].isIntersecting) { io.disconnect(); countUp.go = 1; countUp(); } }, { threshold: 0.4 }); io.observe($("s-intro")); return; }
@@ -512,7 +512,7 @@
         '<p>Their appeal is <b>' + c.funding_pct.toFixed(0) + '% funded</b>.</p><div class="pbar"><i style="width:' + Math.min(100, c.funding_pct) + '%"></i></div>' +
         '<p>That comes to about <b>' + fmtPerDay(c.funding_per_person_usd) + ' a day</b> per person ($' + c.funding_per_person_usd.toFixed(2) + ' over the year). Rank <b>' + c.rank + ' of ' + N + '</b> on the Neglect Score.</p>' +
         '<p class="dotkey">This dot is ' + (p.funded ? "blue: the paid part of the appeal." : "red: the part not yet paid.") + '</p>' +
-        '<button type="button" class="link" id="lifeOpen">Read about ' + esc(shortName(c.location_name)) + ' →</button>';
+        '<button type="button" class="link" id="lifeOpen">Read about ' + esc(shortName(c.location_name)) + '</button>';
       var b = $("lifeOpen"); if (b) b.addEventListener("click", function () { openCountry(c.location_code); });
     }
     function showHist() {
@@ -737,7 +737,7 @@
       var pick = tab || (tabs[0].count ? "local" : "intl");
       pane.innerHTML = '<div class="np-head"><h3>' + esc(name) + '</h3><div class="facts">' + (ent.kind === "ranked" ? "Rank <b>" + ent.c.rank + "</b> of " + N + " · " : "") +
         "<b>" + v.local.length + "</b> local · <b>" + v.intl.length + "</b> international</div>" + ctxHTML(code) +
-        '<button type="button" class="btn ghost open" id="npOpen">Funding, donors and where to give →</button></div>' +
+        '<button type="button" class="btn ghost open" id="npOpen">Funding, donors and where to give</button></div>' +
         '<div class="tabs" role="tablist" id="npTabs" aria-label="Sources about ' + esc(name) + '"></div><div class="feed" id="npFeed" role="tabpanel" tabindex="0"></div>';
       $("npOpen").addEventListener("click", function () { openCountry(code); });
       var feed = $("npFeed");
