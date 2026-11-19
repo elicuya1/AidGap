@@ -47,6 +47,8 @@ _Generated from `data/reference/sources.csv` by `src/export_dashboard_data.py`. 
   Terms: Public API, no key; credit OCHA FTS. Accessed 2026-11-18. Only what donors and agencies report; late reports mean the newest year is incomplete. Shows amounts given, not how well money was spent. Money given to several countries at once is not split by country.
 - **[World Bank: military expenditure (SIPRI)](https://data.worldbank.org/indicator/MS.MIL.XPND.CD)** (World Bank; underlying data SIPRI Military Expenditure Database). Military spending 2024 and 2025 for the biggest aid donors, shown next to their humanitarian aid (src/fetch_donor_trend.py).  
   Terms: World Bank open data (CC BY 4.0); credit World Bank and SIPRI. Accessed 2026-11-18. Current US dollars. No figures for Qatar or the UAE. A comparison only; it does not show that one spending choice caused another.
+- **[INFORM Severity Index](https://data.humdata.org/dataset/823ab728-bccf-4ae1-adee-a0038c24b7dd)** (EU Joint Research Centre (method), ACAPS (data and analysis), coordinated by OCHA). How severe each crisis is, 1 to 10, for 68 countries (October 2026 release); input to Neglect Score v2 (src/fetch_inform.py, src/gap_score_v2.py).  
+  Terms: CC BY 4.0: credit INFORM; meant for comparing crises globally, not for deciding a specific response. Accessed 2026-11-19. Analyst judgement built from public sources, not a measurement. Does not rate Viet Nam, Mozambique, Nepal or Madagascar. Methodology report not yet read: the exact weights between its three groups of indicators are not described here.
 
 ## Cited for context
 

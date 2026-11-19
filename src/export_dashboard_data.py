@@ -4,7 +4,7 @@ AidGap - Step 5: export data for the dashboard.
 Turns the CSVs from the pipeline into one small file the web page reads:
     dashboard/data.js     (a plain JavaScript file: window.AIDGAP = {...})
 
-Run AFTER gap_score.py and sensitivity.py:
+Run AFTER gap_score.py, gap_score_v2.py (needs fetch_inform.py and fetch_reliefweb_api.py):
     python src/export_dashboard_data.py
 
 Then open dashboard/index.html in your browser (double-click it).
@@ -73,37 +73,51 @@ def write_sources_md(src: pd.DataFrame) -> None:
 
 def main() -> None:
     scores = pd.read_csv(PROCESSED / "neglect_scores.csv")
-    sens = pd.read_csv(PROCESSED / "sensitivity_ranks.csv")
     unranked = pd.read_csv(PROCESSED / "unranked_appeals.csv")
     gap = pd.read_csv(PROCESSED / "gap_table.csv")
 
-    crises = scores[[
+    v2 = pd.read_csv(PROCESSED / "neglect_scores_v2.csv")
+    sens2 = pd.read_csv(PROCESSED / "sensitivity_v2.csv")
+    rated = v2[v2["severity_rated"]]
+    v2cols = rated[["location_code", "score_v2", "rank_v2", "gap_pts", "severity_pts", "scale_pts",
+                    "attention_gap_pts", "inform_severity", "reports_per_week", "rank_v1", "score_v1"]]
+    base = scores[[
         "location_code", "location_name", "requirements_usd", "funding_usd",
         "unmet_usd", "people_in_need", "pin_year", "year", "funding_pct",
-        "funding_per_person_usd", "neglect_score", "rank", "low_confidence",
-        "coverage_pts", "per_person_pts", "scale_pts",
+        "funding_per_person_usd", "low_confidence",
         "pin_source", "pin_confidence", "pin_note", "pin_url", "pin_verified", "data_note",
-    ]].copy()
-    for c in ("coverage_pts", "per_person_pts", "scale_pts"):
+    ]]
+    crises = base.merge(v2cols, on="location_code", how="inner")
+    crises = crises.rename(columns={"score_v2": "neglect_score", "rank_v2": "rank"})
+    crises = crises.merge(sens2.rename(columns={"location_name": "location_name", "times_in_top5": "times_in_top"}),
+                          on="location_name", how="left")
+    for c in ("gap_pts", "severity_pts", "scale_pts", "attention_gap_pts", "reports_per_week", "score_v1"):
         crises[c] = crises[c].round(1)
+    crises = crises.sort_values("rank")
     crises = crises.fillna({"pin_note": "", "pin_url": "", "pin_verified": "", "data_note": ""})
 
-    # Rank range under the 6 weightings (how stable is each country's rank?)
-    sens = sens.rename(columns={"location_name": "name"})
-    crises = crises.merge(
-        sens[["name", "best_rank", "worst_rank", "times_in_top"]],
-        left_on="location_name", right_on="name", how="left",
-    ).drop(columns="name")
+    # Appeals that are not scored: no people-in-need figure (v1 list) plus the crises INFORM does not rate
+    unrated = v2[~v2["severity_rated"]].merge(gap[["location_code", "appeal_types"]], on="location_code", how="left")
+    extra = pd.DataFrame({
+        "location_code": unrated["location_code"], "location_name": unrated["location_name"],
+        "appeal_types": unrated["appeal_types"], "requirements_usd": unrated["requirements_usd"],
+        "funding_usd": unrated["funding_usd"], "funding_pct": unrated["funding_pct"],
+        "note": ["INFORM Severity does not rate this crisis, so it has no Neglect Score. Funding-only score (v1): "
+                 + f"{x:.1f}" for x in unrated["score_v1"]],
+    })
+    unranked_all = pd.concat([unranked.merge(gap[["location_code", "funding_usd"]], on="location_code", how="left")[
+        ["location_code", "location_name", "appeal_types", "requirements_usd", "funding_usd", "funding_pct", "note"]], extra],
+        ignore_index=True)
+    inform_release = str(int(pd.read_csv(PROCESSED / "inform_severity.csv")["release"].iloc[0]))
 
     payload = {
         "generated": date.today().isoformat(),
         "year": int(scores["year"].max()),
         "scenarios": SCENARIOS,
+        "weights": {"gap": 35, "sev": 35, "scl": 15, "att": 15},
+        "inform_release": inform_release,
         "crises": clean(crises),
-        "unranked": clean(unranked.merge(
-            gap[["location_code", "funding_usd"]], on="location_code", how="left",
-        )[["location_code", "location_name", "appeal_types",
-           "requirements_usd", "funding_usd", "funding_pct", "note"]]),
+        "unranked": clean(unranked_all),
         "donate": donate_links(),
         "context": country_context(),
         "sources": clean(pd.read_csv(REF / "sources.csv")),

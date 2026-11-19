@@ -96,6 +96,17 @@ def check_scores() -> None:
     diff = (merged["mine"] - merged["neglect_score"]).abs().max()
     log("B scores", f"independent recomputation matches neglect_scores.csv ({len(merged)} crises)",
         "PASS" if diff < 0.06 else "FAIL", f"max difference {diff:.2f}")
+    # v2: independent recomputation from the stated formula and fixed ranges
+    import math
+    v2 = pd.read_csv(PROC / "neglect_scores_v2.csv")
+    v2 = v2[v2["severity_rated"]]
+    gp = (100 - v2["funding_pct"]).clip(0, 100)
+    sv = ((v2["inform_severity"] - 1) / 9 * 100).clip(0, 100)
+    sc_ = ((v2["people_in_need"].map(math.log10) - 5) / (math.log10(5e7) - 5) * 100).clip(0, 100)
+    at = 100 - ((v2["reports_per_week"].clip(lower=1).map(math.log10)) / math.log10(60) * 100).clip(0, 100)
+    mine2 = (0.35 * gp + 0.35 * sv + 0.15 * sc_ + 0.15 * at).round(1)
+    d2 = (mine2 - v2["score_v2"]).abs().max()
+    log("B scores", f"v2 score recomputed independently ({len(v2)} rated crises)", "PASS" if d2 < 0.06 else "FAIL", f"max difference {d2:.2f}")
     log("B scores", "no missing values in ranked rows",
         "PASS" if sc[["funding_pct", "funding_per_person_usd", "people_in_need", "neglect_score"]].notna().all().all() else "FAIL")
     log("B scores", "funding percent = funding / requirement",
@@ -149,7 +160,8 @@ def check_manual_pin() -> None:
 
 # ---------------------------------------------------------------- D. dashboard files
 def check_dashboard() -> None:
-    sc = pd.read_csv(PROC / "neglect_scores.csv")
+    sc = pd.read_csv(PROC / "neglect_scores_v2.csv")
+    sc = sc[sc["severity_rated"]].rename(columns={"score_v2": "neglect_score"})
     data = js_payload(DASH / "data.js")
     mp = js_payload(DASH / "map.js")
     log("D dashboard", "data.js has every ranked crisis", "PASS" if len(data["crises"]) == len(sc) else "FAIL",

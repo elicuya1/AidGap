@@ -17,8 +17,8 @@ What is different from v1 (gap_score.py), and why:
   Severity      = (INFORM Severity - 1) / 9 x 100
   Scale         = log10 of people in need, fixed range 100,000 (0) to 50 million (100)
   Attention gap = 100 - log10 of reports a week, fixed range 1 a week (0 attention) to 60 a week (100)
-  A crisis INFORM does not rate (flash appeals / disasters) is scored on the other three parts, with
-  their weights scaled up to add to 100 %, and is flagged "severity not rated".
+  A crisis INFORM does not rate (flash appeals / disasters) is NOT given a v2 score (without severity it would be biased
+  upwards); it is listed separately with its funding-only v1 score.
 
 Run AFTER build_gap_table.py, gap_score.py, fetch_inform.py and fetch_reliefweb_api.py:
     python src/gap_score_v2.py
@@ -76,27 +76,33 @@ def main() -> pd.DataFrame:
     df["scale_pts"] = scale01(df["people_in_need"], PIN_LO, PIN_HI)
     df["reports_per_week"] = df["location_code"].map(per_week)
     df["attention_gap_pts"] = 100 - scale01(df["reports_per_week"].clip(lower=ATT_LO), ATT_LO, ATT_HI)
-    df["score_v2"] = combine(df, W)
     df["severity_rated"] = df["severity_pts"].notna()
-    df = df.sort_values("score_v2", ascending=False).reset_index(drop=True)
-    df["rank_v2"] = df["score_v2"].rank(ascending=False, method="min").astype(int)
-    df["rank_change"] = df["rank_v1"] - df["rank_v2"]          # positive = moves UP the neglect list in v2
+    # Only crises INFORM rates are scored: without severity the score would lean on the funding gap and
+    # attention alone and push unrated (mostly small, disaster) crises to the top. They are listed separately.
+    rated = df[df["severity_rated"]].copy()
+    rated["score_v2"] = combine(rated, W)
+    rated = rated.sort_values("score_v2", ascending=False)
+    rated["rank_v2"] = rated["score_v2"].rank(ascending=False, method="min").astype(int)
+    rated["rank_change"] = rated["rank_v1"] - rated["rank_v2"]       # positive = moves UP the neglect list in v2
+    unrated = df[~df["severity_rated"]].copy()
+    df = pd.concat([rated, unrated], ignore_index=True)
+    sens_base = rated.reset_index(drop=True)
     df.round(2).to_csv(PROC / "neglect_scores_v2.csv", index=False)
 
     # sensitivity: rank of each crisis under every weighting
-    ranks = pd.DataFrame({n: combine(df, w).rank(ascending=False, method="min") for n, w in SCENARIOS.items()})
-    sens = pd.DataFrame({"location_name": df["location_name"], "best_rank": ranks.min(axis=1).astype(int),
+    ranks = pd.DataFrame({n: combine(sens_base, w).rank(ascending=False, method="min") for n, w in SCENARIOS.items()})
+    sens = pd.DataFrame({"location_name": sens_base["location_name"], "best_rank": ranks.min(axis=1).astype(int),
                          "worst_rank": ranks.max(axis=1).astype(int),
                          "times_in_top5": (ranks <= 5).sum(axis=1), "times_in_top10": (ranks <= 10).sum(axis=1)})
     sens.to_csv(PROC / "sensitivity_v2.csv", index=False)
 
-    show = df[["rank_v2", "location_name", "score_v2", "rank_v1", "rank_change", "funding_pct", "inform_severity",
+    show = rated[["rank_v2", "location_name", "score_v2", "rank_v1", "rank_change", "funding_pct", "inform_severity",
                "people_in_need", "reports_per_week"]].merge(sens[["location_name", "best_rank", "worst_rank"]], on="location_name")
     print("NEGLECT SCORE v2 (100 = most neglected); rank_change > 0 means higher up the list than in v1\n")
     print(show.to_string(index=False, formatters={"funding_pct": "{:.0f}%".format, "people_in_need": "{:,.0f}".format,
                                                   "reports_per_week": "{:.1f}".format, "inform_severity": "{:.1f}".format}))
     print("\nTop 5 in every weighting:", ", ".join(sens[sens.times_in_top5 == len(SCENARIOS)]["location_name"]) or "none")
-    print("Not rated by INFORM (scored without severity):", ", ".join(df[~df.severity_rated]["location_name"]))
+    print("Not rated by INFORM (listed separately, no v2 score):", ", ".join(unrated["location_name"]))
     return df
 
 
