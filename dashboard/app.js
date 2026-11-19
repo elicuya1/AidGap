@@ -76,7 +76,7 @@
   (function () {
     var d = new Date(D.generated + "T00:00:00"), nice = isNaN(d) ? D.generated : d.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
     $("dateline").textContent = "Data as of " + nice + " · " + crises.length + " crises · OCHA FTS · HDX HAPI · ReliefWeb · GDELT";
-    $("mast").textContent = "Field report " + D.year + " · v40";
+    $("mast").textContent = "Field report " + D.year + " · v42";
   })();
   function countUp() {
     if ("IntersectionObserver" in window && !countUp.go) { var io = new IntersectionObserver(function (es) { if (es[0].isIntersecting) { io.disconnect(); countUp.go = 1; countUp(); } }, { threshold: 0.4 }); io.observe($("s-intro")); return; }
@@ -325,7 +325,16 @@
     for (var i = 0; i < clusters.length; i++) { var r = clusters[i]; if (x >= r.x && x <= r.x + r.w && y >= r.y && y <= r.y + r.h) return r; }
     return null;
   }
-  function hideTip() { tip.classList.remove("on"); }
+  /* Tooltips: the first waits 220 ms so a passing pointer does not trigger it; once one has shown, the next ones appear at once. */
+  var tipLast = 0;
+  function tipOn(el) {
+    if (el.classList.contains("on")) return;
+    clearTimeout(el._t);
+    if (performance.now() - tipLast < 400) { el.classList.add("instant", "on"); return; }
+    el.classList.remove("instant"); el._t = setTimeout(function () { el.classList.add("on"); }, 220);
+  }
+  function tipOff(el) { clearTimeout(el._t); if (el.classList.contains("on")) tipLast = performance.now(); el.classList.remove("on"); }
+  function hideTip() { tipOff(tip); }
   canvas.addEventListener("mousemove", function (ev) {
     if (mode !== "country") return;
     var r = hitCluster(ev), ci = r ? r.ci : -1; canvas.classList.toggle("pointer", !!r);
@@ -334,7 +343,7 @@
     var c = crises[ci];
     tip.innerHTML = "<b>" + esc(c.location_name) + "</b>#" + c.rank + " · " + fmtPeople(c.people_in_need) + " in need · " + c.funding_pct.toFixed(0) + "% funded";
     var b = canvas.getBoundingClientRect(), tx = ev.clientX - b.left + 14, ty = ev.clientY - b.top + 14; if (tx + 200 > W) tx = ev.clientX - b.left - 210;
-    tip.style.left = tx + "px"; tip.style.top = ty + "px"; tip.classList.add("on");
+    tip.style.left = tx + "px"; tip.style.top = ty + "px"; tipOn(tip);
   });
   canvas.addEventListener("mouseleave", function () { hover = -1; hideTip(); tick(); });
   canvas.addEventListener("click", function (ev) { if (mode !== "country") return; var r = hitCluster(ev); if (r) openCountry(crises[r.ci].location_code); });
@@ -395,15 +404,15 @@
   function codeAt(ev) { var t = ev.target.closest && ev.target.closest("path[data-code]"); return t ? t.getAttribute("data-code") : null; }
   svg.addEventListener("mousemove", function (ev) {
     var code = codeAt(ev), ent = code && byCode[code];
-    if (!ent) { mapTip.classList.remove("on"); return; }
+    if (!ent) { tipOff(mapTip); return; }
     var b = svg.getBoundingClientRect();
     mapTip.innerHTML = ent.kind === "ranked"
       ? "<b>" + esc(ent.c.location_name) + "</b>#" + ent.c.rank + " · score " + ent.c.neglect_score.toFixed(1) + " · " + ent.c.funding_pct.toFixed(0) + "% funded"
       : "<b>" + esc(ent.u.location_name) + "</b>Appeal " + ent.u.funding_pct.toFixed(0) + "% funded · not scored";
     var tx = ev.clientX - b.left + 14, ty = ev.clientY - b.top + 14; if (tx + 220 > b.width) tx = ev.clientX - b.left - 230;
-    mapTip.style.left = tx + "px"; mapTip.style.top = ty + "px"; mapTip.classList.add("on");
+    mapTip.style.left = tx + "px"; mapTip.style.top = ty + "px"; tipOn(mapTip);
   });
-  svg.addEventListener("mouseleave", function () { mapTip.classList.remove("on"); });
+  svg.addEventListener("mouseleave", function () { tipOff(mapTip); });
   svg.addEventListener("click", function (ev) { if (dragged) return; var code = codeAt(ev); if (code) openCountry(code); });
   svg.addEventListener("keydown", function (ev) { if (ev.key === "Enter" || ev.key === " ") { var code = codeAt(ev); if (code) { ev.preventDefault(); openCountry(code); } } });
   (function enableDrag() {
