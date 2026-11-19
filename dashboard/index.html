@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#000000">
+<meta name="theme-color" content="#0d0c0b">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <title>AidGap</title>
 <meta name="description" content="Humanitarian need versus funding: which crises are being left behind, who pays, and who is paying attention?">
@@ -549,6 +549,7 @@
     .rank-list button:hover { background: var(--raise); }
     .rank-list button:hover .nm { text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px; }
   }
+  .rank-list li:nth-child(-n+3) button { box-shadow: inset 3px 0 0 var(--unmet); padding-left: 16px; }
   .rank-list .sc, .rank-list .score { font-variant-numeric: tabular-nums; }
   /* links in running text: the underline draws in from the left */
   .fig a, .note a, .info a, .sub a, .method a, .what-b a { text-decoration: none; background: linear-gradient(currentColor, currentColor) 0 100% / 100% 1px no-repeat; transition: background-size .25s var(--ease-out); }
@@ -565,49 +566,6 @@
     .wrap { padding-left: 16px; padding-right: 16px; }
     .rank-list button { grid-template-columns: 34px minmax(0,1fr) 84px; gap: 10px; }
   }
-
-  /* ---------- v39 Apple look (replaces the old field-report styling) ----------
-     System font, grouped surfaces on a quiet ground, Apple system colours, large soft radii, pill controls, no film
-     grain or vignette, and glass only on the floating top bar. Marked-up facts, data and layout are unchanged. */
-  :root {
-    --serif: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI Variable Display", "Segoe UI", system-ui, Roboto, "Helvetica Neue", Arial, sans-serif;
-    --mono: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI Variable Text", "Segoe UI", system-ui, Roboto, "Helvetica Neue", Arial, sans-serif;
-    --bg: #000000; --surface: #1c1c1e; --raise: #2c2c2e; --ink: #f5f5f7; --ink2: #a1a1a6; --muted: #98989d; --line: #38383a; --base: #48484a;
-    --funded: #2997ff; --unmet: #ff453a; --unmet-deep: #c4231c; --unmet-text: #ff6961; --land: #2c2c2e; --media: #a79bf0;
-    --glass: rgba(0,0,0,.66); --shadow: 0 18px 50px rgba(0,0,0,.55); --grain: 0; --r: 18px;
-  }
-  :root[data-theme="light"] {
-    --bg: #f2f2f7; --surface: #ffffff; --raise: #f7f7fa; --ink: #1d1d1f; --ink2: #515154; --muted: #6e6e73; --line: #d1d1d6; --base: #c7c7cc;
-    --funded: #0066cc; --unmet: #d70015; --unmet-deep: #a40011; --unmet-text: #d70015; --land: #e5e5ea; --media: #5b4fb3;
-    --glass: rgba(242,242,247,.72); --shadow: 0 18px 50px rgba(0,0,0,.14);
-  }
-  body { letter-spacing: -.011em; }
-  body::before, body::after, :root[data-theme="light"] body::after { display: none; }
-  h1, h2, h3, .brand b { font-weight: 700; letter-spacing: -.03em; }
-  h2.big { font-weight: 700; letter-spacing: -.035em; }
-  .brand b { font-size: 19px; }
-  .brand small, .pill, .rail button, .kicker, .dateline, .scroll-cue, .btn, .cmph, .bs-l, .seg button, .chips span.h, .lowc, details.table-view summary, .life-hist h4, .duo .d-name small, .duel .vs, .kind, #scatter .quad, .mhead, .tab, .srcs .st, .d-rank, .stat span, .m-left h4, .what-l, .what-down, .explain .ex-l, .keybtn, .keypanel h4 { text-transform: none; letter-spacing: -.005em; }
-  .kicker { font-size: 13px; }
-  .kicker b { font-weight: 600; }
-  /* the one glass layer: the floating top bar */
-  .bar { pointer-events: auto; padding: 8px 20px; min-height: 52px; background: var(--glass); -webkit-backdrop-filter: saturate(180%) blur(22px); backdrop-filter: saturate(180%) blur(22px); border-bottom: .5px solid var(--line); }
-  .bar > * { text-shadow: none; }
-  @media (prefers-reduced-transparency: reduce) { .bar { background: var(--bg); -webkit-backdrop-filter: none; backdrop-filter: none; } }
-  /* surfaces and controls */
-  .card, .gcard, .map-card, .sankey-card, .news-list, .news-pane, .example, .notice, .keypanel, .tile, .life-card, .give a, .field-card { border-radius: var(--r); border-color: transparent; }
-  .modal { border-radius: 22px; }
-  .btn, .pill, .chip, .lchip, .keybtn, .seg, .seg button, .tab, .zoom button, .stat { border-radius: 980px; }
-  .btn { background: var(--funded); border-color: var(--funded); color: #fff; font-weight: 600; letter-spacing: -.005em; }
-  :root:not([data-theme="light"]) .btn { color: #000; }
-  .btn.ghost { background: transparent; color: var(--funded); border-color: var(--line); }
-  .pill, .chip, .lchip { background: var(--surface); border-color: transparent; }
-  .seg { background: var(--raise); border-color: transparent; }
-  .rank-list li { border-bottom-color: var(--line); }
-  .rank-list button:hover { border-radius: 12px; }
-  .tabs { border-bottom-color: var(--line); }
-  .tab[aria-selected="true"] { border-bottom-color: var(--funded); }
-  .stack, .bar-t, .tr2 { border-radius: 99px; overflow: hidden; }
-  .card, .tile, .gcard, .example, .notice, .news-list, .news-pane, .life-card, .field-card, .map-card, .sankey-card { background: var(--surface); -webkit-backdrop-filter: none; backdrop-filter: none; box-shadow: none; }
 </style>
 </head>
 <body>
@@ -819,14 +777,14 @@
 </div>
 
 <!-- ?v=9 makes your browser fetch fresh copies after each update instead of reusing an old saved page -->
-<script src="data.js?v=39"></script>
-<script src="score.js?v=39"></script>
-<script src="map.js?v=39"></script>
-<script src="media.js?v=39" onerror="window.AIDGAP_MEDIA=null"></script>
-<script src="reports.js?v=39" onerror="window.AIDGAP_REPORTS=null"></script>
-<script src="donors.js?v=39" onerror="window.AIDGAP_DONORS=null"></script>
-<script src="donortrend.js?v=39" onerror="window.AIDGAP_TREND=null"></script>
-<script src="vortex.js?v=39"></script>
-<script src="app.js?v=39"></script>
+<script src="data.js?v=38"></script>
+<script src="score.js?v=38"></script>
+<script src="map.js?v=38"></script>
+<script src="media.js?v=38" onerror="window.AIDGAP_MEDIA=null"></script>
+<script src="reports.js?v=38" onerror="window.AIDGAP_REPORTS=null"></script>
+<script src="donors.js?v=38" onerror="window.AIDGAP_DONORS=null"></script>
+<script src="donortrend.js?v=38" onerror="window.AIDGAP_TREND=null"></script>
+<script src="vortex.js?v=38"></script>
+<script src="app.js?v=38"></script>
 </body>
 </html>
