@@ -530,6 +530,32 @@
     *, *::before, *::after { transition-duration: 0s !important; transition-delay: 0s !important; animation: none !important; }
     .js .mask > span, .js .rv { transform: none; opacity: 1; }
   }
+
+  /* ---------- v34 polish layer: hover and press feedback, reading comfort, phone tap sizes ---------- */
+  html { scroll-padding-top: 12px; }
+  h1, h2.big { text-wrap: balance; }
+  p, li { text-wrap: pretty; }
+  .btn, .pill, .chip, .lchip, .seg button, .tab, .zoom button { transition: background .18s, color .18s, border-color .18s, transform .12s, box-shadow .18s; touch-action: manipulation; }
+  .btn:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(0,0,0,.35); }
+  .btn:active, .pill:active, .chip:active, .lchip:active, .seg button:active, .zoom button:active { transform: translateY(1px) scale(.98); box-shadow: none; }
+  .pill:hover, .chip:hover, .lchip:hover { border-color: var(--ink2); color: var(--ink); }
+  .gcard:hover, .give a:hover { transform: translateY(-2px); border-color: var(--ink2); }
+  .gcard:active, .give a:active { transform: translateY(0); }
+  .rank-list button:hover { background: var(--raise); }
+  .rank-list button:hover .nm { text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px; }
+  .rank-list li:nth-child(-n+3) button { box-shadow: inset 3px 0 0 var(--unmet); padding-left: 16px; }
+  .rank-list .sc, .rank-list .score { font-variant-numeric: tabular-nums; }
+  /* links in running text: the underline draws in from the left */
+  .fig a, .note a, .info a, .sub a, .method a, .what-b a { text-decoration: none; background: linear-gradient(currentColor, currentColor) 0 100% / 100% 1px no-repeat; transition: background-size .25s; }
+  .fig a:hover, .note a:hover, .info a:hover, .sub a:hover, .method a:hover { background-size: 0 1px; background-position: 100% 100%; }
+  @media (pointer: coarse) {
+    .pill, .chip, .lchip, .tab, .seg button, .zoom button, .btn, .keybtn { min-height: 44px; }
+    .rank-list button, .mrow { min-height: 56px; }
+  }
+  @media (max-width: 640px) {
+    .wrap { padding-left: 16px; padding-right: 16px; }
+    .rank-list button { grid-template-columns: 34px minmax(0,1fr) 84px; gap: 10px; }
+  }
 </style>
 </head>
 <body>
@@ -741,14 +767,14 @@
 </div>
 
 <!-- ?v=9 makes your browser fetch fresh copies after each update instead of reusing an old saved page -->
-<script src="data.js?v=33"></script>
-<script src="score.js?v=33"></script>
-<script src="map.js?v=33"></script>
-<script src="media.js?v=33" onerror="window.AIDGAP_MEDIA=null"></script>
-<script src="reports.js?v=33" onerror="window.AIDGAP_REPORTS=null"></script>
-<script src="donors.js?v=33" onerror="window.AIDGAP_DONORS=null"></script>
-<script src="donortrend.js?v=33" onerror="window.AIDGAP_TREND=null"></script>
-<script src="vortex.js?v=33"></script>
-<script src="app.js?v=33"></script>
+<script src="data.js?v=34"></script>
+<script src="score.js?v=34"></script>
+<script src="map.js?v=34"></script>
+<script src="media.js?v=34" onerror="window.AIDGAP_MEDIA=null"></script>
+<script src="reports.js?v=34" onerror="window.AIDGAP_REPORTS=null"></script>
+<script src="donors.js?v=34" onerror="window.AIDGAP_DONORS=null"></script>
+<script src="donortrend.js?v=34" onerror="window.AIDGAP_TREND=null"></script>
+<script src="vortex.js?v=34"></script>
+<script src="app.js?v=34"></script>
 </body>
 </html>

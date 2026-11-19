@@ -76,7 +76,7 @@
   (function () {
     var d = new Date(D.generated + "T00:00:00"), nice = isNaN(d) ? D.generated : d.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
     $("dateline").textContent = "Data as of " + nice + " · " + crises.length + " crises · OCHA FTS · HDX HAPI · ReliefWeb · GDELT";
-    $("mast").textContent = "Field report " + D.year + " · v33";
+    $("mast").textContent = "Field report " + D.year + " · v34";
   })();
   function countUp() {
     if ("IntersectionObserver" in window && !countUp.go) { var io = new IntersectionObserver(function (es) { if (es[0].isIntersecting) { io.disconnect(); countUp.go = 1; countUp(); } }, { threshold: 0.4 }); io.observe($("s-intro")); return; }
@@ -1004,7 +1004,7 @@
     "s-media": ["Attention", [["dot", "var(--unmet)", "<b>Red bars</b>: the ten most neglected crises."], ["dot", "var(--media)", "<b>Other bars</b>: the remaining crises."], ["txt", "- -", "<b>Dashed line</b>: the median crisis."], ["txt", "!", "Bars count reports that <b>aid organisations</b> publish on ReliefWeb per week. This is <b>not</b> general news coverage, where a crisis like Gaza or Ukraine would dominate."]]],
     "s-news": ["The newsroom", [["txt", "Local", "<b>Local</b>: published inside the country, plus reports from its own government, national Red Cross/Crescent, or organisations named for it."], ["txt", "Intl", "<b>International</b>: everything published from outside."], ["txt", "News", "<b>News</b> = a news outlet. <b>Aid report</b> = from an aid or UN organisation."], ["txt", "state", "<b>State-linked</b>: the outlet is owned or run by a government. This says who owns it, not whether it is accurate."], ["txt", "!", "Headlines link to the original. Translations are machine translations and can be wrong."]]],
     "s-gaps": ["By hand", [["txt", "hand", "Where the official data had no people-in-need figure, we found one in the original document. Each card shows the figure, the source and how sure we are."], ["txt", "high", "<b>High / medium / low</b>: how well the figure matches the funding plan it belongs to."]]],
-    "s-method": ["Method and sources", [["txt", "40/40/20", "How the score is built, fixed weights, and every data source we used with the date we read it."]]]
+    "s-method": ["Method and sources", [["txt", "30/30", "How the score is built, fixed weights, and every data source we used with the date we read it."]]]
   };
   (function () {
     var box = $("keybox"), btn = $("keyBtn"), panel = $("keyPanel"), cur = "", open = false;
@@ -1027,7 +1027,7 @@
     var pend = false; window.addEventListener("scroll", function () { if (pend) return; pend = true; requestAnimationFrame(function () { pend = false; which(); }); }, { passive: true });
     which();
     if (!(function () { try { return localStorage.getItem("aidgapKeySeen"); } catch (e) { return "1"; } })()) {
-      setTimeout(function () { if (cur === "s-what") return; set(true); try { localStorage.setItem("aidgapKeySeen", "1"); } catch (e) {} }, 1800);
+      setTimeout(function () { if (cur === "s-what" || window.innerWidth < 700) return; set(true); try { localStorage.setItem("aidgapKeySeen", "1"); } catch (e) {} }, 1800);
     }
   })();
   var rzT;
