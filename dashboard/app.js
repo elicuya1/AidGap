@@ -1111,7 +1111,12 @@
     function age(i) { var t = new Date(i.date + "T00:00:00Z").getTime(); return isNaN(t) ? 9999 : Math.round((t0 - t) / 864e5); }
     var week = L.items.filter(function (i) { return age(i) <= 7; }), seen = {}, nC = 0;
     week.forEach(function (i) { (i.iso3 || []).forEach(function (c) { if (!seen[c]) { seen[c] = 1; nC++; } }); });
-    var red = week.filter(function (i) { return /red(?! cross)/i.test(i.level || ""); }).length;
+    var red = week.filter(function (i) { return /\bred(?! cross)\b/i.test(i.level || ""); }).length;
+    var lb = $("livebar");
+    if (lb) {   /* the strip across the top: live numbers and the way into the tracker */
+      lb.innerHTML = '<span class="pd" aria-hidden="true"></span><b>Live</b><span>' + week.length + " new listings this week" + (red ? ", " + red + " at red alert" : "") + '</span><span class="lbx">Latest: ' + esc(L.items[0].title) + '</span><span class="go">Open the live tracker</span>';
+      document.documentElement.classList.add("has-livebar");
+    }
     var old = L.items.filter(function (i) { return i.source === "ReliefWeb" && age(i) > 365; }).sort(function (a, b) { return age(b) - age(a); })[0];
     var cells = [[week.length, "listings began in the past week, across " + nC + " countries" + (red ? ", " + red + " at red alert" : ""), ""], [L.items.length, "events listed as active by six public sources", "blue"]];
     if (old) cells.push([Math.floor(age(old) / 365.25), "years since the oldest crisis still listed as ongoing began: " + old.title, "red"]);

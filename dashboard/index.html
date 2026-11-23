@@ -526,6 +526,20 @@
   .bar > * { text-shadow: none; }
   @media (max-width: 800px) { .modal { border-radius: 0; } }
 
+  /* the Live strip across the top: the way into the live tracker */
+  .livebar { position: fixed; top: 0; left: 0; right: 0; z-index: 31; height: 30px; display: none; align-items: center; justify-content: center; gap: 12px; padding: 0 16px; background: var(--surface); border-bottom: 1px solid var(--line); font-family: var(--mono); font-size: 13px; color: var(--ink2); text-decoration: none; white-space: nowrap; overflow: hidden; transition: color .18s, background-color .18s; }
+  .livebar:hover { color: var(--ink); background: var(--raise); }
+  .livebar b { color: var(--ink); font-weight: 600; }
+  .livebar .go { color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
+  .livebar .pd { width: 8px; height: 8px; border-radius: 50%; background: var(--unmet-text); position: relative; flex: none; }
+  .livebar .pd::after { content: ""; position: absolute; inset: 0; border-radius: 50%; border: 2px solid var(--unmet-text); animation: lring 2.4s ease-out infinite; }
+  @keyframes lring { from { transform: scale(1); opacity: .9; } to { transform: scale(3.2); opacity: 0; } }
+  .has-livebar .livebar { display: flex; }
+  .has-livebar .bar { top: 30px; }
+  .has-livebar { scroll-padding-top: 106px; }
+  @media (max-width: 760px) { .livebar .lbx { display: none; } }
+  @media (prefers-reduced-motion: reduce) { .livebar .pd::after { animation: none; } }
+
   @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; scroll-snap-type: none; }
     *, *::before, *::after { transition-duration: 0s !important; transition-delay: 0s !important; animation: none !important; }
@@ -588,6 +602,7 @@
   <button type="button" class="keybtn" id="keyBtn" aria-expanded="false" aria-controls="keyPanel"><b>?</b> <span>Key</span></button>
   <div class="keypanel" id="keyPanel" role="region" aria-label="How to read this section" hidden></div>
 </div>
+<a class="livebar" id="livebar" href="live.html" aria-label="Open the live tracker"></a>
 <header class="bar">
   <a class="brand" href="#s-intro"><b>Aid<span>Gap</span></b><small id="mast">Humanitarian funding monitor</small></a>
   <button class="pill" id="themeBtn" type="button" aria-label="Switch between dark and light theme">Theme</button>

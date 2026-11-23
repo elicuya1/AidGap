@@ -35,6 +35,15 @@
   :focus-visible { outline: 2px solid var(--funded); outline-offset: 3px; border-radius: 3px; }
   .wrap { max-width: 1240px; margin: 0 auto; padding: 0 20px; position: relative; width: 100%; min-width: 0; }
   main, .bar, .rail { position: relative; z-index: 1; }
+  /* the strip across the top: the way back to the funding page */
+  .livebar { position: fixed; top: 0; left: 0; right: 0; z-index: 31; height: 30px; display: none; align-items: center; justify-content: center; gap: 12px; padding: 0 16px; background: var(--surface); border-bottom: 1px solid var(--line); font-family: var(--mono); font-size: 13px; color: var(--ink2); text-decoration: none; white-space: nowrap; overflow: hidden; transition: color .18s, background-color .18s; }
+  .livebar:hover { color: var(--ink); background: var(--raise); }
+  .livebar b { color: var(--ink); font-weight: 600; }
+  .livebar .go { color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
+  .has-livebar .livebar { display: flex; }
+  .has-livebar .bar { top: 30px; }
+  .has-livebar { scroll-padding-top: 106px; }
+  @media (max-width: 640px) { .livebar .lbx { display: none; } }
 
   /* top bar and rail: the same as the funding page */
   .bar { position: fixed; top: 0; left: 0; right: 0; z-index: 30; display: flex; justify-content: space-between; align-items: center; padding: 14px 24px; pointer-events: none; }
@@ -90,12 +99,15 @@
   #disc .ring { fill: none; stroke: var(--ink2); stroke-opacity: .55; stroke-width: 1; stroke-dasharray: 3 5; pointer-events: none; }
   #disc .ring.on { stroke: var(--ink); stroke-opacity: 1; stroke-width: 2; stroke-dasharray: none; }
   #disc text { font-family: var(--mono); font-size: 12.5px; fill: var(--muted); text-anchor: middle; }
-  .dt { transition: opacity .3s, transform .2s; transform-box: fill-box; transform-origin: center; cursor: pointer; }
+  .spiral { position: fixed; left: 0; top: 0; z-index: 0; pointer-events: none; }
+  .spiral.front { z-index: 5; }
+  @media (max-width: 800px) { .spiral { opacity: .55; } }
+  #disc.pending .dt, #disc.pending .ring { opacity: 0; }
+  #disc .ring { transition: opacity .6s; }
+  .dt { transition: opacity .6s, transform .2s; transform-box: fill-box; transform-origin: center; cursor: pointer; }
   .dt.s1 { fill: var(--muted); } .dt.s2 { fill: var(--amber); } .dt.s3 { fill: var(--unmet-text); }
   .dt.dim { opacity: .14; }
   .dt:hover { transform: scale(1.7); }
-  .intro .dt { animation: pop .5s cubic-bezier(.23, 1, .32, 1) both; }
-  @keyframes pop { from { opacity: 0; transform: scale(.1); } to { opacity: 1; transform: none; } }
   .dt.fresh { animation: blip 1.6s ease-out 3; }
   @keyframes blip { 0%, 100% { transform: scale(1); } 50% { transform: scale(2.4); } }
   .tip { position: absolute; pointer-events: none; background: var(--raise); border: 1px solid var(--base); border-radius: 4px; padding: 8px 12px; font-size: 13px; max-width: 280px; opacity: 0; transform: translate(-50%, -112%); transition: opacity .12s; z-index: 3; line-height: 1.4; }
@@ -172,11 +184,13 @@
 </head>
 <body>
 <a class="skip" href="#log">Skip to the events</a>
+<a class="livebar" id="fundbar" href="index.html"></a>
 <header class="bar">
   <a class="brand" href="index.html" aria-label="AidGap, back to the funding gaps"><b translate="no">Aid<span>Gap</span></b><small>Live tracker</small></a>
   <button class="pill" id="theme" type="button" aria-label="Switch between dark and light theme">Theme</button>
 </header>
 <nav class="rail" id="rail" aria-label="Sections"></nav>
+<canvas id="spiral" class="spiral" aria-hidden="true"></canvas>
 
 <main id="main" tabindex="-1">
   <section class="slide hero" id="s-now" data-label="Right now">
@@ -259,6 +273,15 @@
     var mio = new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add("in"); mio.unobserve(e.target); } }); }, { threshold: 0.2 });
     slides.forEach(function (s) { rio.observe(s); }); Array.prototype.forEach.call(document.querySelectorAll(".mask"), function (m) { mio.observe(m); });
   } else Array.prototype.forEach.call(document.querySelectorAll(".mask"), function (m) { m.classList.add("in"); });
+
+
+  // ---------- the strip across the top: back to the funding page, with its most neglected crisis
+  (function () {
+    var top = null; if (FUND && FUND.crises) FUND.crises.forEach(function (c) { if (c.rank != null && (!top || c.rank < top.rank)) top = c; });
+    var el = $("fundbar"); if (!top) return;
+    el.innerHTML = '<b>Funding gaps</b><span class="lbx">' + esc(top.location_name) + " is the most neglected crisis, " + Math.round(top.funding_pct) + '% funded</span><span class="go">Open the funding page</span>';
+    root.classList.add("has-livebar");
+  })();
 
   if (!D) { $("log").innerHTML = '<p class="none">The tracker data has not been loaded yet. Run <code>python src/fetch_live.py</code>.</p>'; $("headline").textContent = "No data yet."; return; }
 
@@ -347,21 +370,21 @@
   }
 
   // ---------- the disc: every event is a dot, newest at the centre (a sunflower spiral), area = number of events
-  var WINS = [[1, "Today"], [7, "Last 7 days"], [30, "Last 30 days"], [182, "Last 6 months"], [0, "Everything"]], tip = $("tip"), discItems = [];
+  var WINS = [[1, "Today"], [7, "Last 7 days"], [30, "Last 30 days"], [182, "Last 6 months"], [0, "Everything"]], tip = $("tip"), discItems = [], discPts = [], discVB = 560, discReady = reduce;
+  function setReady(on) { discReady = on; $("disc").setAttribute("class", on ? "" : "pending"); }
   function drawDisc(gs) {
     var box = $("discbox"), W = Math.max(280, Math.min(box.clientWidth || 520, 560)), cx = W / 2, cy = W / 2, R = W / 2 - 22;
-    var sorted = gs.slice().sort(function (a, b) { return ageOf(a) - ageOf(b) || b.sev - a.sev; }); discItems = sorted;
+    var sorted = gs.slice().sort(function (a, b) { return ageOf(a) - ageOf(b) || b.sev - a.sev; }); discItems = sorted; discPts = []; discVB = W;
     var s = R / Math.sqrt(Math.max(1, allGroups.length)), dr = Math.max(1.6, s * 0.56), out = "", i;     // one fixed scale: fewer events = a smaller disc
     var cum = function (w) { return sorted.filter(function (g) { return ageOf(g) <= w; }).length; };
     var ringsSvg = "";
     [[7, "7 days"], [30, "30 days"], [182, "6 months"]].forEach(function (rg) { var n = cum(rg[0]); if (!n || n >= sorted.length) return; ringsSvg += '<circle class="ring' + (st.win === rg[0] ? " on" : "") + '" cx="' + cx + '" cy="' + cy + '" r="' + (s * Math.sqrt(n) + s * 0.9) + '"/>'; });
     for (i = 0; i < sorted.length; i++) {
-      var g = sorted[i], rr2 = s * Math.sqrt(i + 0.5), th = i * 2.399963, x = cx + rr2 * Math.cos(th), y = cy + rr2 * Math.sin(th), dim = st.win && ageOf(g) > st.win;
-      out += '<a href="' + esc(safe(g.lead.url)) + '" target="_blank" rel="noopener noreferrer" tabindex="-1"><circle class="dt s' + g.sev + (dim ? " dim" : "") + (g.fresh ? " fresh" : "") + '" data-i="' + i + '" cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="' + dr.toFixed(1) + '"' + (firstDraw ? ' style="animation-delay:' + Math.min(900, i * 2.2).toFixed(0) + 'ms"' : "") + "/></a>";
+      var g = sorted[i], rr2 = s * Math.sqrt(i + 0.5), th = i * 2.399963, x = cx + rr2 * Math.cos(th), y = cy + rr2 * Math.sin(th), dim = st.win && ageOf(g) > st.win; discPts.push({ x: x, y: y, r: dr });
+      out += '<a href="' + esc(safe(g.lead.url)) + '" target="_blank" rel="noopener noreferrer" tabindex="-1"><circle class="dt s' + g.sev + (dim ? " dim" : "") + (g.fresh ? " fresh" : "") + '" data-i="' + i + '" cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="' + dr.toFixed(1) + '"/></a>';
     }
     out += ringsSvg;
-    var svg = $("disc"); svg.setAttribute("viewBox", "0 0 " + W + " " + W); svg.setAttribute("class", firstDraw ? "intro" : ""); svg.innerHTML = out;
-    if (firstDraw) { firstDraw = false; setTimeout(function () { svg.setAttribute("class", ""); }, 1800); }
+    var svg = $("disc"); svg.setAttribute("viewBox", "0 0 " + W + " " + W); svg.setAttribute("class", discReady ? "" : "pending"); svg.innerHTML = out;
   }
   (function () {
     var svg = $("disc");
@@ -372,6 +395,47 @@
       tip.style.left = Math.min(Math.max(r.left + r.width / 2 - b.left, 120), b.width - 120) + "px"; tip.style.top = (r.top - b.top) + "px"; tip.className = "tip on";
     });
     svg.addEventListener("mouseout", function () { tip.className = "tip"; });
+  })();
+
+
+  // ---------- the dots of the first screen: a calm drifting cloud at the edges that flies into the disc when its section slides up
+  (function () {
+    var cv = $("spiral"), ctx = cv.getContext && cv.getContext("2d");
+    if (reduce || !ctx) { setReady(true); if (cv) cv.style.display = "none"; return; }
+    var W = 0, H = 0, TAU = Math.PI * 2, E = 0, landedAt = 0, lastT = performance.now(), t0 = lastT, dots = null, cols = null, running = false, raf = 0, FLY = 1.2, DISSOLVE = 0.8, forceE = null;
+    function rnd(seed) { var x = seed; return function () { x = (x * 1664525 + 1013904223) % 4294967296; return x / 4294967296; }; }
+    function readCols() { var c = getComputedStyle(document.documentElement); cols = { 3: c.getPropertyValue("--unmet-text").trim() || "#e0757a", 2: c.getPropertyValue("--amber").trim() || "#c9a04a", 1: c.getPropertyValue("--muted").trim() || "#84948a", theme: root.getAttribute("data-theme") }; }
+    function build() { var r = rnd(7), n = Math.min(600, Math.max(1, allGroups.length)); dots = []; for (var i = 0; i < n; i++) dots.push({ side: r() < 0.5 ? 0 : 1, fx: r(), fy: r(), ph: r() * TAU, ph2: r() * TAU, sp: 0.25 + r() * 0.3, rad: 1.5 + r() * 1.3 }); }
+    function resize() { var dpr = Math.min(window.devicePixelRatio || 1, 1.5); W = window.innerWidth; H = window.innerHeight; cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); cv.style.width = W + "px"; cv.style.height = H + "px"; ctx.setTransform(dpr, 0, 0, dpr, 0, 0); draw(); }
+    function ease(x) { x = Math.max(0, Math.min(1, x)); return x * x * (3 - 2 * x); }
+    function draw() {
+      var now = performance.now(), dt = Math.min(0.1, (now - lastT) / 1000); lastT = now; ctx.clearRect(0, 0, W, H);
+      if (!allGroups.length || !discPts.length) { running = true; return; }
+      if (!dots) build();
+      if (!cols || cols.theme !== root.getAttribute("data-theme")) readCols();
+      var el = $("s-disc"), goal = el && el.getBoundingClientRect().top < H * 0.7 ? 1 : 0, alpha = 1;
+      if (forceE != null) E = forceE; else E += (goal > E ? 1 : -1) * Math.min(Math.abs(goal - E), dt / FLY);
+      if (E >= 1) { if (!landedAt) landedAt = now; alpha = 1 - Math.min(1, (now - landedAt) / (DISSOLVE * 1000)); if (!discReady) setReady(true); }
+      else { landedAt = 0; if (discReady) setReady(false); }
+      cv.classList.toggle("front", E > 0.02 && alpha > 0.05);
+      if (alpha <= 0.01) { running = false; return; }
+      var svg = $("disc"), rc = svg.getBoundingClientRect(), k = rc.width / discVB, t = (now - t0) / 1000, e = ease(E);
+      for (var i = 0; i < dots.length; i++) {
+        var d = dots[i], g = discItems[i], sev = g ? g.sev : 1, p = discPts[i];
+        var x = (d.side ? W * (0.8 + 0.18 * d.fx) : W * (0.02 + 0.16 * d.fx)) + Math.sin(t * d.sp + d.ph) * 14, y = H * (0.08 + 0.84 * d.fy) + Math.cos(t * d.sp * 0.8 + d.ph2) * 14, rad = d.rad, al = 0.7;
+        if (e > 0) { if (p) { x += (rc.left + p.x * k - x) * e; y += (rc.top + p.y * k - y) * e; rad += (p.r * k - rad) * e; al = 0.7 + 0.15 * e; } else al = 0.7 * (1 - e); }
+        if (al <= 0.01) continue;
+        ctx.globalAlpha = Math.min(1, al * alpha); ctx.fillStyle = cols[sev] || cols[1];
+        ctx.beginPath(); ctx.arc(x, y, rad, 0, TAU); ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+    }
+    function loop() { draw(); raf = running ? requestAnimationFrame(loop) : 0; }
+    function start() { running = true; if (!raf) loop(); }
+    window.__discSetE = function (q) { forceE = q; landedAt = 0; draw(); };   // testing: 0 = cloud, 1 = landed in the disc
+    window.__discDebug = function () { return { E: E, running: running, raf: !!raf, dots: dots && dots.length, pts: discPts.length, ready: discReady, W: W, H: H }; };   // testing
+    window.addEventListener("resize", resize); window.addEventListener("scroll", start, { passive: true });
+    resize(); start();
   })();
 
   function drawWins(gs) {
