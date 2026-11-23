@@ -590,7 +590,6 @@
 </div>
 <header class="bar">
   <a class="brand" href="#s-intro"><b>Aid<span>Gap</span></b><small id="mast">Humanitarian funding monitor</small></a>
-  <a class="pill" href="live.html" style="text-decoration:none;margin-left:auto;margin-right:8px">Live tracker</a>
   <button class="pill" id="themeBtn" type="button" aria-label="Switch between dark and light theme">Theme</button>
 </header>
 <nav class="rail" id="rail" aria-label="Sections"></nav>
@@ -746,9 +745,20 @@
     </div>
   </section>
 
+  <section class="slide" id="s-live" data-label="Happening now">
+    <div class="wrap">
+      <div class="kicker rv"><b>10</b><span>Happening now</span></div>
+      <h2 class="big mask"><span>Crises do not wait for a report.</span></h2>
+      <p class="sub rv" style="--i:2" id="liveSub">Disasters, outbreaks and Red Cross appeals are listed by their own agencies as they happen. The live tracker puts them in one place.</p>
+      <div class="tiles" id="liveTiles"></div>
+      <p style="margin-top:30px"><a class="btn" href="live.html" style="text-decoration:none;display:inline-block">Open the live tracker</a></p>
+      <p class="fig rv" id="liveFig"></p>
+    </div>
+  </section>
+
   <section class="slide method" id="s-method" data-label="Method">
     <div class="wrap">
-      <div class="kicker rv"><b>10</b><span>Method, limits and sources</span></div>
+      <div class="kicker rv"><b>11</b><span>Method, limits and sources</span></div>
       <h2 class="big mask"><span>What this can and can't say.</span></h2>
       <ul class="rv" style="--i:2">
         <li><b>Funding and need:</b> funding per appeal from OCHA FTS; people in need from HDX HAPI (intersectoral, national level). Funding is for the current year.</li>
@@ -793,6 +803,7 @@
 <script src="media.js?v=44" onerror="window.AIDGAP_MEDIA=null"></script>
 <script src="reports.js?v=44" onerror="window.AIDGAP_REPORTS=null"></script>
 <script src="donors.js?v=44" onerror="window.AIDGAP_DONORS=null"></script>
+<script src="live.js?v=44" onerror="window.AIDGAP_LIVE=null"></script>
 <script src="donortrend.js?v=44" onerror="window.AIDGAP_TREND=null"></script>
 <script src="vortex.js?v=44"></script>
 <script src="app.js?v=44"></script>

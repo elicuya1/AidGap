@@ -1019,11 +1019,12 @@
     "s-media": ["Attention", [["dot", "var(--unmet)", "<b>Red bars</b>: the ten most neglected crises."], ["dot", "var(--media)", "<b>Other bars</b>: the remaining crises."], ["txt", "- -", "<b>Dashed line</b>: the median crisis."], ["txt", "!", "Bars count reports that <b>aid organisations</b> publish on ReliefWeb per week. This is <b>not</b> general news coverage, where a crisis like Gaza or Ukraine would dominate."]]],
     "s-news": ["The newsroom", [["txt", "Local", "<b>Local</b>: published inside the country, plus reports from its own government, national Red Cross/Crescent, or organisations named for it."], ["txt", "Intl", "<b>International</b>: everything published from outside."], ["txt", "News", "<b>News</b> = a news outlet. <b>Aid report</b> = from an aid or UN organisation."], ["txt", "state", "<b>State-linked</b>: the outlet is owned or run by a government. This says who owns it, not whether it is accurate."], ["txt", "!", "Headlines link to the original. Translations are machine translations and can be wrong."]]],
     "s-gaps": ["By hand", [["txt", "hand", "Where the official data had no people-in-need figure, we found one in the original document. Each card shows the figure, the source and how sure we are."], ["txt", "high", "<b>High / medium / low</b>: how well the figure matches the funding plan it belongs to."]]],
+    "s-live": ["Happening now", [["txt", "live", "Events from the live tracker: disasters, outbreaks and Red Cross appeals as their own agencies list them. This page does not score them."], ["txt", "->", "Open the tracker to see every event on a dot chart, and search by country."]]],
     "s-method": ["Method and sources", [["txt", "30/30", "How the score is built, fixed weights, and every data source we used with the date we read it."]]]
   };
   (function () {
     var box = $("keybox"), btn = $("keyBtn"), panel = $("keyPanel"), cur = "", open = false;
-    var order = ["s-what", "s-intro", "s-scale", "s-map", "s-rank", "s-donors", "s-cuts", "s-media", "s-news", "s-gaps", "s-method"];
+    var order = ["s-what", "s-intro", "s-scale", "s-map", "s-rank", "s-donors", "s-cuts", "s-media", "s-news", "s-gaps", "s-live", "s-method"];
     function render(id) {
       var k = KEYS[id]; if (!k) return;
       panel.innerHTML = "<h4>" + esc(k[0]) + "</h4><ul>" + k[1].map(function (r) {
@@ -1101,4 +1102,20 @@
 
   var rzT;
   window.addEventListener("resize", function () { clearTimeout(rzT); rzT = setTimeout(function () { sizeCanvas(); retarget(false); bgResize(); if (mCode) drawMini(); }, 120); });
+
+  /* ---------- "Happening now" teaser: a few live numbers and a link to the tracker ---------- */
+  (function () {
+    var L = window.AIDGAP_LIVE, tiles = $("liveTiles"); if (!tiles) return;
+    if (!L || !L.items || !L.items.length) { tiles.style.display = "none"; return; }
+    var now = new Date(), t0 = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+    function age(i) { var t = new Date(i.date + "T00:00:00Z").getTime(); return isNaN(t) ? 9999 : Math.round((t0 - t) / 864e5); }
+    var week = L.items.filter(function (i) { return age(i) <= 7; }), seen = {}, nC = 0;
+    week.forEach(function (i) { (i.iso3 || []).forEach(function (c) { if (!seen[c]) { seen[c] = 1; nC++; } }); });
+    var red = week.filter(function (i) { return /red(?! cross)/i.test(i.level || ""); }).length;
+    var old = L.items.filter(function (i) { return i.source === "ReliefWeb" && age(i) > 365; }).sort(function (a, b) { return age(b) - age(a); })[0];
+    var cells = [[week.length, "listings began in the past week, across " + nC + " countries" + (red ? ", " + red + " at red alert" : ""), ""], [L.items.length, "events listed as active by six public sources", "blue"]];
+    if (old) cells.push([Math.floor(age(old) / 365.25), "years since the oldest crisis still listed as ongoing began: " + old.title, "red"]);
+    tiles.innerHTML = cells.map(function (c) { return '<div class="card tile"><div class="big-n ' + c[2] + '">' + c[0] + "</div><p>" + esc(c[1]) + "</p></div>"; }).join("");
+    $("liveFig").textContent = "From the live tracker's data file, built " + L.generated + ". Counts here are raw listings; the tracker merges the same event reported by several sources.";
+  })();
 })();
