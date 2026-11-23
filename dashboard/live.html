@@ -3,170 +3,216 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#0d0c0b">
+<meta name="theme-color" content="#eef0ea">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <title>AidGap live tracker</title>
-<meta name="description" content="What is happening now: ongoing disasters, alerts and outbreaks from ReliefWeb, GDACS, USGS, WHO, IFRC and NASA.">
+<meta name="description" content="What is happening now: ongoing disasters, alerts, outbreaks and Red Cross appeals from ReliefWeb, GDACS, USGS, WHO, IFRC and NASA.">
 <style>
-  :root { color-scheme: dark; --serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
-    --mono: ui-monospace, "Cascadia Mono", "SF Mono", Consolas, "Liberation Mono", monospace;
-    --bg: #0d0c0b; --surface: #141312; --raise: #1b1a18; --ink: #ece7de; --ink2: #bdb7ab; --muted: #8c867b; --line: #2b2926; --base: #3b3834;
-    --unmet: #a3202a; --unmet-text: #e0757a; --warn: #c9a04a; --media: #9a91cf; }
-  :root[data-theme="light"] { color-scheme: light; --bg: #f3efe6; --surface: #faf7f0; --raise: #ffffff; --ink: #1b1815; --ink2: #4d4841; --muted: #8a8378; --line: #ddd6c8; --base: #c4bcab;
-    --unmet: #9a1b24; --unmet-text: #9a1b24; --warn: #a97d28; --media: #5b4fb3; }
+  /* Chart-recorder paper: cool grey-green sheet, faint red recorder grid, ink for data, red and amber only for alerts. */
+  :root {
+    --paper: #eef0ea; --paper2: #e4e8df; --ink: #15201b; --ink2: #3f4c45; --muted: #66756c; --rule: #c9d1c4;
+    --grid: rgba(190, 80, 66, .22); --red: #b3261e; --amber: #a86b00; --blue: #1f5f9e; --mark: #5b6a61;
+    --display: "Bahnschrift", "Arial Narrow", "Helvetica Neue Condensed", "Roboto Condensed", ui-sans-serif, system-ui, sans-serif;
+    --text: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+    color-scheme: light;
+  }
+  :root[data-theme="dark"] {
+    --paper: #0f1512; --paper2: #172019; --ink: #e7eee3; --ink2: #b9c5bc; --muted: #84948a; --rule: #28342d;
+    --grid: rgba(214, 110, 96, .18); --red: #f07f72; --amber: #e3b04b; --blue: #6fb0ee; --mark: #8fa196; color-scheme: dark;
+  }
   * { box-sizing: border-box; }
-  :focus-visible { outline: 2px solid #4a86b8; outline-offset: 3px; border-radius: 3px; }
-  .skip { position: absolute; left: 12px; top: -60px; background: var(--ink); color: var(--bg); padding: 8px 14px; font-family: var(--mono); font-size: 12px; text-decoration: none; border-radius: 3px; z-index: 10; }
-  .skip:focus { top: 12px; }
-  body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--serif); line-height: 1.5; }
+  html { background: var(--paper); }
+  body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--text); font-size: 17px; line-height: 1.6; }
   a { color: inherit; }
-  .wrap { width: min(1080px, calc(100% - 32px)); margin: 0 auto; }
-  header { padding: 22px 0; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
-  .brand { text-decoration: none; font-size: 24px; font-weight: 700; }
-  .brand span { color: var(--unmet-text); }
-  nav { display: flex; gap: 10px; font-family: var(--mono); font-size: 12px; letter-spacing: .06em; text-transform: uppercase; }
-  nav a, nav button { color: var(--ink2); text-decoration: none; background: none; border: 1px solid var(--line); padding: 7px 12px; border-radius: 3px; cursor: pointer; font: inherit; }
-  nav a[aria-current="page"] { color: var(--ink); border-color: var(--ink2); }
-  h1 { font-size: clamp(32px, 6vw, 56px); line-height: 1.05; margin: 40px 0 10px; letter-spacing: -.01em; }
-  .sub { color: var(--ink2); max-width: 720px; font-size: 18px; margin: 0 0 8px; }
-  .stamp { font-family: var(--mono); font-size: 12px; color: var(--muted); margin: 0 0 26px; }
-  .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 22px; }
-  .tile { border: 1px solid var(--line); background: var(--surface); padding: 14px 16px; border-radius: 4px; }
-  .tile b { display: block; font-size: 34px; line-height: 1; }
-  .tile span { font-family: var(--mono); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
-  .bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 0 0 14px; }
-  .bar .lab { font-family: var(--mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-right: 4px; }
-  .chip { font-family: var(--mono); font-size: 12px; background: none; color: var(--ink2); border: 1px solid var(--line); border-radius: 999px; padding: 5px 12px; cursor: pointer; }
-  .chip:hover, nav a:hover, nav button:hover { color: var(--ink); border-color: var(--ink2); }
-  .chip { min-height: 32px; touch-action: manipulation; }
-  .tile:hover, .card:hover { border-color: var(--base); }
-  .tile b { font-variant-numeric: tabular-nums; }
-  h1, .sub { text-wrap: balance; }
-  .chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
-  input[type=search] { font: 14px var(--mono); background: var(--surface); color: var(--ink); border: 1px solid var(--line); border-radius: 3px; padding: 8px 12px; width: min(340px, 100%); }
-  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 10px; }
-  .card { border: 1px solid var(--line); background: var(--surface); border-radius: 4px; padding: 14px 16px; display: flex; flex-direction: column; gap: 6px; }
-  .card h3 { margin: 0; font-size: 17px; line-height: 1.3; }
-  .card h3 a { text-decoration: none; }
-  .card h3 a:hover { text-decoration: underline; }
-  .meta { font-family: var(--mono); font-size: 11px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 4px 10px; }
-  .lvl { font-family: var(--mono); font-size: 10.5px; letter-spacing: .05em; text-transform: uppercase; border: 1px solid var(--base); padding: 1px 7px; color: var(--ink2); width: fit-content; }
-  .lvl.red { border-color: var(--unmet); color: var(--unmet-text); }
-  .lvl.orange, .lvl.alert { border-color: var(--warn); color: var(--warn); }
-  .where { font-size: 14px; color: var(--ink2); }
-  .none { border: 1px dashed var(--base); padding: 16px; color: var(--ink2); }
-  .note { font-family: var(--mono); font-size: 11.5px; color: var(--muted); line-height: 1.7; margin: 30px 0 60px; border-top: 1px solid var(--line); padding-top: 16px; }
+  button { font: inherit; color: inherit; }
+  :focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; border-radius: 2px; }
+  .skip { position: absolute; left: 12px; top: -60px; background: var(--ink); color: var(--paper); padding: 8px 14px; font-family: var(--display); text-decoration: none; z-index: 10; }
+  .skip:focus { top: 12px; }
+  .wrap { width: min(980px, calc(100% - 32px)); margin: 0 auto; }
+
+  header { padding: 20px 0 14px; display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; border-bottom: 2px solid var(--ink); }
+  .brand { text-decoration: none; font-family: var(--display); font-size: 26px; font-weight: 700; letter-spacing: -.01em; }
+  .brand span { color: var(--red); }
+  nav { display: flex; gap: 18px; font-family: var(--display); font-size: 16px; align-items: center; }
+  nav a, nav button { background: none; border: 0; padding: 4px 0; cursor: pointer; text-decoration: none; color: var(--ink2); }
+  nav a[aria-current="page"] { color: var(--ink); border-bottom: 2px solid var(--ink); }
+  nav a:hover, nav button:hover { color: var(--ink); }
+
+  .hero { padding: 34px 0 6px; }
+  h1 { font-weight: 400; font-size: clamp(26px, 4.4vw, 42px); line-height: 1.2; letter-spacing: -.01em; margin: 0 0 14px; max-width: 24em; text-wrap: balance; }
+  .sub { color: var(--ink2); max-width: 38em; margin: 0 0 6px; }
+  .live { font-family: var(--display); font-size: 15px; color: var(--muted); margin: 0 0 26px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .live .pulse { width: 9px; height: 9px; border-radius: 50%; background: var(--red); position: relative; flex: none; }
+  .live .pulse::after { content: ""; position: absolute; inset: 0; border-radius: 50%; border: 2px solid var(--red); animation: ring 2.4s ease-out infinite; }
+  @keyframes ring { from { transform: scale(1); opacity: .9; } to { transform: scale(3.2); opacity: 0; } }
+
+  /* the strip chart */
+  figure { margin: 0 0 34px; position: relative; }
+  figcaption { font-family: var(--display); font-size: 17px; font-weight: 700; margin: 0 0 6px; display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; align-items: baseline; }
+  figcaption span { font-weight: 400; color: var(--muted); font-size: 15px; }
+  #chart { background: var(--paper2); border: 1px solid var(--rule); touch-action: manipulation; }
+  #chart svg { display: block; width: 100%; height: auto; outline-offset: -2px; cursor: crosshair; }
+  #chart text { font-family: var(--display); font-size: 12.5px; fill: var(--muted); }
+  #chart .g { stroke: var(--grid); stroke-width: 1; }
+  #chart .g.base { stroke: var(--ink2); stroke-width: 1.2; }
+  #chart .s1 { fill: var(--mark); } #chart .s2 { fill: var(--amber); } #chart .s3 { fill: var(--red); }
+  #chart .seg { stroke: var(--paper2); stroke-width: 1.5; }
+  #chart .sel { fill: var(--ink); opacity: .1; }
+  #chart .cur { fill: var(--ink); opacity: .07; }
+  .intro .bar { transform-box: fill-box; transform-origin: 50% 100%; animation: grow .7s cubic-bezier(.2, .7, .2, 1) both; }
+  @keyframes grow { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+  .tip { position: absolute; pointer-events: none; background: var(--ink); color: var(--paper); font-family: var(--display); font-size: 14px; padding: 5px 10px; opacity: 0; transform: translate(-50%, -100%); white-space: nowrap; transition: opacity .1s; z-index: 3; line-height: 1.35; }
+  .tip.on { opacity: 1; }
+  .key { display: flex; gap: 6px 18px; flex-wrap: wrap; font-family: var(--display); font-size: 14px; color: var(--muted); margin: 8px 0 0; }
+  .key i { display: inline-block; width: 10px; height: 10px; margin-right: 6px; vertical-align: -1px; }
+  .older { font-size: 15px; color: var(--ink2); margin: 8px 0 0; }
+
+  /* controls */
+  .controls { margin: 0 0 8px; }
+  #q { width: 100%; font: 22px var(--text); background: none; color: var(--ink); border: 0; border-bottom: 2px solid var(--ink); padding: 8px 0; border-radius: 0; }
+  #q::placeholder { color: var(--muted); }
+  #q:focus-visible { outline: none; border-bottom-color: var(--blue); }
+  .groups { display: flex; flex-wrap: wrap; gap: 4px 22px; margin: 14px 0 0; font-family: var(--display); font-size: 17px; }
+  .groups button { background: none; border: 0; border-bottom: 2px solid transparent; padding: 3px 0; cursor: pointer; color: var(--ink2); }
+  .groups button:hover { color: var(--ink); }
+  .groups button[aria-pressed="true"] { color: var(--ink); border-bottom-color: var(--ink); font-weight: 700; }
+  .groups small { color: var(--muted); font-size: 13px; margin-left: 4px; font-weight: 400; }
+  .status { font-family: var(--display); font-size: 16px; color: var(--ink2); margin: 16px 0 4px; display: flex; gap: 6px 14px; flex-wrap: wrap; align-items: center; }
+  .status .x { border: 1px solid var(--ink); background: none; padding: 1px 4px 1px 10px; cursor: pointer; display: inline-flex; gap: 8px; align-items: center; }
+  .status .x b { font-weight: 400; display: inline-block; width: 20px; height: 20px; line-height: 18px; text-align: center; background: var(--ink); color: var(--paper); }
+  .linkish { background: none; border: 0; padding: 0; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; color: var(--ink); }
+
+  /* the log */
+  .bucket { margin: 34px 0 0; }
+  .bucket h2 { font-family: var(--display); font-size: 24px; font-weight: 700; margin: 0; padding-bottom: 6px; border-bottom: 2px solid var(--ink); display: flex; justify-content: space-between; align-items: baseline; gap: 12px; letter-spacing: -.005em; }
+  .bucket h2 span { color: var(--muted); font-weight: 400; font-size: 17px; }
+  .row { display: grid; grid-template-columns: 92px 1fr auto; gap: 4px 18px; padding: 16px 0 15px; border-bottom: 1px solid var(--rule); align-items: baseline; }
+  .age { font-family: var(--display); line-height: 1; white-space: nowrap; }
+  .age b { font-size: 40px; font-weight: 700; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+  .age em { font-style: normal; font-size: 15px; color: var(--muted); margin-left: 4px; }
+  .row h3 { margin: 0; font-size: 19px; line-height: 1.35; font-weight: 400; }
+  .row h3 a { text-decoration-thickness: 1px; text-underline-offset: 3px; text-decoration-color: var(--muted); }
+  .row h3 a:hover { text-decoration-color: var(--ink); }
+  .where { font-size: 15px; color: var(--ink2); margin-top: 2px; }
+  .where button { background: none; border: 0; padding: 0; cursor: pointer; text-decoration: underline dotted; text-underline-offset: 3px; color: inherit; }
+  .where .lv { font-family: var(--display); }
+  .lv.s3 { color: var(--red); font-weight: 700; } .lv.s2 { color: var(--amber); font-weight: 700; }
+  .side { text-align: right; font-family: var(--display); font-size: 15px; color: var(--muted); line-height: 1.4; }
+  .side button { background: none; border: 0; padding: 0; cursor: pointer; color: var(--ink2); text-decoration: underline; text-underline-offset: 3px; font: inherit; }
+  .more { grid-column: 2 / -1; font-size: 15px; margin-top: 8px; padding: 10px 14px; background: var(--paper2); }
+  .more ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+  .more span { font-family: var(--display); color: var(--muted); font-size: 14px; }
+  .more p { margin: 8px 0 0; font-family: var(--display); color: var(--ink2); }
+  .newdot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--blue); margin-right: 8px; vertical-align: 2px; }
+  .fresh { animation: fresh 5s ease-out; }
+  @keyframes fresh { from { background: color-mix(in srgb, var(--blue) 22%, transparent); } to { background: transparent; } }
+  .showmore { display: block; width: 100%; text-align: left; background: none; border: 0; border-bottom: 1px solid var(--rule); padding: 14px 0; font-family: var(--display); font-size: 17px; cursor: pointer; color: var(--ink2); }
+  .showmore:hover { color: var(--ink); }
+  .none { padding: 24px 0; color: var(--ink2); }
+  .note { font-size: 14.5px; color: var(--muted); line-height: 1.65; margin: 56px 0 60px; padding-top: 14px; border-top: 2px solid var(--ink); max-width: 46em; }
   .note b { color: var(--ink2); }
 
-  .mapbox { position: relative; border: 1px solid var(--line); background: var(--surface); border-radius: 4px; margin: 0 0 18px; padding: 8px 8px 4px; }
-  .mapbox svg { display: block; width: 100%; height: auto; }
-  .cn { fill: var(--raise); stroke: var(--line); stroke-width: .5; }
-  .cn.has { cursor: pointer; }
-  .cn.has:hover { fill: var(--base); }
-  .cn.sel { fill: var(--base); stroke: var(--ink2); }
-  .dot { fill-opacity: .72; stroke: var(--bg); stroke-width: .8; cursor: pointer; transition: r .25s ease, fill-opacity .15s; }
-  .dot.s1 { fill: var(--ink2); } .dot.s2 { fill: var(--warn); } .dot.s3 { fill: var(--unmet-text); }
-  .dot:hover, .dot:focus, .dot.hot { fill-opacity: 1; stroke: var(--ink); stroke-width: 1.6; outline: none; }
-  .dot.sel { stroke: var(--ink); stroke-width: 2.2; fill-opacity: 1; }
-  .tip { position: absolute; pointer-events: none; background: var(--raise); border: 1px solid var(--base); border-radius: 3px; padding: 6px 10px; font-family: var(--mono); font-size: 11.5px; color: var(--ink); opacity: 0; transform: translate(-50%, -120%); white-space: nowrap; transition: opacity .12s; z-index: 3; }
-  .tip.on { opacity: 1; }
-  .legend { display: flex; flex-wrap: wrap; gap: 6px 16px; padding: 6px 8px 8px; font-family: var(--mono); font-size: 11px; color: var(--muted); align-items: center; }
-  .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; vertical-align: -1px; }
-  .legend .hint { margin-left: auto; }
-  .sel-pill { display: inline-flex; gap: 8px; align-items: center; font-family: var(--mono); font-size: 12px; border: 1px solid var(--ink2); border-radius: 999px; padding: 3px 4px 3px 12px; margin: 0 8px; color: var(--ink); }
-  .sel-pill button { background: var(--ink); color: var(--bg); border: 0; border-radius: 999px; width: 22px; height: 22px; cursor: pointer; font: inherit; line-height: 1; }
-  select, .tog { font: 12px var(--mono); background: var(--surface); color: var(--ink2); border: 1px solid var(--line); border-radius: 3px; padding: 7px 10px; }
-  .tog { display: inline-flex; gap: 8px; align-items: center; cursor: pointer; }
-  .new { font-family: var(--mono); font-size: 10px; letter-spacing: .08em; background: #4a86b8; color: #fff; padding: 1px 6px; border-radius: 2px; }
-  .card { transition: border-color .15s, transform .15s; }
-  .card.hot { border-color: var(--ink2); transform: translateY(-1px); }
-  .also { background: none; border: 0; padding: 0; font: 11px var(--mono); color: var(--ink2); text-align: left; cursor: pointer; text-decoration: underline dotted; }
-  .alsolist { margin: 2px 0 0; padding: 8px 10px; list-style: none; border-left: 2px solid var(--base); font-size: 13px; display: grid; gap: 6px; }
-  .alsolist span { font-family: var(--mono); font-size: 11px; color: var(--muted); }
-  .rank { font-family: var(--mono); font-size: 11px; color: var(--ink2); border-top: 1px dashed var(--line); padding-top: 6px; margin-top: 2px; }
-  @media (max-width: 640px) { .legend .hint { margin-left: 0; } }
-  @media (prefers-reduced-motion: reduce) { .dot, .card, .tip { transition: none; } }
+  @media (max-width: 640px) {
+    .row { grid-template-columns: 70px 1fr; }
+    .age b { font-size: 32px; }
+    .side { grid-column: 2; text-align: left; }
+    #q { font-size: 19px; }
+  }
+  @media (prefers-reduced-motion: reduce) { .intro .bar, .fresh, .live .pulse::after { animation: none; } .tip { transition: none; } }
 </style>
 </head>
 <body>
-<a class="skip" href="#main">Skip to the events</a>
+<a class="skip" href="#log">Skip to the events</a>
 <div class="wrap">
   <header>
     <a class="brand" href="index.html" translate="no">Aid<span>Gap</span></a>
-    <nav><a href="index.html">Funding gaps</a><a href="live.html" aria-current="page">Live tracker</a><button id="theme" type="button">Theme</button></nav>
+    <nav aria-label="Pages"><a href="index.html">Funding gaps</a><a href="live.html" aria-current="page">Live tracker</a><button id="theme" type="button">Dark mode</button></nav>
   </header>
 
   <main id="main" tabindex="-1">
-  <h1>What is happening now.</h1>
-  <p class="sub">Ongoing disasters, alerts, outbreaks and Red Cross appeals from six public sources, listed as they publish them. Click a dot on the map to see one country. This page does not score or rank events: the Neglect Score on the main page is a separate analysis.</p>
-  <p class="stamp" id="stamp"></p>
+    <div class="hero">
+      <h1 id="headline">Loading what is happening now.</h1>
+      <p class="sub">Disasters, outbreaks and Red Cross appeals, listed as ReliefWeb, GDACS, USGS, WHO, IFRC and NASA publish them. Nothing here is scored or ranked; the Neglect Score on the funding page is a separate analysis.</p>
+      <p class="live"><span class="pulse" aria-hidden="true"></span><span id="stamp"></span></p>
+    </div>
 
-  <div class="tiles" id="tiles"></div>
+    <figure>
+      <figcaption>Events by start date, last 60 days <span id="charthint">Click a day to see only that day.</span></figcaption>
+      <div id="chart"><svg id="svg" role="group" tabindex="0" aria-label="Events per day for the last 60 days. Use the left and right arrow keys to move between days and Enter to select one."></svg></div>
+      <div class="tip" id="tip" aria-hidden="true"></div>
+      <div class="key" id="key"><span><i style="background:var(--red)"></i>Red alert or very large</span><span><i style="background:var(--amber)"></i>Alert or emergency appeal</span><span><i style="background:var(--mark)"></i>Ongoing</span></div>
+      <p class="older" id="older"></p>
+      <p class="sr" id="live" aria-live="polite" style="position:absolute;left:-9999px"></p>
+    </figure>
 
-  <div class="mapbox" id="mapbox">
-    <svg id="wmap" viewBox="0 0 1000 439" role="group" aria-label="World map of events. Each dot is a country; press Enter on a dot to filter the list to that country."></svg>
-    <div class="tip" id="tip" aria-hidden="true"></div>
-    <div class="legend" id="legend"><span><i style="background:var(--unmet-text)"></i>Red alert or very large</span><span><i style="background:var(--warn)"></i>Alert or emergency appeal</span><span><i style="background:var(--ink2)"></i>Ongoing</span><span class="hint">Dot size = number of events. Click a dot or a country to filter.</span></div>
-  </div>
+    <div class="controls">
+      <input id="q" name="q" type="search" placeholder="Search a country or an event" aria-label="Search events" autocomplete="off" spellcheck="false">
+      <div class="groups" id="groups" role="group" aria-label="Type of event"></div>
+      <div class="status" id="status" aria-live="polite"></div>
+    </div>
 
-  <div class="bar" id="times"></div>
-  <div class="bar" id="kinds"></div>
-  <div class="bar" id="sources"></div>
-  <div class="bar">
-    <input id="q" name="q" type="search" placeholder="Search a country or event…" aria-label="Search events" autocomplete="off" spellcheck="false">
-    <select id="sort" aria-label="Sort events"><option value="new">Newest first</option><option value="sev">Most severe first</option><option value="az">Country A to Z</option></select>
-    <label class="tog"><input type="checkbox" id="grp" checked> Group the same event from different sources</label>
-  </div>
-  <p class="stamp" id="count" aria-live="polite"></p>
-  <h2 style="position:absolute;left:-9999px">Events</h2>
-  <div class="grid" id="list"></div>
+    <div id="log"></div>
   </main>
 
-  <p class="note"><b>Sources.</b> ReliefWeb (UN OCHA) disasters marked ongoing or alert; GDACS (EU and UN) Orange and Red alerts from the last 30 days; USGS significant earthquakes of the past week; WHO Disease Outbreak News (latest 15); IFRC GO active Red Cross and Red Crescent appeals; NASA EONET open storms, volcanoes and wildfires over 10,000 acres. Each card links to the original. Severity words are the source's own; a missing item means the source did not list it, not that nothing happened. <b>Grouping.</b> Items from different sources are merged when they name the same first country and the same type of event within 30 days of each other. That can wrongly merge two separate floods in one country, so untick the box above to see every listing. Events in small places the map has no outline for are in the list but not on the map. The data file is rebuilt automatically about every 30 minutes by a GitHub Action, and this page re-reads it (and checks USGS directly) every 5 minutes while it is open. Conflict events and hunger (ACLED, IPC) are not included yet. <b>New</b> badges compare with what this browser saw on your last visit.</p>
+  <p class="note"><b>Sources.</b> ReliefWeb (UN OCHA) disasters marked ongoing or alert; GDACS (EU and UN) Orange and Red alerts from the last 30 days; USGS significant earthquakes of the past week; WHO Disease Outbreak News (latest 15); IFRC GO active Red Cross and Red Crescent appeals; NASA EONET open storms, volcanoes and wildfires over 10,000 acres. Each event links to the original. Dates and severity words are each source's own, and a start date is when the source says it began, not when it was listed. A missing event means the source did not list it, not that nothing happened. <b>Merging.</b> Listings from different sources are merged when they name the same first country and the same type of event within 30 days of each other. That can join two separate floods in one country, so you can switch it off above the list. The data file is rebuilt about every 30 minutes by a GitHub Action, and this page re-reads it and checks USGS directly every 5 minutes while it is open. Conflict events and hunger (ACLED, IPC) are not included yet. The blue dot marks events that appeared since this browser last visited.</p>
 </div>
-<script src="map.js?v=1"></script>
 <script src="data.js?v=43"></script>
 <script src="live.js?v=3"></script>
 <script>
 (function () {
-  var D = window.AIDGAP_LIVE, MAP = window.AIDGAP_MAP, FUND = window.AIDGAP, $ = function (i) { return document.getElementById(i); }, SVGNS = "http://www.w3.org/2000/svg";
+  var D = window.AIDGAP_LIVE, FUND = window.AIDGAP, $ = function (i) { return document.getElementById(i); };
   function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
   function safe(u) { return /^https?:\/\//i.test(u || "") ? u : "#"; }
   function store(get, k, v) { try { if (get) return localStorage.getItem(k); localStorage.setItem(k, v); } catch (e) {} return null; }
-  if (store(true, "aidgapTheme") === "light") document.documentElement.setAttribute("data-theme", "light");
-  $("theme").addEventListener("click", function () {
-    var l = document.documentElement.getAttribute("data-theme") === "light"; if (l) document.documentElement.removeAttribute("data-theme"); else document.documentElement.setAttribute("data-theme", "light");
-    store(false, "aidgapTheme", l ? "dark" : "light");
-  });
-  if (!D) { $("list").innerHTML = '<p class="none">The tracker data has not been loaded yet. Run <code>python src/fetch_live.py</code>.</p>'; return; }
+  var root = document.documentElement;
+  function setTheme(dark) { if (dark) root.setAttribute("data-theme", "dark"); else root.removeAttribute("data-theme"); $("theme").textContent = dark ? "Light mode" : "Dark mode"; }
+  setTheme(store(true, "aidgapTheme") === "dark");
+  $("theme").addEventListener("click", function () { var d = root.getAttribute("data-theme") !== "dark"; setTheme(d); store(false, "aidgapTheme", d ? "dark" : "light"); });
+  if (!D) { $("log").innerHTML = '<p class="none">The tracker data has not been loaded yet. Run <code>python src/fetch_live.py</code>.</p>'; $("headline").textContent = "No data yet."; return; }
 
   // ---------- helpers
   var KM = { "Tropical Cyclone": "Tropical cyclone", "Flash Flood": "Flood", "Epidemic": "Outbreak", "Disease outbreak": "Outbreak", "Land Slide": "Landslide", "Wild Fire": "Wildfire" };
   function norm(k) { return KM[k] || k; }
   function sevOf(i) { var l = i.level || "", m = /Magnitude ([\d.]+)/.exec(l); if (/\bred(?! cross)\b/i.test(l)) return 3; if (m) { var x = +m[1]; return x >= 7 ? 3 : x >= 6 ? 2 : 1; } if (/orange|alert|emergency appeal/i.test(l)) return 2; return 1; }
   var PRI = ["GDACS", "ReliefWeb", "IFRC", "WHO", "USGS", "NASA EONET"];
+  var GROUPS = ["Weather", "Drought and hunger", "Earthquakes and volcanoes", "Fire", "Disease", "Conflict and displacement", "Other"];
+  var GOF = { "Flood": 0, "Tropical cyclone": 0, "Severe storm": 0, "Heat Wave": 0, "Cold Wave": 0, "Drought": 1, "Food insecurity": 1, "Pest infestation": 1, "Earthquake": 2, "Volcano": 2, "Landslide": 2, "Wildfire": 3, "Outbreak": 4, "Population Movement": 5, "Complex Emergency": 5, "Civil Unrest": 5 };
+  function groupOf(k) { return GROUPS[GOF[k] == null ? 6 : GOF[k]]; }
   function day(d) { var t = new Date(d + "T00:00:00Z").getTime(); return isNaN(t) ? 0 : t; }
   function fmt(d) { var t = new Date(d + "T00:00:00Z"); return isNaN(t) ? d : new Intl.DateTimeFormat(undefined, { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" }).format(t); }
+  function fmtShort(ms) { return new Intl.DateTimeFormat(undefined, { day: "numeric", month: "short", timeZone: "UTC" }).format(new Date(ms)); }
+  function fmtLong(ms) { return new Intl.DateTimeFormat(undefined, { weekday: "short", day: "numeric", month: "short", timeZone: "UTC" }).format(new Date(ms)); }
+  function iso(ms) { return new Date(ms).toISOString().slice(0, 10); }
   function uniq(a) { return a.filter(function (v, i) { return a.indexOf(v) === i; }); }
   function key(i) { return i.source + "|" + i.url + "|" + i.title; }
+  function today() { var n = new Date(); return Date.UTC(n.getUTCFullYear(), n.getUTCMonth(), n.getUTCDate()); }
+  function ageOf(g) { return Math.max(0, Math.round((today() - day(g.date)) / 864e5)); }
+  function ageParts(d) {
+    if (d === 0) return ["Today", ""]; if (d < 14) return [String(d), d === 1 ? "day" : "days"]; if (d < 60) return [String(Math.round(d / 7)), "weeks"];
+    if (d < 730) return [String(Math.round(d / 30.4)), "months"]; return [String(Math.floor(d / 365.25)), "years"];
+  }
+  function plural(n, a, b) { return n + " " + (n === 1 ? a : b); }
   var ranked = {}, nRanked = 0;
   if (FUND && FUND.crises) FUND.crises.forEach(function (c) { if (c.rank != null) { ranked[c.location_code] = c; nRanked++; } });
 
   // ---------- state
   var P = new URLSearchParams(location.search);
-  var st = { kind: P.get("type") || "All", src: P.get("source") || "All", q: (P.get("q") || "").toLowerCase(), country: (P.get("country") || "").toUpperCase(), days: +(P.get("days") || 0), group: P.get("group") !== "0", sort: P.get("sort") || "new", onlyNew: false };
-  $("q").value = P.get("q") || ""; $("sort").value = st.sort; $("grp").checked = st.group;
+  var st = { group: P.get("group") || "All", q: (P.get("q") || "").toLowerCase(), country: (P.get("country") || "").toUpperCase(), day: P.get("day") || "", merge: P.get("merge") !== "0", onlyNew: false };
+  $("q").value = P.get("q") || "";
   var prevSeen = null;
   try { var raw = store(true, "aidgapLiveSeen"); if (raw) { prevSeen = {}; JSON.parse(raw).forEach(function (k) { prevSeen[k] = 1; }); } } catch (e) { prevSeen = null; }
-  var items = [], liveUSGS = null, liveAt = null, allGroups = [], shown = [];
+  var sessionSeen = null, items = [], liveUSGS = null, checkedAt = Date.now(), allGroups = [], expanded = {}, openRows = {}, firstDraw = true;
 
-  function setItems(list) { items = list; items.forEach(function (i) { i.kind = norm(i.kind); i.sev = sevOf(i); i.isNew = !!prevSeen && !prevSeen[key(i)]; i.iso3 = i.iso3 || []; i.countries = i.countries || []; }); }
+  function setItems(list) {
+    items = list;
+    items.forEach(function (i) { i.kind = norm(i.kind); i.sev = sevOf(i); i.isNew = !!prevSeen && !prevSeen[key(i)]; i.fresh = !!sessionSeen && !sessionSeen[key(i)]; i.iso3 = i.iso3 || []; i.countries = i.countries || []; });
+  }
 
-  // ---------- grouping: same first country + same type, dates within 30 days
+  // ---------- merging: same first country + same type, dates within 30 days
   function makeGroups(list) {
     var groups = [], buckets = {};
     list.forEach(function (i) {
-      if (!st.group || !i.iso3.length) { groups.push([i]); return; }
+      if (!st.merge || !i.iso3.length) { groups.push([i]); return; }
       var k = i.iso3[0] + "|" + i.kind; (buckets[k] = buckets[k] || []).push(i);
     });
     Object.keys(buckets).forEach(function (k) {
@@ -176,144 +222,159 @@
     });
     return groups.map(function (m) {
       var lead = m.slice().sort(function (a, c) { return PRI.indexOf(a.source) - PRI.indexOf(c.source) || day(c.date) - day(a.date); })[0];
-      return {
-        lead: lead, members: m, iso: uniq([].concat.apply([], m.map(function (x) { return x.iso3; }))), names: uniq([].concat.apply([], m.map(function (x) { return x.countries; }))),
-        date: m.reduce(function (a, x) { return x.date > a ? x.date : a; }, ""), sev: Math.max.apply(null, m.map(function (x) { return x.sev; })),
-        srcs: uniq(m.map(function (x) { return x.source; })), isNew: m.some(function (x) { return x.isNew; }), kind: lead.kind
-      };
+      var pairs = [], seen = {};
+      m.forEach(function (x) { x.iso3.forEach(function (c, j) { if (!seen[c]) { seen[c] = 1; pairs.push({ iso: c, name: x.countries[j] || c }); } }); });
+      m.forEach(function (x) { x.countries.forEach(function (n) { if (!x.iso3.length && !seen["n:" + n]) { seen["n:" + n] = 1; pairs.push({ iso: "", name: n }); } }); });
+      return { lead: lead, members: m, pairs: pairs, iso: pairs.map(function (p) { return p.iso; }).filter(Boolean), date: lead.date, sev: Math.max.apply(null, m.map(function (x) { return x.sev; })),
+        srcs: uniq(m.map(function (x) { return x.source; })), isNew: m.some(function (x) { return x.isNew; }), fresh: m.some(function (x) { return x.fresh; }), kind: lead.kind };
     });
   }
-
   function passes(g, skip) {
     if (skip !== "country" && st.country && g.iso.indexOf(st.country) < 0) return false;
-    if (st.days && Date.now() - day(g.date) > st.days * 864e5) return false;
-    if (st.kind !== "All" && g.kind !== st.kind) return false;
-    if (st.src !== "All" && g.srcs.indexOf(st.src) < 0) return false;
+    if (skip !== "day" && st.day && g.date !== st.day) return false;
+    if (skip !== "group" && st.group !== "All" && groupOf(g.kind) !== st.group) return false;
     if (st.onlyNew && !g.isNew) return false;
-    if (st.q && g.members.map(function (x) { return x.title + " " + x.countries.join(" "); }).join(" ").toLowerCase().indexOf(st.q) < 0) return false;
+    if (st.q && g.members.map(function (x) { return x.title + " " + x.countries.join(" ") + " " + x.kind; }).join(" ").toLowerCase().indexOf(st.q) < 0) return false;
     return true;
   }
 
-  // ---------- map
-  var svg = $("wmap"), dotLayer, pathEls = {}, tip = $("tip"), unmapped = 0;
-  function el(n, a) { var e = document.createElementNS(SVGNS, n); for (var k in a) e.setAttribute(k, a[k]); return e; }
-  function drawBase() {
-    if (!MAP) { $("mapbox").style.display = "none"; return; }
-    var g = el("g", {}); svg.appendChild(g);
-    Object.keys(MAP.paths).forEach(function (iso) {
-      var p = el("path", { d: MAP.paths[iso], "class": "cn" }); pathEls[iso] = p; g.appendChild(p);
-      p.addEventListener("click", function () { if (p.classList.contains("has")) pick(iso); });
-    });
-    dotLayer = el("g", {}); svg.appendChild(dotLayer);
+  // ---------- headline: a sentence built from the data
+  function headline(gs) {
+    var week = gs.filter(function (g) { return ageOf(g) <= 7; }), ctry = uniq([].concat.apply([], week.map(function (g) { return g.iso; }))).length, red = week.filter(function (g) { return g.sev === 3; }).length;
+    var old = gs.filter(function (g) { return ageOf(g) > 365 && g.lead.source === "ReliefWeb"; }).sort(function (a, b) { return day(a.date) - day(b.date); });
+    var s = plural(week.length, "event began", "events began") + " in the past week, across " + plural(ctry, "country", "countries") + (red ? ", " + red + " at red alert" : "") + ".";
+    if (old.length) s += " " + plural(old.length, "crisis that began", "crises that began") + " more than a year ago " + (old.length === 1 ? "is" : "are") + " still listed as ongoing; the oldest started " + plural(Math.floor(ageOf(old[0]) / 365.25), "year", "years") + " ago.";
+    $("headline").textContent = s;
   }
-  function showTip(c, html) { var r = c.getBoundingClientRect(), b = $("mapbox").getBoundingClientRect(); tip.innerHTML = html; tip.style.left = (r.left + r.width / 2 - b.left) + "px"; tip.style.top = (r.top - b.top) + "px"; tip.className = "tip on"; }
-  function hideTip() { tip.className = "tip"; }
-  function pick(iso) { st.country = st.country === iso ? "" : iso; render(); }
-  function nameFor(iso, gs) {
-    for (var n = 0; n < gs.length; n++) { var i = gs[n].lead.iso3.indexOf(iso); if (i >= 0 && gs[n].lead.countries[i]) return gs[n].lead.countries[i]; }
-    for (n = 0; n < gs.length; n++) { var m = gs[n].members; for (var k = 0; k < m.length; k++) { var j = m[k].iso3.indexOf(iso); if (j >= 0 && m[k].countries[j]) return m[k].countries[j]; } }
-    return (ranked[iso] && ranked[iso].location_name) || iso;
-  }
-  function drawDots(gs) {
-    if (!MAP) return;
-    while (dotLayer.firstChild) dotLayer.removeChild(dotLayer.firstChild);
-    var by = {};
-    gs.forEach(function (g) { g.iso.forEach(function (iso) { var o = by[iso] = by[iso] || { n: 0, sev: 1, red: 0, kinds: {} }; o.n++; o.sev = Math.max(o.sev, g.sev); if (g.sev === 3) o.red++; o.kinds[g.kind] = (o.kinds[g.kind] || 0) + 1; }); });
-    Object.keys(pathEls).forEach(function (iso) { pathEls[iso].setAttribute("class", "cn" + (by[iso] ? " has" : "") + (st.country === iso ? " sel" : "")); });
-    unmapped = 0;
-    Object.keys(by).sort(function (a, b) { return by[b].n - by[a].n; }).forEach(function (iso) {
-      var m = MAP.marks[iso], o = by[iso]; if (!m) { unmapped += o.n; return; }
-      var nm = nameFor(iso, gs), top = Object.keys(o.kinds).sort(function (a, b) { return o.kinds[b] - o.kinds[a]; }).slice(0, 3).map(function (k) { return o.kinds[k] + " " + k.toLowerCase(); }).join(", ");
-      var c = el("circle", { cx: m[0], cy: m[1], r: Math.min(15, 3.5 + Math.sqrt(o.n) * 2.2), "class": "dot s" + o.sev + (st.country === iso ? " sel" : ""), tabindex: 0, role: "button", "aria-label": nm + ": " + o.n + " events. Press Enter to filter.", "data-iso": iso });
-      var html = "<b>" + esc(nm) + "</b> · " + o.n + (o.n === 1 ? " event" : " events") + (o.red ? " · " + o.red + " red" : "") + "<br>" + esc(top);
-      c.addEventListener("mouseenter", function () { showTip(c, html); }); c.addEventListener("mouseleave", hideTip);
-      c.addEventListener("focus", function () { showTip(c, html); }); c.addEventListener("blur", hideTip);
-      c.addEventListener("click", function () { hideTip(); pick(iso); });
-      c.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); hideTip(); pick(iso); } });
-      dotLayer.appendChild(c);
-    });
-  }
-  function highlight(g, on) { if (!dotLayer) return; Array.prototype.forEach.call(dotLayer.querySelectorAll(".dot"), function (c) { c.classList.toggle("hot", on && g.iso.indexOf(c.getAttribute("data-iso")) >= 0); }); }
 
-  // ---------- chips and controls
-  function chips(box, label, values, cur, set, names) {
-    $(box).innerHTML = '<span class="lab">' + label + "</span>" + values.map(function (v, n) { return '<button type="button" class="chip" aria-pressed="' + (v === cur) + '">' + esc(names ? names[n] : v) + "</button>"; }).join("");
-    Array.prototype.forEach.call($(box).querySelectorAll(".chip"), function (b, n) { b.addEventListener("click", function () { set(values[n]); render(); }); });
+  // ---------- strip chart
+  var N = 60, cur = -1, chartDays = [], geom = null, tip = $("tip"), svg = $("svg");
+  function niceMax(m) { var t = [2, 4, 5, 8, 10, 15, 20, 30, 40, 60, 80, 100, 150, 200]; for (var k = 0; k < t.length; k++) if (m <= t[k]) return t[k]; return Math.ceil(m / 50) * 50; }
+  function drawChart(gs) {
+    var W = Math.max(300, $("chart").clientWidth), H = W < 520 ? 150 : 180, ml = 30, mr = 10, mt = 12, mb = 26, t0 = today(), cw = (W - ml - mr) / N, bw = Math.max(2, cw - 3), base = H - mb, ph = base - mt;
+    chartDays = []; for (var d = 0; d < N; d++) chartDays.push({ ms: t0 - (N - 1 - d) * 864e5, c: [0, 0, 0, 0], n: 0 });
+    var older = 0;
+    gs.forEach(function (g) { var a = ageOf(g); if (a >= N) { older++; return; } var o = chartDays[N - 1 - a]; o.c[g.sev]++; o.n++; });
+    var max = niceMax(Math.max.apply(null, chartDays.map(function (o) { return o.n; })) || 2), y = function (v) { return base - v / max * ph; };
+    var s = "";
+    [0, max / 2, max].forEach(function (v, n) { s += '<line class="g' + (n === 0 ? " base" : "") + '" x1="' + ml + '" x2="' + (W - mr) + '" y1="' + y(v) + '" y2="' + y(v) + '"/><text x="' + (ml - 6) + '" y="' + (y(v) + 4) + '" text-anchor="end">' + (v % 1 ? v.toFixed(1) : v) + "</text>"; });
+    for (var k = 0; k < N; k += 7) { var i = N - 1 - k, x = ml + i * cw + cw / 2; s += '<line class="g" x1="' + x + '" x2="' + x + '" y1="' + mt + '" y2="' + (base + 4) + '"/><text x="' + x + '" y="' + (H - 7) + '" text-anchor="' + (k === 0 ? "end" : "middle") + '">' + (k === 0 ? "Today" : fmtShort(chartDays[i].ms)) + "</text>"; }
+    s += '<rect class="sel" id="selrect" width="' + cw + '" y="' + mt + '" height="' + ph + '" style="display:none"/><rect class="cur" id="currect" width="' + cw + '" y="' + mt + '" height="' + ph + '" style="display:none"/>';
+    chartDays.forEach(function (o, i) {
+      var x = ml + i * cw + (cw - bw) / 2, yy = base;
+      [3, 2, 1].forEach(function (sv) { var n = o.c[sv]; if (!n) return; var h = n / max * ph; yy -= h; s += '<rect class="bar seg s' + sv + '" x="' + x + '" y="' + yy + '" width="' + bw + '" height="' + h + '" style="animation-delay:' + (i * 9) + 'ms"/>'; });
+    });
+    s += '<circle cx="' + (ml + (N - 1) * cw + cw / 2) + '" cy="' + base + '" r="3.5" fill="var(--red)"/>';
+    svg.setAttribute("viewBox", "0 0 " + W + " " + H); svg.setAttribute("class", firstDraw ? "intro" : ""); svg.innerHTML = s;
+    geom = { ml: ml, cw: cw, W: W, mt: mt, ph: ph, base: base };
+    $("older").textContent = older ? plural(older, "more event", "more events") + " began earlier than this and are still listed as ongoing. They are in the list below." : "";
+    paintMarks();
+    if (firstDraw) { firstDraw = false; setTimeout(function () { svg.setAttribute("class", ""); }, 1500); }
   }
+  function colX(i) { return geom.ml + i * geom.cw; }
+  function paintMarks() {
+    var sel = $("selrect"), c = $("currect"); if (!sel) return;
+    var si = st.day ? Math.round((day(st.day) - chartDays[0].ms) / 864e5) : -1;
+    if (si >= 0 && si < N) { sel.setAttribute("x", colX(si)); sel.style.display = ""; } else sel.style.display = "none";
+    if (cur >= 0) { c.setAttribute("x", colX(cur)); c.style.display = ""; } else c.style.display = "none";
+  }
+  function tipText(i) {
+    var o = chartDays[i], p = []; if (o.c[3]) p.push(o.c[3] + " red alert"); if (o.c[2]) p.push(o.c[2] + " alert"); if (o.c[1]) p.push(o.c[1] + " ongoing");
+    return fmtLong(o.ms) + ": " + (o.n ? plural(o.n, "event", "events") + (p.length ? " (" + p.join(", ") + ")" : "") : "no events");
+  }
+  function showCur(i, announce) {
+    cur = i; paintMarks(); if (i < 0) { tip.className = "tip"; return; }
+    tip.textContent = tipText(i); var r = svg.getBoundingClientRect(), f = svg.closest("figure").getBoundingClientRect(), x = r.left - f.left + colX(i) * (r.width / geom.W) + geom.cw / 2 * (r.width / geom.W);
+    tip.style.left = Math.min(Math.max(x, 70), f.width - 70) + "px"; tip.style.top = (r.top - f.top + geom.mt * (r.width / geom.W)) + "px"; tip.className = "tip on";
+    if (announce) $("live").textContent = tipText(i);
+  }
+  function idxAt(ev) { var r = svg.getBoundingClientRect(), x = (ev.clientX - r.left) * (geom.W / r.width), i = Math.floor((x - geom.ml) / geom.cw); return i >= 0 && i < N ? i : -1; }
+  function pickDay(i) { var d = iso(chartDays[i].ms); st.day = st.day === d ? "" : d; render(); }
+  svg.addEventListener("mousemove", function (e) { if (geom) showCur(idxAt(e), false); });
+  svg.addEventListener("mouseleave", function () { showCur(-1); });
+  svg.addEventListener("click", function (e) { if (!geom) return; var i = idxAt(e); if (i >= 0) pickDay(i); });
+  svg.addEventListener("keydown", function (e) {
+    if (!geom) return; var k = e.key;
+    if (k === "ArrowLeft" || k === "ArrowRight" || k === "Home" || k === "End") { e.preventDefault(); showCur(k === "Home" ? 0 : k === "End" ? N - 1 : Math.min(N - 1, Math.max(0, (cur < 0 ? N - 1 : cur) + (k === "ArrowLeft" ? -1 : 1))), true); }
+    else if ((k === "Enter" || k === " ") && cur >= 0) { e.preventDefault(); pickDay(cur); }
+    else if (k === "Escape") { showCur(-1); }
+  });
+  svg.addEventListener("blur", function () { showCur(-1); });
+
+  // ---------- controls
   function sync() {
-    var u = new URLSearchParams(); if (st.kind !== "All") u.set("type", st.kind); if (st.src !== "All") u.set("source", st.src); if (st.q) u.set("q", st.q); if (st.country) u.set("country", st.country); if (st.days) u.set("days", st.days); if (!st.group) u.set("group", "0"); if (st.sort !== "new") u.set("sort", st.sort);
+    var u = new URLSearchParams(); if (st.group !== "All") u.set("group", st.group); if (st.q) u.set("q", st.q); if (st.country) u.set("country", st.country); if (st.day) u.set("day", st.day); if (!st.merge) u.set("merge", "0");
     try { history.replaceState(null, "", location.pathname + (u.toString() ? "?" + u : "")); } catch (e) {}
   }
-
-  function tiles(gs) {
-    var ctry = uniq([].concat.apply([], gs.map(function (g) { return g.iso; }))).length;
-    var t = [["Events", gs.length], ["Countries", ctry], ["Red alerts", gs.filter(function (g) { return g.sev === 3; }).length], ["Outbreaks", gs.filter(function (g) { return g.kind === "Outbreak"; }).length]];
-    if (prevSeen) t.push(["New since last visit", gs.filter(function (g) { return g.isNew; }).length]);
-    $("tiles").innerHTML = t.map(function (x) { return '<div class="tile"><b>' + x[1] + "</b><span>" + x[0] + "</span></div>"; }).join("");
+  function drawGroups() {
+    var base = allGroups.filter(function (g) { return passes(g, "group"); }), cnt = {};
+    base.forEach(function (g) { var k = groupOf(g.kind); cnt[k] = (cnt[k] || 0) + 1; });
+    var list = ["All"].concat(GROUPS.filter(function (k) { return cnt[k] || st.group === k; }));
+    $("groups").innerHTML = list.map(function (k) { return '<button type="button" aria-pressed="' + (k === st.group) + '" data-g="' + esc(k) + '">' + (k === "All" ? "Everything" : esc(k)) + "<small>" + (k === "All" ? base.length : cnt[k] || 0) + "</small></button>"; }).join("");
+    Array.prototype.forEach.call($("groups").querySelectorAll("button"), function (b) { b.addEventListener("click", function () { st.group = b.getAttribute("data-g"); render(); }); });
   }
 
-  function card(g, idx) {
-    var i = g.lead, cls = g.sev === 3 ? "red" : g.sev === 2 ? "orange" : "";
-    var where = g.names.length ? '<div class="where">' + esc(g.names.slice(0, 4).join(", ") + (g.names.length > 4 ? " and " + (g.names.length - 4) + " more" : "")) + "</div>" : "";
-    var also = g.members.length > 1 ? '<button type="button" class="also" aria-expanded="false">Also listed by ' + (g.members.length - 1) + " more (" + esc(g.srcs.join(", ")) + ")</button>" : "";
-    var rk = "";
-    g.iso.some(function (iso) { var c = ranked[iso]; if (c) { rk = '<div class="rank">On the funding side: <a href="index.html">' + esc(c.location_name) + "</a> is ranked #" + c.rank + " of " + nRanked + " most neglected crises, " + Math.round(c.funding_pct) + "% funded.</div>"; return true; } return false; });
-    return '<article class="card" data-g="' + idx + '"><div><span class="lvl ' + cls + '">' + esc(i.level) + "</span>" + (g.isNew ? ' <span class="new">NEW</span>' : "") + '</div><h3><a href="' + esc(safe(i.url)) + '" target="_blank" rel="noopener noreferrer">' + esc(i.title) + "</a></h3>" + where +
-      '<div class="meta"><span>' + esc(g.kind) + "</span><span>" + esc(g.srcs.join(" + ")) + "</span><span>" + esc(fmt(g.date)) + "</span></div>" + also + rk + "</article>";
+  // ---------- the log
+  var BUCKETS = [["Last 7 days", 0, 7, 8], ["8 to 30 days ago", 8, 30, 6], ["1 to 6 months ago", 31, 182, 6], ["6 months to a year ago", 183, 365, 6], ["More than a year ago, still listed as ongoing", 366, 1e9, 8]];
+  function rowHTML(g, id) {
+    var i = g.lead, a = ageParts(ageOf(g)), shownPairs = g.pairs.slice(0, 3), extra = g.pairs.length - shownPairs.length, open = openRows[id];
+    var where = shownPairs.map(function (p) { return p.iso ? '<button type="button" data-iso="' + esc(p.iso) + '" title="Show only ' + esc(p.name) + '">' + esc(p.name) + "</button>" : esc(p.name); }).join(", ") + (extra > 0 ? " and " + extra + " more" : "");
+    var lvl = '<span class="lv s' + g.sev + '">' + esc(i.level) + "</span>";
+    var rk = ""; g.iso.some(function (c) { var r = ranked[c]; if (r) { rk = "<p>On the funding side, " + esc(r.location_name) + ' is ranked #' + r.rank + " of " + nRanked + " most neglected crises and is " + Math.round(r.funding_pct) + '% funded. <a href="index.html">See the funding page</a>.</p>'; return true; } return false; });
+    var more = open ? '<div class="more"><ul>' + g.members.slice().sort(function (x, z) { return x.date < z.date ? 1 : -1; }).map(function (m) { return "<li><span>" + esc(m.source) + ", " + esc(fmt(m.date)) + ", " + esc(m.level) + '</span><br><a href="' + esc(safe(m.url)) + '" target="_blank" rel="noopener noreferrer">' + esc(m.title) + "</a></li>"; }).join("") + "</ul>" + (g.pairs.length > 3 ? "<p>Also affected: " + esc(g.pairs.slice(3).map(function (p) { return p.name; }).join(", ")) + ".</p>" : "") + rk + "</div>" : "";
+    return '<article class="row' + (g.fresh ? " fresh" : "") + '" data-id="' + esc(id) + '"><div class="age"><b>' + esc(a[0]) + "</b>" + (a[1] ? "<em>" + a[1] + "</em>" : "") + '</div><div><h3>' + (g.isNew ? '<span class="newdot" title="New since your last visit"></span><span style="position:absolute;left:-9999px">New. </span>' : "") +
+      '<a href="' + esc(safe(i.url)) + '" target="_blank" rel="noopener noreferrer">' + esc(i.title) + '</a></h3><div class="where">' + (where ? where + ". " : "") + lvl + '</div></div><div class="side">' + esc(g.kind) + "<br>" + esc(g.srcs.join(", ")) +
+      '<br><button type="button" class="det" aria-expanded="' + !!open + '">' + (open ? "Hide details" : g.members.length > 1 ? "Details (" + g.members.length + " listings)" : "Details") + "</button></div>" + more + "</article>";
+  }
+  function bucketHTML(title, gs, limit, bid) {
+    var all = !!expanded[bid], vis = all ? gs : gs.slice(0, limit);
+    return '<section class="bucket" aria-labelledby="h-' + bid + '"><h2 id="h-' + bid + '">' + esc(title) + "<span>" + gs.length + "</span></h2>" + vis.map(function (g, n) { return rowHTML(g, bid + n + g.lead.url); }).join("") +
+      (gs.length > vis.length ? '<button type="button" class="showmore" data-b="' + bid + '">Show ' + (gs.length - vis.length) + " more</button>" : "") + "</section>";
+  }
+  function drawLog(shown) {
+    var html = "";
+    if (!shown.length) html = '<p class="none">Nothing matches. Clear a filter or try another word.</p>';
+    else if (st.day) html = bucketHTML("Began on " + fmt(st.day), shown.sort(function (a, b) { return b.sev - a.sev; }), 999, "d");
+    else BUCKETS.forEach(function (b, n) {
+      var gs = shown.filter(function (g) { var a = ageOf(g); return a >= b[1] && a <= b[2]; });
+      gs.sort(n === 4 ? function (x, y) { return day(x.date) - day(y.date); } : function (x, y) { return x.date < y.date ? 1 : x.date > y.date ? -1 : y.sev - x.sev; });
+      if (gs.length) html += bucketHTML(b[0], gs, b[3], "b" + n);
+    });
+    var log = $("log"); log.innerHTML = html;
+    Array.prototype.forEach.call(log.querySelectorAll(".showmore"), function (b) { b.addEventListener("click", function () { expanded[b.getAttribute("data-b")] = true; render(); }); });
+    Array.prototype.forEach.call(log.querySelectorAll(".where button"), function (b) { b.addEventListener("click", function () { st.country = b.getAttribute("data-iso"); render(); window.scrollTo({ top: $("q").getBoundingClientRect().top + window.scrollY - 12, behavior: "smooth" }); }); });
+    Array.prototype.forEach.call(log.querySelectorAll(".det"), function (b) { b.addEventListener("click", function () { var id = b.closest(".row").getAttribute("data-id"); openRows[id] = !openRows[id]; var y = window.scrollY; render(); window.scrollTo(0, y); }); });
   }
 
-  var ORDER = {
-    "new": function (a, b) { return a.date < b.date ? 1 : a.date > b.date ? -1 : 0; },
-    sev: function (a, b) { return b.sev - a.sev || (a.date < b.date ? 1 : -1); },
-    az: function (a, b) { return (a.names[0] || "~").localeCompare(b.names[0] || "~") || (a.date < b.date ? 1 : -1); }
-  };
+  function nameFor(c) { for (var n = 0; n < allGroups.length; n++) for (var k = 0; k < allGroups[n].pairs.length; k++) if (allGroups[n].pairs[k].iso === c) return allGroups[n].pairs[k].name; return c; }
 
   function render() {
-    var kinds = ["All"].concat(uniq(items.map(function (i) { return i.kind; })).sort()), srcs = ["All"].concat(uniq(items.map(function (i) { return i.source; })));
     allGroups = makeGroups(items);
-    chips("times", "When", [0, 7, 30, 90], st.days, function (v) { st.days = v; }, ["Any time", "Last 7 days", "Last 30 days", "Last 90 days"]);
-    chips("kinds", "Type", kinds, st.kind, function (v) { st.kind = v; });
-    chips("sources", "Source", srcs, st.src, function (v) { st.src = v; });
-    var cands = allGroups.filter(function (g) { return passes(g, "country"); });   // the map shows every country that matches the other filters
-    shown = allGroups.filter(function (g) { return passes(g); }).sort(ORDER[st.sort] || ORDER["new"]);
-    tiles(allGroups); drawDots(cands); sync();
-    var noc = shown.filter(function (g) { return !g.iso.length; }).length;
-    var pill = st.country ? '<span class="sel-pill">' + esc(nameFor(st.country, allGroups)) + ' <button type="button" id="clr" aria-label="Show all countries">×</button></span>' : "";
-    var newBtn = prevSeen && allGroups.some(function (g) { return g.isNew; }) ? ' <button type="button" class="chip" id="onlynew" aria-pressed="' + st.onlyNew + '">Only new</button>' : "";
-    $("count").innerHTML = shown.length + " of " + allGroups.length + " events" + pill + newBtn + (noc ? " · " + noc + " with no country" : "") + (unmapped ? " · " + unmapped + " in places the map cannot show" : "");
-    if ($("clr")) $("clr").addEventListener("click", function () { st.country = ""; render(); });
+    var forChart = allGroups.filter(function (g) { return passes(g, "day"); }), shown = allGroups.filter(function (g) { return passes(g); });
+    headline(allGroups); drawChart(forChart); drawGroups(); drawLog(shown); sync();
+    var bits = [plural(shown.length, "event", "events") + " shown"];
+    var pills = "";
+    if (st.country) pills += '<button type="button" class="x" data-x="country">' + esc(nameFor(st.country)) + " <b aria-hidden=\"true\">×</b><span style=\"position:absolute;left:-9999px\">Clear country filter</span></button>";
+    if (st.day) pills += '<button type="button" class="x" data-x="day">Began ' + esc(fmt(st.day)) + " <b aria-hidden=\"true\">×</b><span style=\"position:absolute;left:-9999px\">Clear date filter</span></button>";
+    var nNew = allGroups.filter(function (g) { return g.isNew; }).length;
+    var newBtn = prevSeen && nNew ? '<button type="button" class="linkish" id="onlynew">' + (st.onlyNew ? "Show everything" : nNew + " new since your last visit") + "</button>" : "";
+    var mergeBtn = '<button type="button" class="linkish" id="merge">' + (st.merge ? "Same event from several sources is merged. Show every listing." : "Showing every listing. Merge duplicates.") + "</button>";
+    $("status").innerHTML = '<span>' + bits[0] + "</span>" + pills + newBtn + mergeBtn;
+    Array.prototype.forEach.call($("status").querySelectorAll(".x"), function (b) { b.addEventListener("click", function () { st[b.getAttribute("data-x")] = ""; render(); }); });
     if ($("onlynew")) $("onlynew").addEventListener("click", function () { st.onlyNew = !st.onlyNew; render(); });
-    $("list").innerHTML = shown.length ? shown.map(card).join("") : '<p class="none">Nothing matches those filters.</p>';
-    Array.prototype.forEach.call($("list").querySelectorAll(".card"), function (c) {
-      var g = shown[+c.getAttribute("data-g")];
-      c.addEventListener("mouseenter", function () { c.classList.add("hot"); highlight(g, true); });
-      c.addEventListener("mouseleave", function () { c.classList.remove("hot"); highlight(g, false); });
-      var b = c.querySelector(".also"); if (!b) return;
-      b.addEventListener("click", function () {
-        var open = b.getAttribute("aria-expanded") === "true", ul = c.querySelector(".alsolist");
-        if (open && ul) { ul.remove(); b.setAttribute("aria-expanded", "false"); return; }
-        ul = document.createElement("ul"); ul.className = "alsolist";
-        ul.innerHTML = g.members.slice().sort(function (a, z) { return a.date < z.date ? 1 : -1; }).map(function (m) {
-          return "<li><span>" + esc(m.source) + " · " + esc(fmt(m.date)) + " · " + esc(m.level) + '</span><br><a href="' + esc(safe(m.url)) + '" target="_blank" rel="noopener noreferrer">' + esc(m.title) + "</a></li>";
-        }).join("");
-        b.after(ul); b.setAttribute("aria-expanded", "true");
-      });
-    });
+    $("merge").addEventListener("click", function () { st.merge = !st.merge; render(); });
+    if (!sessionSeen) sessionSeen = {}; items.forEach(function (i) { sessionSeen[key(i)] = 1; });
   }
   $("q").addEventListener("input", function () { st.q = this.value.trim().toLowerCase(); render(); });
-  $("sort").addEventListener("change", function () { st.sort = this.value; render(); });
-  $("grp").addEventListener("change", function () { st.group = this.checked; render(); });
+  var rz; if (window.ResizeObserver) new ResizeObserver(function () { clearTimeout(rz); rz = setTimeout(function () { if (geom && Math.abs($("chart").clientWidth - geom.W) > 4) drawChart(allGroups.filter(function (g) { return passes(g, "day"); })); }, 120); }).observe($("chart"));
 
   // ---------- live refresh (free): re-read live.js (rebuilt by the GitHub Action) and ask USGS directly
   function stamp() {
-    var failed = Object.keys(D.status).filter(function (k) { return !D.status[k].ok; });
-    $("stamp").textContent = "Data last changed " + D.generated + (liveAt ? " · USGS checked live at " + liveAt : "") + (failed.length ? " · could not reach: " + failed.join(", ") : "");
+    var m = Math.max(0, Math.round((Date.now() - checkedAt) / 60000)), failed = Object.keys(D.status).filter(function (k) { return !D.status[k].ok; });
+    $("stamp").textContent = "Checked " + (m < 1 ? "just now" : plural(m, "minute", "minutes") + " ago") + ". Data file built " + D.generated + (failed.length ? ". Could not reach " + failed.join(", ") : "") + ". This page checks again every 5 minutes.";
   }
-  function merged() {
-    var base = D.items.filter(function (i) { return !(liveUSGS && i.source === "USGS"); });
-    return liveUSGS ? base.concat(liveUSGS) : base;
-  }
-  function refreshAll() { setItems(merged()); stamp(); render(); }
+  function merged() { var base = D.items.filter(function (i) { return !(liveUSGS && i.source === "USGS"); }); return liveUSGS ? base.concat(liveUSGS) : base; }
+  function refreshAll() { setItems(merged()); checkedAt = Date.now(); stamp(); render(); }
   function pullFile() {
     var s = document.createElement("script"); s.src = "live.js?t=" + Date.now();
     s.onload = function () { if (window.AIDGAP_LIVE) { D = window.AIDGAP_LIVE; refreshAll(); } s.remove(); };
@@ -323,19 +384,16 @@
   function pullUSGS() {
     fetch("https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/significant_week.geojson").then(function (r) { return r.json(); }).then(function (d) {
       var known = {}; D.items.forEach(function (i) { if (i.source === "USGS") known[i.url] = i; });   // reuse the country the Action already worked out
-      liveUSGS = d.features.map(function (ft) {
-        var p = ft.properties;
-        return known[p.url] || { source: "USGS", kind: "Earthquake", title: "M" + p.mag + " earthquake, " + p.place, countries: [], iso3: [], date: new Date(p.time).toISOString().slice(0, 10), level: "Magnitude " + p.mag, url: p.url };
-      });
-      liveAt = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }); refreshAll();
+      liveUSGS = d.features.map(function (ft) { var p = ft.properties; return known[p.url] || { source: "USGS", kind: "Earthquake", title: "M" + p.mag + " earthquake, " + p.place, countries: [], iso3: [], date: new Date(p.time).toISOString().slice(0, 10), level: "Magnitude " + p.mag, url: p.url }; });
+      refreshAll();
     }).catch(function () {});
   }
   function remember() { store(false, "aidgapLiveSeen", JSON.stringify(items.map(key).slice(0, 1500))); }
   function tick() { if (document.hidden) return; pullFile(); pullUSGS(); }
-  setInterval(tick, 5 * 60 * 1000);
+  setInterval(tick, 5 * 60 * 1000); setInterval(stamp, 30000);
   document.addEventListener("visibilitychange", function () { if (document.hidden) remember(); else tick(); });
   window.addEventListener("pagehide", remember);
-  drawBase(); refreshAll(); pullUSGS();
+  refreshAll(); pullUSGS();
   if (!prevSeen) remember();   // first visit: nothing is "new" yet, but the next visit can tell
 })();
 </script>
