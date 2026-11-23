@@ -13,7 +13,9 @@ Nothing is invented: each item is a title, date and link taken from the source; 
 Run:   python src/fetch_live.py
 Saves: dashboard/live.js   (window.AIDGAP_LIVE)    -- re-run daily (a scheduled GitHub Action is the next step)
 """
+import csv
 import json
+import re
 import sys
 import urllib.parse
 import urllib.request
@@ -164,6 +166,59 @@ def eonet():
     return out
 
 
+def load_names():
+    f = ROOT / "data" / "reference" / "country_names.csv"
+    if not f.exists():
+        return {}
+    with open(f, encoding="utf-8") as fh:
+        return {r["name"]: r["iso3"] for r in csv.DictReader(fh)}
+
+
+NAMES = load_names()
+US_STATES = set("alabama alaska arizona arkansas california colorado connecticut delaware florida georgia hawaii idaho illinois indiana iowa kansas kentucky louisiana "
+                "maine maryland massachusetts michigan minnesota mississippi missouri montana nebraska nevada oregon pennsylvania tennessee texas utah vermont virginia "
+                "washington wyoming oklahoma".split())
+NAME_RE = None
+
+
+def resolve(name):
+    n = (name or "").strip().lower()
+    return NAMES.get(n) or NAMES.get(re.sub(r"\s*\(.*?\)", "", n).strip()) or NAMES.get(re.sub(r"^the\s+", "", n))
+
+
+def find_in_title(title):
+    """Country names written in a title (WHO notices), longest names first so 'Democratic Republic of the Congo' is not read as 'Congo'."""
+    global NAME_RE
+    if NAME_RE is None:
+        NAME_RE = re.compile(r"(?<![\w])(" + "|".join(re.escape(n) for n in sorted(NAMES, key=len, reverse=True)) + r")(?![\w])", re.I)
+    found, seen = [], set()
+    for m in NAME_RE.finditer(title):
+        iso = NAMES[m.group(1).lower()]
+        if iso not in seen:
+            seen.add(iso)
+            found.append((m.group(1), iso))
+    return found
+
+
+def attach_countries(items):
+    """Give every item a full ISO3 list (the sources only sometimes provide one), so events can be matched, grouped and mapped."""
+    for it in items:
+        if it["countries"]:
+            iso = [resolve(c) for c in it["countries"]]
+            it["iso3"] = [x for x in dict.fromkeys(iso) if x]
+        elif it["source"] == "USGS":
+            seg = it["title"].rsplit(",", 1)[-1].strip()
+            seg = re.sub(r"\s+region$", "", seg, flags=re.I)
+            iso = "USA" if (seg.lower() in US_STATES or re.fullmatch(r"[A-Z]{2}", seg)) else resolve(seg)
+            if iso:
+                it["iso3"], it["countries"] = [iso], [seg]
+        elif it["source"] == "WHO":
+            hits = find_in_title(it["title"])
+            if hits:
+                it["countries"] = [h[0].title() if h[0].islower() else h[0] for h in hits]
+                it["iso3"] = [h[1] for h in hits]
+
+
 def main() -> None:
     items, status = [], {}
     old = previous_items()
@@ -180,6 +235,8 @@ def main() -> None:
             items += kept
             status[name] = {"ok": False, "error": str(e)[:120], "kept_old": len(kept)}
             print(f"{name}: FAILED ({e}); kept {len(kept)} items from the last run")
+    attach_countries(items)
+    print("With a country:", sum(1 for i in items if i["iso3"]), "of", len(items))
     items.sort(key=lambda x: x["date"], reverse=True)
     if items == old and OUT.exists() and (NOW.timestamp() - OUT.stat().st_mtime) < 6 * 3600 and "--force" not in sys.argv:
         print("Nothing new; file left alone (keeps the history free of empty commits).")

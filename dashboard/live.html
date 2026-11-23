@@ -57,6 +57,35 @@
   .none { border: 1px dashed var(--base); padding: 16px; color: var(--ink2); }
   .note { font-family: var(--mono); font-size: 11.5px; color: var(--muted); line-height: 1.7; margin: 30px 0 60px; border-top: 1px solid var(--line); padding-top: 16px; }
   .note b { color: var(--ink2); }
+
+  .mapbox { position: relative; border: 1px solid var(--line); background: var(--surface); border-radius: 4px; margin: 0 0 18px; padding: 8px 8px 4px; }
+  .mapbox svg { display: block; width: 100%; height: auto; }
+  .cn { fill: var(--raise); stroke: var(--line); stroke-width: .5; }
+  .cn.has { cursor: pointer; }
+  .cn.has:hover { fill: var(--base); }
+  .cn.sel { fill: var(--base); stroke: var(--ink2); }
+  .dot { fill-opacity: .72; stroke: var(--bg); stroke-width: .8; cursor: pointer; transition: r .25s ease, fill-opacity .15s; }
+  .dot.s1 { fill: var(--ink2); } .dot.s2 { fill: var(--warn); } .dot.s3 { fill: var(--unmet-text); }
+  .dot:hover, .dot:focus, .dot.hot { fill-opacity: 1; stroke: var(--ink); stroke-width: 1.6; outline: none; }
+  .dot.sel { stroke: var(--ink); stroke-width: 2.2; fill-opacity: 1; }
+  .tip { position: absolute; pointer-events: none; background: var(--raise); border: 1px solid var(--base); border-radius: 3px; padding: 6px 10px; font-family: var(--mono); font-size: 11.5px; color: var(--ink); opacity: 0; transform: translate(-50%, -120%); white-space: nowrap; transition: opacity .12s; z-index: 3; }
+  .tip.on { opacity: 1; }
+  .legend { display: flex; flex-wrap: wrap; gap: 6px 16px; padding: 6px 8px 8px; font-family: var(--mono); font-size: 11px; color: var(--muted); align-items: center; }
+  .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; vertical-align: -1px; }
+  .legend .hint { margin-left: auto; }
+  .sel-pill { display: inline-flex; gap: 8px; align-items: center; font-family: var(--mono); font-size: 12px; border: 1px solid var(--ink2); border-radius: 999px; padding: 3px 4px 3px 12px; margin: 0 8px; color: var(--ink); }
+  .sel-pill button { background: var(--ink); color: var(--bg); border: 0; border-radius: 999px; width: 22px; height: 22px; cursor: pointer; font: inherit; line-height: 1; }
+  select, .tog { font: 12px var(--mono); background: var(--surface); color: var(--ink2); border: 1px solid var(--line); border-radius: 3px; padding: 7px 10px; }
+  .tog { display: inline-flex; gap: 8px; align-items: center; cursor: pointer; }
+  .new { font-family: var(--mono); font-size: 10px; letter-spacing: .08em; background: #4a86b8; color: #fff; padding: 1px 6px; border-radius: 2px; }
+  .card { transition: border-color .15s, transform .15s; }
+  .card.hot { border-color: var(--ink2); transform: translateY(-1px); }
+  .also { background: none; border: 0; padding: 0; font: 11px var(--mono); color: var(--ink2); text-align: left; cursor: pointer; text-decoration: underline dotted; }
+  .alsolist { margin: 2px 0 0; padding: 8px 10px; list-style: none; border-left: 2px solid var(--base); font-size: 13px; display: grid; gap: 6px; }
+  .alsolist span { font-family: var(--mono); font-size: 11px; color: var(--muted); }
+  .rank { font-family: var(--mono); font-size: 11px; color: var(--ink2); border-top: 1px dashed var(--line); padding-top: 6px; margin-top: 2px; }
+  @media (max-width: 640px) { .legend .hint { margin-left: 0; } }
+  @media (prefers-reduced-motion: reduce) { .dot, .card, .tip { transition: none; } }
 </style>
 </head>
 <body>
@@ -69,94 +98,245 @@
 
   <main id="main" tabindex="-1">
   <h1>What is happening now.</h1>
-  <p class="sub">Ongoing disasters, alerts and outbreaks, pulled from four public sources and listed as they publish them. This page does not score or rank them: the Neglect Score on the main page is a separate analysis.</p>
+  <p class="sub">Ongoing disasters, alerts, outbreaks and Red Cross appeals from six public sources, listed as they publish them. Click a dot on the map to see one country. This page does not score or rank events: the Neglect Score on the main page is a separate analysis.</p>
   <p class="stamp" id="stamp"></p>
 
   <div class="tiles" id="tiles"></div>
+
+  <div class="mapbox" id="mapbox">
+    <svg id="wmap" viewBox="0 0 1000 439" role="group" aria-label="World map of events. Each dot is a country; press Enter on a dot to filter the list to that country."></svg>
+    <div class="tip" id="tip" aria-hidden="true"></div>
+    <div class="legend" id="legend"><span><i style="background:var(--unmet-text)"></i>Red alert or very large</span><span><i style="background:var(--warn)"></i>Alert or emergency appeal</span><span><i style="background:var(--ink2)"></i>Ongoing</span><span class="hint">Dot size = number of events. Click a dot or a country to filter.</span></div>
+  </div>
+
+  <div class="bar" id="times"></div>
   <div class="bar" id="kinds"></div>
   <div class="bar" id="sources"></div>
-  <div class="bar"><input id="q" name="q" type="search" placeholder="Search a country or event…" aria-label="Search events" autocomplete="off" spellcheck="false"></div>
+  <div class="bar">
+    <input id="q" name="q" type="search" placeholder="Search a country or event…" aria-label="Search events" autocomplete="off" spellcheck="false">
+    <select id="sort" aria-label="Sort events"><option value="new">Newest first</option><option value="sev">Most severe first</option><option value="az">Country A to Z</option></select>
+    <label class="tog"><input type="checkbox" id="grp" checked> Group the same event from different sources</label>
+  </div>
   <p class="stamp" id="count" aria-live="polite"></p>
   <h2 style="position:absolute;left:-9999px">Events</h2>
   <div class="grid" id="list"></div>
   </main>
 
-  <p class="note"><b>Sources.</b> ReliefWeb (UN OCHA) disasters marked ongoing or alert; GDACS (EU and UN) Orange and Red alerts from the last 30 days; USGS significant earthquakes of the past week; WHO Disease Outbreak News (latest 15); IFRC GO active Red Cross and Red Crescent appeals; NASA EONET open storms, volcanoes and wildfires over 10,000 acres. The same event can appear under more than one source, so the total counts listings, not unique crises. Each card links to the original. Severity words are the source's own; a missing item means the source did not list it, not that nothing happened. The data file is rebuilt automatically about every 30 minutes by a GitHub Action, and this page re-reads it (and checks USGS directly) every 5 minutes while it is open. Conflict events and hunger (ACLED, IPC) are not included yet.</p>
+  <p class="note"><b>Sources.</b> ReliefWeb (UN OCHA) disasters marked ongoing or alert; GDACS (EU and UN) Orange and Red alerts from the last 30 days; USGS significant earthquakes of the past week; WHO Disease Outbreak News (latest 15); IFRC GO active Red Cross and Red Crescent appeals; NASA EONET open storms, volcanoes and wildfires over 10,000 acres. Each card links to the original. Severity words are the source's own; a missing item means the source did not list it, not that nothing happened. <b>Grouping.</b> Items from different sources are merged when they name the same first country and the same type of event within 30 days of each other. That can wrongly merge two separate floods in one country, so untick the box above to see every listing. Events in small places the map has no outline for are in the list but not on the map. The data file is rebuilt automatically about every 30 minutes by a GitHub Action, and this page re-reads it (and checks USGS directly) every 5 minutes while it is open. Conflict events and hunger (ACLED, IPC) are not included yet. <b>New</b> badges compare with what this browser saw on your last visit.</p>
 </div>
-<script src="live.js?v=2"></script>
+<script src="map.js?v=1"></script>
+<script src="data.js?v=43"></script>
+<script src="live.js?v=3"></script>
 <script>
 (function () {
-  var D = window.AIDGAP_LIVE, $ = function (i) { return document.getElementById(i); };
+  var D = window.AIDGAP_LIVE, MAP = window.AIDGAP_MAP, FUND = window.AIDGAP, $ = function (i) { return document.getElementById(i); }, SVGNS = "http://www.w3.org/2000/svg";
   function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
   function safe(u) { return /^https?:\/\//i.test(u || "") ? u : "#"; }
-  try { var t = localStorage.getItem("aidgapTheme"); if (t === "light") document.documentElement.setAttribute("data-theme", "light"); } catch (e) {}
+  function store(get, k, v) { try { if (get) return localStorage.getItem(k); localStorage.setItem(k, v); } catch (e) {} return null; }
+  if (store(true, "aidgapTheme") === "light") document.documentElement.setAttribute("data-theme", "light");
   $("theme").addEventListener("click", function () {
     var l = document.documentElement.getAttribute("data-theme") === "light"; if (l) document.documentElement.removeAttribute("data-theme"); else document.documentElement.setAttribute("data-theme", "light");
-    try { localStorage.setItem("aidgapTheme", l ? "dark" : "light"); } catch (e) {}
+    store(false, "aidgapTheme", l ? "dark" : "light");
   });
   if (!D) { $("list").innerHTML = '<p class="none">The tracker data has not been loaded yet. Run <code>python src/fetch_live.py</code>.</p>'; return; }
-  var items = D.items, kind = "All", src = "All", q = "";
-  var P = new URLSearchParams(location.search); kind = P.get("type") || kind; src = P.get("source") || src; q = (P.get("q") || "").toLowerCase(); $("q").value = P.get("q") || "";
+
+  // ---------- helpers
+  var KM = { "Tropical Cyclone": "Tropical cyclone", "Flash Flood": "Flood", "Epidemic": "Outbreak", "Disease outbreak": "Outbreak", "Land Slide": "Landslide", "Wild Fire": "Wildfire" };
+  function norm(k) { return KM[k] || k; }
+  function sevOf(i) { var l = i.level || "", m = /Magnitude ([\d.]+)/.exec(l); if (/\bred(?! cross)\b/i.test(l)) return 3; if (m) { var x = +m[1]; return x >= 7 ? 3 : x >= 6 ? 2 : 1; } if (/orange|alert|emergency appeal/i.test(l)) return 2; return 1; }
+  var PRI = ["GDACS", "ReliefWeb", "IFRC", "WHO", "USGS", "NASA EONET"];
+  function day(d) { var t = new Date(d + "T00:00:00Z").getTime(); return isNaN(t) ? 0 : t; }
   function fmt(d) { var t = new Date(d + "T00:00:00Z"); return isNaN(t) ? d : new Intl.DateTimeFormat(undefined, { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" }).format(t); }
-  function sync() { var u = new URLSearchParams(); if (kind !== "All") u.set("type", kind); if (src !== "All") u.set("source", src); if (q) u.set("q", q); try { history.replaceState(null, "", location.pathname + (u.toString() ? "?" + u : "")); } catch (e) {} }
-  function norm(k) { return k === "Tropical Cyclone" ? "Tropical cyclone" : k === "Flash Flood" ? "Flood" : k; }
-  var liveUSGS = null, liveAt = null;
-  function paintHead() {
-    var failed = Object.keys(D.status).filter(function (k) { return !D.status[k].ok; });
-    $("stamp").textContent = "Data last changed " + D.generated + (liveAt ? " · USGS checked live at " + liveAt : "") + (failed.length ? " · could not reach: " + failed.join(", ") : "");
-    $("tiles").innerHTML = tilesHTML();
+  function uniq(a) { return a.filter(function (v, i) { return a.indexOf(v) === i; }); }
+  function key(i) { return i.source + "|" + i.url + "|" + i.title; }
+  var ranked = {}, nRanked = 0;
+  if (FUND && FUND.crises) FUND.crises.forEach(function (c) { if (c.rank != null) { ranked[c.location_code] = c; nRanked++; } });
+
+  // ---------- state
+  var P = new URLSearchParams(location.search);
+  var st = { kind: P.get("type") || "All", src: P.get("source") || "All", q: (P.get("q") || "").toLowerCase(), country: (P.get("country") || "").toUpperCase(), days: +(P.get("days") || 0), group: P.get("group") !== "0", sort: P.get("sort") || "new", onlyNew: false };
+  $("q").value = P.get("q") || ""; $("sort").value = st.sort; $("grp").checked = st.group;
+  var prevSeen = null;
+  try { var raw = store(true, "aidgapLiveSeen"); if (raw) { prevSeen = {}; JSON.parse(raw).forEach(function (k) { prevSeen[k] = 1; }); } } catch (e) { prevSeen = null; }
+  var items = [], liveUSGS = null, liveAt = null, allGroups = [], shown = [];
+
+  function setItems(list) { items = list; items.forEach(function (i) { i.kind = norm(i.kind); i.sev = sevOf(i); i.isNew = !!prevSeen && !prevSeen[key(i)]; i.iso3 = i.iso3 || []; i.countries = i.countries || []; }); }
+
+  // ---------- grouping: same first country + same type, dates within 30 days
+  function makeGroups(list) {
+    var groups = [], buckets = {};
+    list.forEach(function (i) {
+      if (!st.group || !i.iso3.length) { groups.push([i]); return; }
+      var k = i.iso3[0] + "|" + i.kind; (buckets[k] = buckets[k] || []).push(i);
+    });
+    Object.keys(buckets).forEach(function (k) {
+      var b = buckets[k].sort(function (a, c) { return day(a.date) - day(c.date); }), cur = [b[0]];
+      for (var n = 1; n < b.length; n++) { if (day(b[n].date) - day(cur[cur.length - 1].date) <= 30 * 864e5) cur.push(b[n]); else { groups.push(cur); cur = [b[n]]; } }
+      groups.push(cur);
+    });
+    return groups.map(function (m) {
+      var lead = m.slice().sort(function (a, c) { return PRI.indexOf(a.source) - PRI.indexOf(c.source) || day(c.date) - day(a.date); })[0];
+      return {
+        lead: lead, members: m, iso: uniq([].concat.apply([], m.map(function (x) { return x.iso3; }))), names: uniq([].concat.apply([], m.map(function (x) { return x.countries; }))),
+        date: m.reduce(function (a, x) { return x.date > a ? x.date : a; }, ""), sev: Math.max.apply(null, m.map(function (x) { return x.sev; })),
+        srcs: uniq(m.map(function (x) { return x.source; })), isNew: m.some(function (x) { return x.isNew; }), kind: lead.kind
+      };
+    });
   }
-  function count(f) { return items.filter(f).length; }
-  function tilesHTML() { return [["Active events", items.length], ["Alerts", count(function (i) { return /alert/i.test(i.level); })], ["Outbreaks", count(function (i) { return i.kind === "Epidemic" || i.kind === "Disease outbreak"; })], ["Floods and storms", count(function (i) { return i.kind === "Flood" || i.kind === "Tropical cyclone"; })]]
-    .map(function (t) { return '<div class="tile"><b>' + t[1] + "</b><span>" + t[0] + "</span></div>"; }).join(""); }
-  function chips(box, label, values, cur, set) {
-    $(box).innerHTML = '<span class="lab">' + label + "</span>" + values.map(function (v) { return '<button type="button" class="chip" aria-pressed="' + (v === cur) + '">' + esc(v) + "</button>"; }).join("");
+
+  function passes(g, skip) {
+    if (skip !== "country" && st.country && g.iso.indexOf(st.country) < 0) return false;
+    if (st.days && Date.now() - day(g.date) > st.days * 864e5) return false;
+    if (st.kind !== "All" && g.kind !== st.kind) return false;
+    if (st.src !== "All" && g.srcs.indexOf(st.src) < 0) return false;
+    if (st.onlyNew && !g.isNew) return false;
+    if (st.q && g.members.map(function (x) { return x.title + " " + x.countries.join(" "); }).join(" ").toLowerCase().indexOf(st.q) < 0) return false;
+    return true;
+  }
+
+  // ---------- map
+  var svg = $("wmap"), dotLayer, pathEls = {}, tip = $("tip"), unmapped = 0;
+  function el(n, a) { var e = document.createElementNS(SVGNS, n); for (var k in a) e.setAttribute(k, a[k]); return e; }
+  function drawBase() {
+    if (!MAP) { $("mapbox").style.display = "none"; return; }
+    var g = el("g", {}); svg.appendChild(g);
+    Object.keys(MAP.paths).forEach(function (iso) {
+      var p = el("path", { d: MAP.paths[iso], "class": "cn" }); pathEls[iso] = p; g.appendChild(p);
+      p.addEventListener("click", function () { if (p.classList.contains("has")) pick(iso); });
+    });
+    dotLayer = el("g", {}); svg.appendChild(dotLayer);
+  }
+  function showTip(c, html) { var r = c.getBoundingClientRect(), b = $("mapbox").getBoundingClientRect(); tip.innerHTML = html; tip.style.left = (r.left + r.width / 2 - b.left) + "px"; tip.style.top = (r.top - b.top) + "px"; tip.className = "tip on"; }
+  function hideTip() { tip.className = "tip"; }
+  function pick(iso) { st.country = st.country === iso ? "" : iso; render(); }
+  function nameFor(iso, gs) {
+    for (var n = 0; n < gs.length; n++) { var i = gs[n].lead.iso3.indexOf(iso); if (i >= 0 && gs[n].lead.countries[i]) return gs[n].lead.countries[i]; }
+    for (n = 0; n < gs.length; n++) { var m = gs[n].members; for (var k = 0; k < m.length; k++) { var j = m[k].iso3.indexOf(iso); if (j >= 0 && m[k].countries[j]) return m[k].countries[j]; } }
+    return (ranked[iso] && ranked[iso].location_name) || iso;
+  }
+  function drawDots(gs) {
+    if (!MAP) return;
+    while (dotLayer.firstChild) dotLayer.removeChild(dotLayer.firstChild);
+    var by = {};
+    gs.forEach(function (g) { g.iso.forEach(function (iso) { var o = by[iso] = by[iso] || { n: 0, sev: 1, red: 0, kinds: {} }; o.n++; o.sev = Math.max(o.sev, g.sev); if (g.sev === 3) o.red++; o.kinds[g.kind] = (o.kinds[g.kind] || 0) + 1; }); });
+    Object.keys(pathEls).forEach(function (iso) { pathEls[iso].setAttribute("class", "cn" + (by[iso] ? " has" : "") + (st.country === iso ? " sel" : "")); });
+    unmapped = 0;
+    Object.keys(by).sort(function (a, b) { return by[b].n - by[a].n; }).forEach(function (iso) {
+      var m = MAP.marks[iso], o = by[iso]; if (!m) { unmapped += o.n; return; }
+      var nm = nameFor(iso, gs), top = Object.keys(o.kinds).sort(function (a, b) { return o.kinds[b] - o.kinds[a]; }).slice(0, 3).map(function (k) { return o.kinds[k] + " " + k.toLowerCase(); }).join(", ");
+      var c = el("circle", { cx: m[0], cy: m[1], r: Math.min(15, 3.5 + Math.sqrt(o.n) * 2.2), "class": "dot s" + o.sev + (st.country === iso ? " sel" : ""), tabindex: 0, role: "button", "aria-label": nm + ": " + o.n + " events. Press Enter to filter.", "data-iso": iso });
+      var html = "<b>" + esc(nm) + "</b> · " + o.n + (o.n === 1 ? " event" : " events") + (o.red ? " · " + o.red + " red" : "") + "<br>" + esc(top);
+      c.addEventListener("mouseenter", function () { showTip(c, html); }); c.addEventListener("mouseleave", hideTip);
+      c.addEventListener("focus", function () { showTip(c, html); }); c.addEventListener("blur", hideTip);
+      c.addEventListener("click", function () { hideTip(); pick(iso); });
+      c.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); hideTip(); pick(iso); } });
+      dotLayer.appendChild(c);
+    });
+  }
+  function highlight(g, on) { if (!dotLayer) return; Array.prototype.forEach.call(dotLayer.querySelectorAll(".dot"), function (c) { c.classList.toggle("hot", on && g.iso.indexOf(c.getAttribute("data-iso")) >= 0); }); }
+
+  // ---------- chips and controls
+  function chips(box, label, values, cur, set, names) {
+    $(box).innerHTML = '<span class="lab">' + label + "</span>" + values.map(function (v, n) { return '<button type="button" class="chip" aria-pressed="' + (v === cur) + '">' + esc(names ? names[n] : v) + "</button>"; }).join("");
     Array.prototype.forEach.call($(box).querySelectorAll(".chip"), function (b, n) { b.addEventListener("click", function () { set(values[n]); render(); }); });
   }
-  function uniq(a) { return a.filter(function (v, i) { return a.indexOf(v) === i; }); }
+  function sync() {
+    var u = new URLSearchParams(); if (st.kind !== "All") u.set("type", st.kind); if (st.src !== "All") u.set("source", st.src); if (st.q) u.set("q", st.q); if (st.country) u.set("country", st.country); if (st.days) u.set("days", st.days); if (!st.group) u.set("group", "0"); if (st.sort !== "new") u.set("sort", st.sort);
+    try { history.replaceState(null, "", location.pathname + (u.toString() ? "?" + u : "")); } catch (e) {}
+  }
+
+  function tiles(gs) {
+    var ctry = uniq([].concat.apply([], gs.map(function (g) { return g.iso; }))).length;
+    var t = [["Events", gs.length], ["Countries", ctry], ["Red alerts", gs.filter(function (g) { return g.sev === 3; }).length], ["Outbreaks", gs.filter(function (g) { return g.kind === "Outbreak"; }).length]];
+    if (prevSeen) t.push(["New since last visit", gs.filter(function (g) { return g.isNew; }).length]);
+    $("tiles").innerHTML = t.map(function (x) { return '<div class="tile"><b>' + x[1] + "</b><span>" + x[0] + "</span></div>"; }).join("");
+  }
+
+  function card(g, idx) {
+    var i = g.lead, cls = g.sev === 3 ? "red" : g.sev === 2 ? "orange" : "";
+    var where = g.names.length ? '<div class="where">' + esc(g.names.slice(0, 4).join(", ") + (g.names.length > 4 ? " and " + (g.names.length - 4) + " more" : "")) + "</div>" : "";
+    var also = g.members.length > 1 ? '<button type="button" class="also" aria-expanded="false">Also listed by ' + (g.members.length - 1) + " more (" + esc(g.srcs.join(", ")) + ")</button>" : "";
+    var rk = "";
+    g.iso.some(function (iso) { var c = ranked[iso]; if (c) { rk = '<div class="rank">On the funding side: <a href="index.html">' + esc(c.location_name) + "</a> is ranked #" + c.rank + " of " + nRanked + " most neglected crises, " + Math.round(c.funding_pct) + "% funded.</div>"; return true; } return false; });
+    return '<article class="card" data-g="' + idx + '"><div><span class="lvl ' + cls + '">' + esc(i.level) + "</span>" + (g.isNew ? ' <span class="new">NEW</span>' : "") + '</div><h3><a href="' + esc(safe(i.url)) + '" target="_blank" rel="noopener noreferrer">' + esc(i.title) + "</a></h3>" + where +
+      '<div class="meta"><span>' + esc(g.kind) + "</span><span>" + esc(g.srcs.join(" + ")) + "</span><span>" + esc(fmt(g.date)) + "</span></div>" + also + rk + "</article>";
+  }
+
+  var ORDER = {
+    "new": function (a, b) { return a.date < b.date ? 1 : a.date > b.date ? -1 : 0; },
+    sev: function (a, b) { return b.sev - a.sev || (a.date < b.date ? 1 : -1); },
+    az: function (a, b) { return (a.names[0] || "~").localeCompare(b.names[0] || "~") || (a.date < b.date ? 1 : -1); }
+  };
+
   function render() {
     var kinds = ["All"].concat(uniq(items.map(function (i) { return i.kind; })).sort()), srcs = ["All"].concat(uniq(items.map(function (i) { return i.source; })));
-    chips("kinds", "Type", kinds, kind, function (v) { kind = v; });
-    chips("sources", "Source", srcs, src, function (v) { src = v; });
-    var list = items.filter(function (i) {
-      return (kind === "All" || i.kind === kind) && (src === "All" || i.source === src) && (!q || (i.title + " " + i.countries.join(" ")).toLowerCase().indexOf(q) >= 0);
+    allGroups = makeGroups(items);
+    chips("times", "When", [0, 7, 30, 90], st.days, function (v) { st.days = v; }, ["Any time", "Last 7 days", "Last 30 days", "Last 90 days"]);
+    chips("kinds", "Type", kinds, st.kind, function (v) { st.kind = v; });
+    chips("sources", "Source", srcs, st.src, function (v) { st.src = v; });
+    var cands = allGroups.filter(function (g) { return passes(g, "country"); });   // the map shows every country that matches the other filters
+    shown = allGroups.filter(function (g) { return passes(g); }).sort(ORDER[st.sort] || ORDER["new"]);
+    tiles(allGroups); drawDots(cands); sync();
+    var noc = shown.filter(function (g) { return !g.iso.length; }).length;
+    var pill = st.country ? '<span class="sel-pill">' + esc(nameFor(st.country, allGroups)) + ' <button type="button" id="clr" aria-label="Show all countries">×</button></span>' : "";
+    var newBtn = prevSeen && allGroups.some(function (g) { return g.isNew; }) ? ' <button type="button" class="chip" id="onlynew" aria-pressed="' + st.onlyNew + '">Only new</button>' : "";
+    $("count").innerHTML = shown.length + " of " + allGroups.length + " events" + pill + newBtn + (noc ? " · " + noc + " with no country" : "") + (unmapped ? " · " + unmapped + " in places the map cannot show" : "");
+    if ($("clr")) $("clr").addEventListener("click", function () { st.country = ""; render(); });
+    if ($("onlynew")) $("onlynew").addEventListener("click", function () { st.onlyNew = !st.onlyNew; render(); });
+    $("list").innerHTML = shown.length ? shown.map(card).join("") : '<p class="none">Nothing matches those filters.</p>';
+    Array.prototype.forEach.call($("list").querySelectorAll(".card"), function (c) {
+      var g = shown[+c.getAttribute("data-g")];
+      c.addEventListener("mouseenter", function () { c.classList.add("hot"); highlight(g, true); });
+      c.addEventListener("mouseleave", function () { c.classList.remove("hot"); highlight(g, false); });
+      var b = c.querySelector(".also"); if (!b) return;
+      b.addEventListener("click", function () {
+        var open = b.getAttribute("aria-expanded") === "true", ul = c.querySelector(".alsolist");
+        if (open && ul) { ul.remove(); b.setAttribute("aria-expanded", "false"); return; }
+        ul = document.createElement("ul"); ul.className = "alsolist";
+        ul.innerHTML = g.members.slice().sort(function (a, z) { return a.date < z.date ? 1 : -1; }).map(function (m) {
+          return "<li><span>" + esc(m.source) + " · " + esc(fmt(m.date)) + " · " + esc(m.level) + '</span><br><a href="' + esc(safe(m.url)) + '" target="_blank" rel="noopener noreferrer">' + esc(m.title) + "</a></li>";
+        }).join("");
+        b.after(ul); b.setAttribute("aria-expanded", "true");
+      });
     });
-    sync();
-    $("count").textContent = list.length + " of " + items.length + " events";
-    $("list").innerHTML = list.length ? list.map(function (i) {
-      var cls = /red/i.test(i.level) ? "red" : /orange|alert/i.test(i.level) ? "orange" : "";
-      return '<article class="card"><span class="lvl ' + cls + '">' + esc(i.level) + "</span><h3><a href=\"" + esc(safe(i.url)) + '" target="_blank" rel="noopener noreferrer">' + esc(i.title) + "</a></h3>" +
-        (i.countries.length ? '<div class="where">' + esc(i.countries.slice(0, 4).join(", ") + (i.countries.length > 4 ? " and " + (i.countries.length - 4) + " more" : "")) + "</div>" : "") +
-        '<div class="meta"><span>' + esc(i.kind) + "</span><span>" + esc(i.source) + "</span><span>" + esc(fmt(i.date)) + "</span></div></article>";
-    }).join("") : '<p class="none">Nothing matches that filter.</p>';
   }
-  $("q").addEventListener("input", function () { q = this.value.trim().toLowerCase(); render(); });
+  $("q").addEventListener("input", function () { st.q = this.value.trim().toLowerCase(); render(); });
+  $("sort").addEventListener("change", function () { st.sort = this.value; render(); });
+  $("grp").addEventListener("change", function () { st.group = this.checked; render(); });
 
-  // ---- live refresh (free): re-read live.js (rebuilt by the GitHub Action) and ask USGS directly
-  function setItems(list) { items = list; items.forEach(function (i) { i.kind = norm(i.kind); }); }
+  // ---------- live refresh (free): re-read live.js (rebuilt by the GitHub Action) and ask USGS directly
+  function stamp() {
+    var failed = Object.keys(D.status).filter(function (k) { return !D.status[k].ok; });
+    $("stamp").textContent = "Data last changed " + D.generated + (liveAt ? " · USGS checked live at " + liveAt : "") + (failed.length ? " · could not reach: " + failed.join(", ") : "");
+  }
   function merged() {
     var base = D.items.filter(function (i) { return !(liveUSGS && i.source === "USGS"); });
-    return liveUSGS ? base.concat(liveUSGS).sort(function (a, b) { return a.date < b.date ? 1 : -1; }) : base;
+    return liveUSGS ? base.concat(liveUSGS) : base;
   }
-  function refreshAll() { setItems(merged()); paintHead(); render(); }
+  function refreshAll() { setItems(merged()); stamp(); render(); }
   function pullFile() {
-    var s = document.createElement("script");
-    s.src = "live.js?t=" + Date.now();
+    var s = document.createElement("script"); s.src = "live.js?t=" + Date.now();
     s.onload = function () { if (window.AIDGAP_LIVE) { D = window.AIDGAP_LIVE; refreshAll(); } s.remove(); };
     s.onerror = function () { s.remove(); };
     document.head.appendChild(s);
   }
   function pullUSGS() {
     fetch("https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/significant_week.geojson").then(function (r) { return r.json(); }).then(function (d) {
-      liveUSGS = d.features.map(function (ft) { var p = ft.properties; return { source: "USGS", kind: "Earthquake", title: "M" + p.mag + " earthquake, " + p.place, countries: [], iso3: [],
-        date: new Date(p.time).toISOString().slice(0, 10), level: "Magnitude " + p.mag, url: p.url }; });
+      var known = {}; D.items.forEach(function (i) { if (i.source === "USGS") known[i.url] = i; });   // reuse the country the Action already worked out
+      liveUSGS = d.features.map(function (ft) {
+        var p = ft.properties;
+        return known[p.url] || { source: "USGS", kind: "Earthquake", title: "M" + p.mag + " earthquake, " + p.place, countries: [], iso3: [], date: new Date(p.time).toISOString().slice(0, 10), level: "Magnitude " + p.mag, url: p.url };
+      });
       liveAt = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }); refreshAll();
     }).catch(function () {});
   }
+  function remember() { store(false, "aidgapLiveSeen", JSON.stringify(items.map(key).slice(0, 1500))); }
   function tick() { if (document.hidden) return; pullFile(); pullUSGS(); }
   setInterval(tick, 5 * 60 * 1000);
-  document.addEventListener("visibilitychange", function () { if (!document.hidden) tick(); });
-  refreshAll(); pullUSGS();
+  document.addEventListener("visibilitychange", function () { if (document.hidden) remember(); else tick(); });
+  window.addEventListener("pagehide", remember);
+  drawBase(); refreshAll(); pullUSGS();
+  if (!prevSeen) remember();   // first visit: nothing is "new" yet, but the next visit can tell
 })();
 </script>
 </body>
