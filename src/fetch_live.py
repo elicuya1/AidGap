@@ -110,7 +110,8 @@ def previous_payload():
     """The last file we wrote, so a source that fails now keeps its last good items instead of vanishing."""
     try:
         txt = OUT.read_text(encoding="utf-8")
-        return json.loads(txt[txt.index("=") + 1:].strip().rstrip(";"))
+        d = json.loads(txt[txt.index("=") + 1:].strip().rstrip(";"))
+        return {"items": d.get("items") or [], "status": d.get("status") or {}, "generated": d.get("generated") or ""}
     except Exception:
         return {"items": [], "status": {}, "generated": ""}
 
@@ -241,7 +242,7 @@ def main() -> None:
     items.sort(key=lambda x: x["date"], reverse=True)
     try:
         age_h = (NOW - datetime.strptime(prev["generated"], "%Y-%m-%d %H:%M UTC").replace(tzinfo=timezone.utc)).total_seconds() / 3600
-    except ValueError:
+    except (ValueError, TypeError):
         age_h = 999
     if items == old and status == prev["status"] and age_h < 6 and "--force" not in sys.argv:
         print("Nothing new; file left alone (keeps the history free of empty commits; it is rewritten at least every 6 hours).")
