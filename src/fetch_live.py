@@ -1,7 +1,7 @@
 """
 AidGap - Step 19: the LIVE CRISIS TRACKER feed.
 
-Collects what is happening NOW from four free public sources and writes one file for the tracker page:
+Collects what is happening NOW from six free public sources (also IFRC GO active appeals and NASA EONET open events) and writes one file for the tracker page:
   * ReliefWeb API (UN OCHA): disasters and crises with status "ongoing" or "alert"   (needs our approved app name)
   * GDACS (EU/UN): Orange and Red alerts for earthquakes, cyclones, floods, volcanoes, droughts, wildfires
   * USGS: significant earthquakes of the past week
@@ -113,10 +113,61 @@ def previous_items():
         return []
 
 
+IFRC_KIND = {"Pluvial/Flash Flood": "Flood", "Cyclone": "Tropical cyclone", "Fire": "Wildfire", "Volcanic Eruption": "Volcano",
+             "Storm Surge": "Tropical cyclone", "Insect Infestation": "Pest infestation", "Food Insecurity": "Food insecurity"}
+
+
+def ifrc():
+    """Red Cross / Red Crescent ACTIVE appeals (DREF and Emergency Appeals). Includes conflict-type crises (population movement, complex emergency)."""
+    out, offset = [], 0
+    while True:
+        d = get(f"https://goadmin.ifrc.org/api/v2/appeal/?limit=100&offset={offset}&ordering=-start_date&status=0&format=json")
+        for a in d["results"]:
+            c = a.get("country") or {}
+            k = (a.get("dtype") or {}).get("name", "Other")
+            eid = a.get("event") or (a.get("event_details") or {}).get("id")
+            out.append({"source": "IFRC", "kind": IFRC_KIND.get(k, k), "title": a["name"], "countries": [c["name"]] if c.get("name") else [],
+                        "iso3": [c["iso3"].upper()] if c.get("iso3") else [], "date": iso_day(a.get("start_date")),
+                        "level": "Red Cross " + ("emergency appeal" if a.get("atype_display") == "Emergency Appeal" else "DREF"),
+                        "url": f"https://go.ifrc.org/emergencies/{eid}" if eid else "https://go.ifrc.org/appeals/all"})
+        offset += 100
+        if not d.get("next") or offset >= 600:
+            return out
+
+
+EONET_KIND = {"Wildfires": "Wildfire", "Severe Storms": "Severe storm", "Volcanoes": "Volcano", "Floods": "Flood", "Drought": "Drought", "Landslides": "Landslide"}
+
+
+def eonet():
+    """NASA EONET open natural events. Wildfires are mostly small, so only ones of 10,000 acres (4,000 ha) or more are kept."""
+    d = get("https://eonet.gsfc.nasa.gov/api/v3/events?status=open&limit=1000")
+    cutoff = NOW - timedelta(days=14)
+    out = []
+    for e in d["events"]:
+        cat = e["categories"][0]["title"]
+        if cat not in EONET_KIND:
+            continue
+        g = e["geometry"][-1]
+        when = datetime.fromisoformat(g["date"].replace("Z", "+00:00"))
+        if when < cutoff:
+            continue
+        mag, unit = g.get("magnitudeValue"), g.get("magnitudeUnit")
+        if cat == "Wildfires":
+            acres = (mag or 0) * (2.47105 if unit == "ha" else 1) if unit in ("acres", "ha") else 0
+            if acres < 10000:
+                continue
+            level = f"{acres:,.0f} acres burned"
+        else:
+            level = "NASA open event"
+        out.append({"source": "NASA EONET", "kind": EONET_KIND[cat], "title": e["title"], "countries": [], "iso3": [],
+                    "date": when.strftime("%Y-%m-%d"), "level": level, "url": (e["sources"] or [{"url": e["link"]}])[0]["url"]})
+    return out
+
+
 def main() -> None:
     items, status = [], {}
     old = previous_items()
-    for name, fn in (("ReliefWeb", reliefweb), ("GDACS", gdacs), ("USGS", usgs), ("WHO", who)):
+    for name, fn in (("ReliefWeb", reliefweb), ("GDACS", gdacs), ("USGS", usgs), ("WHO", who), ("IFRC", ifrc), ("NASA EONET", eonet)):
         try:
             got = fn()
             if name == "ReliefWeb" and not RELIEFWEB_APPNAME:
