@@ -106,13 +106,13 @@ def who():
              "level": "Outbreak notice", "url": "https://www.who.int/emergencies/disease-outbreak-news/item/" + v["UrlName"]} for v in d["value"]]
 
 
-def previous_items():
-    """Items from the last run, so a source that fails now keeps its last good items instead of vanishing."""
+def previous_payload():
+    """The last file we wrote, so a source that fails now keeps its last good items instead of vanishing."""
     try:
         txt = OUT.read_text(encoding="utf-8")
-        return json.loads(txt[txt.index("=") + 1:].strip().rstrip(";"))["items"]
+        return json.loads(txt[txt.index("=") + 1:].strip().rstrip(";"))
     except Exception:
-        return []
+        return {"items": [], "status": {}, "generated": ""}
 
 
 IFRC_KIND = {"Pluvial/Flash Flood": "Flood", "Cyclone": "Tropical cyclone", "Fire": "Wildfire", "Volcanic Eruption": "Volcano",
@@ -221,7 +221,8 @@ def attach_countries(items):
 
 def main() -> None:
     items, status = [], {}
-    old = previous_items()
+    prev = previous_payload()
+    old = prev["items"]
     for name, fn in (("ReliefWeb", reliefweb), ("GDACS", gdacs), ("USGS", usgs), ("WHO", who), ("IFRC", ifrc), ("NASA EONET", eonet)):
         try:
             got = fn()
@@ -238,8 +239,12 @@ def main() -> None:
     attach_countries(items)
     print("With a country:", sum(1 for i in items if i["iso3"]), "of", len(items))
     items.sort(key=lambda x: x["date"], reverse=True)
-    if items == old and OUT.exists() and (NOW.timestamp() - OUT.stat().st_mtime) < 6 * 3600 and "--force" not in sys.argv:
-        print("Nothing new; file left alone (keeps the history free of empty commits).")
+    try:
+        age_h = (NOW - datetime.strptime(prev["generated"], "%Y-%m-%d %H:%M UTC").replace(tzinfo=timezone.utc)).total_seconds() / 3600
+    except ValueError:
+        age_h = 999
+    if items == old and status == prev["status"] and age_h < 6 and "--force" not in sys.argv:
+        print("Nothing new; file left alone (keeps the history free of empty commits; it is rewritten at least every 6 hours).")
         return
     payload = {"generated": NOW.strftime("%Y-%m-%d %H:%M UTC"), "status": status, "items": items}
     OUT.write_text("window.AIDGAP_LIVE = " + json.dumps(payload, ensure_ascii=False) + ";\n", encoding="utf-8")

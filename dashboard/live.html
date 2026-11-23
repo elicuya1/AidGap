@@ -24,7 +24,9 @@
   html { background: var(--paper); }
   body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--text); font-size: 17px; line-height: 1.6; }
   a { color: inherit; }
-  button { font: inherit; color: inherit; }
+  button { font: inherit; color: inherit; touch-action: manipulation; }
+  html { -webkit-tap-highlight-color: transparent; }
+  #log { scroll-margin-top: 16px; }
   :focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; border-radius: 2px; }
   .skip { position: absolute; left: 12px; top: -60px; background: var(--ink); color: var(--paper); padding: 8px 14px; font-family: var(--display); text-decoration: none; z-index: 10; }
   .skip:focus { top: 12px; }
@@ -73,7 +75,7 @@
   #q::placeholder { color: var(--muted); }
   #q:focus-visible { outline: none; border-bottom-color: var(--blue); }
   .groups { display: flex; flex-wrap: wrap; gap: 4px 22px; margin: 14px 0 0; font-family: var(--display); font-size: 17px; }
-  .groups button { background: none; border: 0; border-bottom: 2px solid transparent; padding: 3px 0; cursor: pointer; color: var(--ink2); }
+  .groups button { background: none; border: 0; border-bottom: 2px solid transparent; padding: 9px 0 6px; min-height: 40px; cursor: pointer; color: var(--ink2); }
   .groups button:hover { color: var(--ink); }
   .groups button[aria-pressed="true"] { color: var(--ink); border-bottom-color: var(--ink); font-weight: 700; }
   .groups small { color: var(--muted); font-size: 13px; margin-left: 4px; font-weight: 400; }
@@ -90,7 +92,8 @@
   .age { font-family: var(--display); line-height: 1; white-space: nowrap; }
   .age b { font-size: 40px; font-weight: 700; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
   .age em { font-style: normal; font-size: 15px; color: var(--muted); margin-left: 4px; }
-  .row h3 { margin: 0; font-size: 19px; line-height: 1.35; font-weight: 400; }
+  .row > div { min-width: 0; }
+  .row h3 { overflow-wrap: anywhere; margin: 0; font-size: 19px; line-height: 1.35; font-weight: 400; }
   .row h3 a { text-decoration-thickness: 1px; text-underline-offset: 3px; text-decoration-color: var(--muted); }
   .row h3 a:hover { text-decoration-color: var(--ink); }
   .where { font-size: 15px; color: var(--ink2); margin-top: 2px; }
@@ -104,9 +107,10 @@
   .more span { font-family: var(--display); color: var(--muted); font-size: 14px; }
   .more p { margin: 8px 0 0; font-family: var(--display); color: var(--ink2); }
   .newdot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--blue); margin-right: 8px; vertical-align: 2px; }
-  .fresh { animation: fresh 5s ease-out; }
-  @keyframes fresh { from { background: color-mix(in srgb, var(--blue) 22%, transparent); } to { background: transparent; } }
-  .showmore { display: block; width: 100%; text-align: left; background: none; border: 0; border-bottom: 1px solid var(--rule); padding: 14px 0; font-family: var(--display); font-size: 17px; cursor: pointer; color: var(--ink2); }
+  .row { position: relative; content-visibility: auto; contain-intrinsic-size: auto 96px; }
+  .fresh::before { content: ""; position: absolute; inset: 0; background: var(--blue); opacity: 0; pointer-events: none; animation: fresh 5s ease-out; }
+  @keyframes fresh { from { opacity: .2; } to { opacity: 0; } }
+  .showmore { min-height: 44px; display: block; width: 100%; text-align: left; background: none; border: 0; border-bottom: 1px solid var(--rule); padding: 14px 0; font-family: var(--display); font-size: 17px; cursor: pointer; color: var(--ink2); }
   .showmore:hover { color: var(--ink); }
   .none { padding: 24px 0; color: var(--ink2); }
   .note { font-size: 14.5px; color: var(--muted); line-height: 1.65; margin: 56px 0 60px; padding-top: 14px; border-top: 2px solid var(--ink); max-width: 46em; }
@@ -118,7 +122,7 @@
     .side { grid-column: 2; text-align: left; }
     #q { font-size: 19px; }
   }
-  @media (prefers-reduced-motion: reduce) { .intro .bar, .fresh, .live .pulse::after { animation: none; } .tip { transition: none; } }
+  @media (prefers-reduced-motion: reduce) { .intro .bar, .fresh::before, .live .pulse::after { animation: none; } .tip { transition: none; } }
 </style>
 </head>
 <body>
@@ -146,7 +150,7 @@
     </figure>
 
     <div class="controls">
-      <input id="q" name="q" type="search" placeholder="Search a country or an event" aria-label="Search events" autocomplete="off" spellcheck="false">
+      <input id="q" name="q" type="search" placeholder="Search a country or an event…" aria-label="Search events" autocomplete="off" spellcheck="false">
       <div class="groups" id="groups" role="group" aria-label="Type of event"></div>
       <div class="status" id="status" aria-live="polite"></div>
     </div>
@@ -156,7 +160,7 @@
 
   <p class="note"><b>Sources.</b> ReliefWeb (UN OCHA) disasters marked ongoing or alert; GDACS (EU and UN) Orange and Red alerts from the last 30 days; USGS significant earthquakes of the past week; WHO Disease Outbreak News (latest 15); IFRC GO active Red Cross and Red Crescent appeals; NASA EONET open storms, volcanoes and wildfires over 10,000 acres. Each event links to the original. Dates and severity words are each source's own, and a start date is when the source says it began, not when it was listed. A missing event means the source did not list it, not that nothing happened. <b>Merging.</b> Listings from different sources are merged when they name the same first country and the same type of event within 30 days of each other. That can join two separate floods in one country, so you can switch it off above the list. The data file is rebuilt about every 30 minutes by a GitHub Action, and this page re-reads it and checks USGS directly every 5 minutes while it is open. Conflict events and hunger (ACLED, IPC) are not included yet. The blue dot marks events that appeared since this browser last visited.</p>
 </div>
-<script src="data.js?v=43"></script>
+<script src="data.js?v=44"></script>
 <script src="live.js?v=3"></script>
 <script>
 (function () {
@@ -165,9 +169,10 @@
   function safe(u) { return /^https?:\/\//i.test(u || "") ? u : "#"; }
   function store(get, k, v) { try { if (get) return localStorage.getItem(k); localStorage.setItem(k, v); } catch (e) {} return null; }
   var root = document.documentElement;
-  function setTheme(dark) { if (dark) root.setAttribute("data-theme", "dark"); else root.removeAttribute("data-theme"); $("theme").textContent = dark ? "Light mode" : "Dark mode"; }
-  setTheme(store(true, "aidgapTheme") === "dark");
-  $("theme").addEventListener("click", function () { var d = root.getAttribute("data-theme") !== "dark"; setTheme(d); store(false, "aidgapTheme", d ? "dark" : "light"); });
+  function setTheme(dark) { var tc = document.querySelector("meta[name=theme-color]"); if (tc) tc.setAttribute("content", dark ? "#0f1512" : "#eef0ea"); if (dark) root.setAttribute("data-theme", "dark"); else root.removeAttribute("data-theme"); $("theme").textContent = dark ? "Light mode" : "Dark mode"; }
+  var savedTheme = store(true, "aidgap-theme");   /* same key as the funding page; none saved = follow the device */
+  setTheme(savedTheme ? savedTheme === "dark" : !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches));
+  $("theme").addEventListener("click", function () { var d = root.getAttribute("data-theme") !== "dark"; setTheme(d); store(false, "aidgap-theme", d ? "dark" : "light"); });
   if (!D) { $("log").innerHTML = '<p class="none">The tracker data has not been loaded yet. Run <code>python src/fetch_live.py</code>.</p>'; $("headline").textContent = "No data yet."; return; }
 
   // ---------- helpers
@@ -342,7 +347,7 @@
     });
     var log = $("log"); log.innerHTML = html;
     Array.prototype.forEach.call(log.querySelectorAll(".showmore"), function (b) { b.addEventListener("click", function () { expanded[b.getAttribute("data-b")] = true; render(); }); });
-    Array.prototype.forEach.call(log.querySelectorAll(".where button"), function (b) { b.addEventListener("click", function () { st.country = b.getAttribute("data-iso"); render(); window.scrollTo({ top: $("q").getBoundingClientRect().top + window.scrollY - 12, behavior: "smooth" }); }); });
+    Array.prototype.forEach.call(log.querySelectorAll(".where button"), function (b) { b.addEventListener("click", function () { st.country = b.getAttribute("data-iso"); render(); window.scrollTo({ top: $("q").getBoundingClientRect().top + window.scrollY - 12, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" }); }); });
     Array.prototype.forEach.call(log.querySelectorAll(".det"), function (b) { b.addEventListener("click", function () { var id = b.closest(".row").getAttribute("data-id"); openRows[id] = !openRows[id]; var y = window.scrollY; render(); window.scrollTo(0, y); }); });
   }
 

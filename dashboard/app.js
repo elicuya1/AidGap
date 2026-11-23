@@ -58,7 +58,11 @@
     COL.fundedRGB = hexToRgb(COL["--funded"]); COL.unmetRGB = hexToRgb(COL["--unmet"]); COL.landRGB = hexToRgb(COL["--land"]);
     COL.light = document.documentElement.getAttribute("data-theme") === "light";
   }
-  try { var saved = localStorage.getItem("aidgap-theme"); if (saved === "light") document.documentElement.setAttribute("data-theme", "light"); } catch (e) {}
+  try {
+    var saved = localStorage.getItem("aidgap-theme");   /* shared with the live tracker; no saved choice = follow the device */
+    var wantLight = saved ? saved === "light" : !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches);
+    if (wantLight) document.documentElement.setAttribute("data-theme", "light");
+  } catch (e) {}
   $("themeBtn").addEventListener("click", function () {
     var light = document.documentElement.getAttribute("data-theme") === "light";
     if (light) document.documentElement.removeAttribute("data-theme"); else document.documentElement.setAttribute("data-theme", "light");
@@ -76,7 +80,7 @@
   (function () {
     var d = new Date(D.generated + "T00:00:00"), nice = isNaN(d) ? D.generated : d.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
     $("dateline").textContent = "Data as of " + nice + " · " + crises.length + " crises · OCHA FTS · HDX HAPI · ReliefWeb · GDELT";
-    $("mast").textContent = "Field report " + D.year + " · v43";
+    $("mast").textContent = "Live data " + D.year + " · v44";
   })();
   function countUp() {
     if ("IntersectionObserver" in window && !countUp.go) { var io = new IntersectionObserver(function (es) { if (es[0].isIntersecting) { io.disconnect(); countUp.go = 1; countUp(); } }, { threshold: 0.4 }); io.observe($("s-intro")); return; }
