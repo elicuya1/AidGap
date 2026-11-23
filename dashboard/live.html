@@ -81,7 +81,7 @@
   <div class="grid" id="list"></div>
   </main>
 
-  <p class="note"><b>Sources.</b> ReliefWeb (UN OCHA) disasters marked ongoing or alert; GDACS (EU and UN) Orange and Red alerts from the last 30 days; USGS significant earthquakes of the past week; WHO Disease Outbreak News (latest 15). Each card links to the original. Severity words are the source's own; a missing item means the source did not list it, not that nothing happened. Data is refreshed when <code>python src/fetch_live.py</code> is run; a daily automatic refresh is planned. Conflict events and hunger (ACLED, IPC) are not included yet.</p>
+  <p class="note"><b>Sources.</b> ReliefWeb (UN OCHA) disasters marked ongoing or alert; GDACS (EU and UN) Orange and Red alerts from the last 30 days; USGS significant earthquakes of the past week; WHO Disease Outbreak News (latest 15). Each card links to the original. Severity words are the source's own; a missing item means the source did not list it, not that nothing happened. The data file is rebuilt automatically about every 30 minutes by a GitHub Action, and this page re-reads it (and checks USGS directly) every 5 minutes while it is open. Conflict events and hunger (ACLED, IPC) are not included yet.</p>
 </div>
 <script src="live.js?v=2"></script>
 <script>
@@ -100,12 +100,15 @@
   function fmt(d) { var t = new Date(d + "T00:00:00Z"); return isNaN(t) ? d : new Intl.DateTimeFormat(undefined, { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" }).format(t); }
   function sync() { var u = new URLSearchParams(); if (kind !== "All") u.set("type", kind); if (src !== "All") u.set("source", src); if (q) u.set("q", q); try { history.replaceState(null, "", location.pathname + (u.toString() ? "?" + u : "")); } catch (e) {} }
   function norm(k) { return k === "Tropical Cyclone" ? "Tropical cyclone" : k === "Flash Flood" ? "Flood" : k; }
-  items.forEach(function (i) { i.kind = norm(i.kind); });
-  var failed = Object.keys(D.status).filter(function (k) { return !D.status[k].ok; });
-  $("stamp").textContent = "Last updated " + D.generated + (failed.length ? " · could not reach: " + failed.join(", ") : "");
+  var liveUSGS = null, liveAt = null;
+  function paintHead() {
+    var failed = Object.keys(D.status).filter(function (k) { return !D.status[k].ok; });
+    $("stamp").textContent = "Data last changed " + D.generated + (liveAt ? " · USGS checked live at " + liveAt : "") + (failed.length ? " · could not reach: " + failed.join(", ") : "");
+    $("tiles").innerHTML = tilesHTML();
+  }
   function count(f) { return items.filter(f).length; }
-  $("tiles").innerHTML = [["Active events", items.length], ["Alerts", count(function (i) { return /alert/i.test(i.level); })], ["Outbreaks", count(function (i) { return i.kind === "Epidemic" || i.kind === "Disease outbreak"; })], ["Floods and storms", count(function (i) { return i.kind === "Flood" || i.kind === "Tropical cyclone"; })]]
-    .map(function (t) { return '<div class="tile"><b>' + t[1] + "</b><span>" + t[0] + "</span></div>"; }).join("");
+  function tilesHTML() { return [["Active events", items.length], ["Alerts", count(function (i) { return /alert/i.test(i.level); })], ["Outbreaks", count(function (i) { return i.kind === "Epidemic" || i.kind === "Disease outbreak"; })], ["Floods and storms", count(function (i) { return i.kind === "Flood" || i.kind === "Tropical cyclone"; })]]
+    .map(function (t) { return '<div class="tile"><b>' + t[1] + "</b><span>" + t[0] + "</span></div>"; }).join(""); }
   function chips(box, label, values, cur, set) {
     $(box).innerHTML = '<span class="lab">' + label + "</span>" + values.map(function (v) { return '<button type="button" class="chip" aria-pressed="' + (v === cur) + '">' + esc(v) + "</button>"; }).join("");
     Array.prototype.forEach.call($(box).querySelectorAll(".chip"), function (b, n) { b.addEventListener("click", function () { set(values[n]); render(); }); });
@@ -128,7 +131,32 @@
     }).join("") : '<p class="none">Nothing matches that filter.</p>';
   }
   $("q").addEventListener("input", function () { q = this.value.trim().toLowerCase(); render(); });
-  render();
+
+  // ---- live refresh (free): re-read live.js (rebuilt by the GitHub Action) and ask USGS directly
+  function setItems(list) { items = list; items.forEach(function (i) { i.kind = norm(i.kind); }); }
+  function merged() {
+    var base = D.items.filter(function (i) { return !(liveUSGS && i.source === "USGS"); });
+    return liveUSGS ? base.concat(liveUSGS).sort(function (a, b) { return a.date < b.date ? 1 : -1; }) : base;
+  }
+  function refreshAll() { setItems(merged()); paintHead(); render(); }
+  function pullFile() {
+    var s = document.createElement("script");
+    s.src = "live.js?t=" + Date.now();
+    s.onload = function () { if (window.AIDGAP_LIVE) { D = window.AIDGAP_LIVE; refreshAll(); } s.remove(); };
+    s.onerror = function () { s.remove(); };
+    document.head.appendChild(s);
+  }
+  function pullUSGS() {
+    fetch("https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/significant_week.geojson").then(function (r) { return r.json(); }).then(function (d) {
+      liveUSGS = d.features.map(function (ft) { var p = ft.properties; return { source: "USGS", kind: "Earthquake", title: "M" + p.mag + " earthquake, " + p.place, countries: [], iso3: [],
+        date: new Date(p.time).toISOString().slice(0, 10), level: "Magnitude " + p.mag, url: p.url }; });
+      liveAt = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }); refreshAll();
+    }).catch(function () {});
+  }
+  function tick() { if (document.hidden) return; pullFile(); pullUSGS(); }
+  setInterval(tick, 5 * 60 * 1000);
+  document.addEventListener("visibilitychange", function () { if (!document.hidden) tick(); });
+  refreshAll(); pullUSGS();
 })();
 </script>
 </body>

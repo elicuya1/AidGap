@@ -14,6 +14,7 @@ Run:   python src/fetch_live.py
 Saves: dashboard/live.js   (window.AIDGAP_LIVE)    -- re-run daily (a scheduled GitHub Action is the next step)
 """
 import json
+import sys
 import urllib.parse
 import urllib.request
 from datetime import datetime, timedelta, timezone
@@ -30,6 +31,8 @@ try:
     from config_local import RELIEFWEB_APPNAME
 except Exception:
     RELIEFWEB_APPNAME = None
+import os
+RELIEFWEB_APPNAME = RELIEFWEB_APPNAME or os.environ.get("RELIEFWEB_APPNAME") or None   # GitHub Action passes it as a secret
 
 
 def get(url, body=None):
@@ -101,18 +104,35 @@ def who():
              "level": "Outbreak notice", "url": "https://www.who.int/emergencies/disease-outbreak-news/item/" + v["UrlName"]} for v in d["value"]]
 
 
+def previous_items():
+    """Items from the last run, so a source that fails now keeps its last good items instead of vanishing."""
+    try:
+        txt = OUT.read_text(encoding="utf-8")
+        return json.loads(txt[txt.index("=") + 1:].strip().rstrip(";"))["items"]
+    except Exception:
+        return []
+
+
 def main() -> None:
     items, status = [], {}
+    old = previous_items()
     for name, fn in (("ReliefWeb", reliefweb), ("GDACS", gdacs), ("USGS", usgs), ("WHO", who)):
         try:
             got = fn()
+            if name == "ReliefWeb" and not RELIEFWEB_APPNAME:
+                raise RuntimeError("no app name")
             items += got
             status[name] = {"ok": True, "count": len(got)}
             print(f"{name}: {len(got)} items")
         except Exception as e:                                # one source failing must not break the others
-            status[name] = {"ok": False, "error": str(e)[:120]}
-            print(f"{name}: FAILED ({e})")
+            kept = [i for i in old if i["source"] == name]
+            items += kept
+            status[name] = {"ok": False, "error": str(e)[:120], "kept_old": len(kept)}
+            print(f"{name}: FAILED ({e}); kept {len(kept)} items from the last run")
     items.sort(key=lambda x: x["date"], reverse=True)
+    if items == old and OUT.exists() and (NOW.timestamp() - OUT.stat().st_mtime) < 6 * 3600 and "--force" not in sys.argv:
+        print("Nothing new; file left alone (keeps the history free of empty commits).")
+        return
     payload = {"generated": NOW.strftime("%Y-%m-%d %H:%M UTC"), "status": status, "items": items}
     OUT.write_text("window.AIDGAP_LIVE = " + json.dumps(payload, ensure_ascii=False) + ";\n", encoding="utf-8")
     print("Wrote", OUT.relative_to(ROOT), f"({len(items)} items)")
