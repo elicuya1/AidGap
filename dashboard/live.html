@@ -63,6 +63,11 @@
   .big { font-size: clamp(34px, 5.6vw, 72px); }
   .sub { color: var(--ink2); font-size: clamp(16px, 1.6vw, 19px); max-width: 700px; margin: 18px 0 0; text-wrap: pretty; }
   .sub b { color: var(--ink); font-weight: 600; }
+  #heroNum { font-size: clamp(76px, 17vw, 240px); font-weight: 500; letter-spacing: -.05em; line-height: .9; font-variant-numeric: tabular-nums; }
+  #heroNum small { font-family: system-ui, sans-serif; font-size: .16em; letter-spacing: -.01em; font-weight: 500; color: var(--ink2); margin-left: .3em; }
+  .hero .sub { font-size: clamp(18px, 2.3vw, 27px); max-width: 820px; font-family: var(--serif); }
+  .hero .sub b { font-weight: 600; }
+  .hero .btn { margin-top: 26px; }
   .js .mask { display: block; overflow: hidden; padding-bottom: .1em; }
   .js .mask > span { display: block; transform: translateY(112%); transition: transform .6s cubic-bezier(.23, 1, .32, 1); }
   .js .mask.in > span { transform: none; }
@@ -174,13 +179,21 @@
 <nav class="rail" id="rail" aria-label="Sections"></nav>
 
 <main id="main" tabindex="-1">
-  <section class="slide" id="s-now" data-label="Right now">
+  <section class="slide hero" id="s-now" data-label="Right now">
     <div class="wrap">
       <div class="kicker"><b>01</b><span>Right now</span></div>
-      <h1 class="big mask"><span>What is happening now.</span></h1>
+      <h1 id="heroNum" aria-live="off"><span id="heroN">0</span><small id="heroUnit">events began in the past week</small></h1>
       <p class="sub" id="headline">Loading the latest events…</p>
       <div class="live"><span class="pulse" aria-hidden="true"></span><p class="fig" id="stamp"></p></div>
+      <p><a class="btn" href="#s-disc">See every event as a dot</a></p>
+    </div>
+  </section>
 
+  <section class="slide" id="s-disc" data-label="The disc">
+    <div class="wrap">
+      <div class="kicker"><b>02</b><span>Every event, one dot each</span></div>
+      <h2 class="big mask"><span>The newest are in the middle.</span></h2>
+      <p class="sub">The further out a dot is, the longer ago that event began. Pick a period to see only those events.</p>
       <div class="now-grid">
         <div>
           <div class="discbox" id="discbox">
@@ -199,7 +212,7 @@
 
   <section class="slide" id="s-list" data-label="Every event">
     <div class="wrap">
-      <div class="kicker"><b>02</b><span>Every event</span></div>
+      <div class="kicker"><b>03</b><span>Every event</span></div>
       <h2 class="big mask"><span>The long list, newest first.</span></h2>
       <p class="sub">Grouped by how long ago each event began. The oldest group is the crises that began more than a year ago and are still listed as ongoing.</p>
       <input id="q" name="q" type="search" placeholder="Search a country or an event…" aria-label="Search events" autocomplete="off" spellcheck="false">
@@ -211,7 +224,7 @@
 
   <section class="slide" id="s-back" data-label="Funding gaps">
     <div class="wrap">
-      <div class="kicker"><b>03</b><span>Next</span></div>
+      <div class="kicker"><b>04</b><span>Next</span></div>
       <h2 class="big mask"><span>Who is paying for all this?</span></h2>
       <p class="sub">The funding page ranks 36 crises by how neglected they are: how little of each appeal is paid, how severe it is, and how few reports are written about it.</p>
       <p style="margin-top:28px"><a class="btn" href="index.html">Back to the funding gaps</a></p>
@@ -315,13 +328,22 @@
     return true;
   }
 
-  // ---------- headline: a sentence built from the data
+  // ---------- the big number and the sentence under it, built from the data
+  var heroDone = false, heroTarget = 0;
+  function setHero(n) { $("heroN").textContent = n; }
   function headline(gs) {
     var week = gs.filter(function (g) { return ageOf(g) <= 7; }), ctry = uniq([].concat.apply([], week.map(function (g) { return g.iso; }))).length, red = week.filter(function (g) { return g.sev === 3; }).length;
     var old = gs.filter(function (g) { return ageOf(g) > 365 && g.lead.source === "ReliefWeb"; }).sort(function (a, b) { return day(a.date) - day(b.date); });
-    var s = "<b>" + plural(week.length, "event", "events") + "</b> began in the past week, across " + plural(ctry, "country", "countries") + (red ? ", " + red + " at red alert" : "") + ".";
+    $("heroUnit").textContent = week.length === 1 ? "event began in the past week" : "events began in the past week";
+    $("heroNum").setAttribute("aria-label", week.length + " " + $("heroUnit").textContent);
+    var s = "They are across <b>" + plural(ctry, "country", "countries") + "</b>" + (red ? ", " + red + " at red alert" : "") + ".";
     if (old.length) s += " " + plural(old.length, "crisis that began", "crises that began") + " more than a year ago " + (old.length === 1 ? "is" : "are") + " still listed as ongoing; the oldest started " + plural(Math.floor(ageOf(old[0]) / 365.25), "year", "years") + " ago.";
     $("headline").innerHTML = s;
+    if (!heroDone) {
+      heroDone = true; heroTarget = week.length;
+      if (reduce || week.length < 2) setHero(week.length);
+      else { var t0 = performance.now(); (function step(t) { var k = Math.min(1, (t - t0) / 1100); setHero(Math.round(heroTarget * (1 - Math.pow(1 - k, 3)))); if (k < 1) requestAnimationFrame(step); else setHero(heroTarget); })(t0); }
+    } else setHero(week.length);
   }
 
   // ---------- the disc: every event is a dot, newest at the centre (a sunflower spiral), area = number of events
